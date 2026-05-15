@@ -708,7 +708,7 @@
         <div class="field-row">
           <div class="field">
             <label>Geburtsdatum <span class="req">*</span></label>
-            <input type="date" name="geburt" required>
+            <input type="date" name="geburt" min="1900-01-01" max="2010-12-31" required>
           </div>
           <div class="field">
             <label>Geschlecht <span class="req">*</span></label>
@@ -722,7 +722,101 @@
         </div>
         <div class="field">
           <label>Nationalität <span class="req">*</span></label>
-          <input type="text" name="nat" placeholder="z.B. Schweiz, Deutschland…" required>
+          <select name="nat" required>
+            <option value="">— Bitte wählen —</option>
+            <option value="Schweiz">Schweiz</option>
+            <option value="Deutschland">Deutschland</option>
+            <option value="Italien">Italien</option>
+            <option value="Österreich">Österreich</option>
+            <option disabled>──────────</option>
+            <option value="Afghanistan">Afghanistan</option>
+            <option value="Albanien">Albanien</option>
+            <option value="Algerien">Algerien</option>
+            <option value="Argentinien">Argentinien</option>
+            <option value="Australien">Australien</option>
+            <option value="Ägypten">Ägypten</option>
+            <option value="Äthiopien">Äthiopien</option>
+            <option value="Bangladesch">Bangladesch</option>
+            <option value="Belarus">Belarus</option>
+            <option value="Belgien">Belgien</option>
+            <option value="Bosnien und Herzegowina">Bosnien und Herzegowina</option>
+            <option value="Brasilien">Brasilien</option>
+            <option value="Bulgarien">Bulgarien</option>
+            <option value="Chile">Chile</option>
+            <option value="China">China</option>
+            <option value="Dänemark">Dänemark</option>
+            <option value="Eritrea">Eritrea</option>
+            <option value="Estland">Estland</option>
+            <option value="Finnland">Finnland</option>
+            <option value="Frankreich">Frankreich</option>
+            <option value="Ghana">Ghana</option>
+            <option value="Griechenland">Griechenland</option>
+            <option value="Indien">Indien</option>
+            <option value="Indonesien">Indonesien</option>
+            <option value="Irak">Irak</option>
+            <option value="Iran">Iran</option>
+            <option value="Irland">Irland</option>
+            <option value="Island">Island</option>
+            <option value="Israel">Israel</option>
+            <option value="Japan">Japan</option>
+            <option value="Jordanien">Jordanien</option>
+            <option value="Kanada">Kanada</option>
+            <option value="Katar">Katar</option>
+            <option value="Kenia">Kenia</option>
+            <option value="Kolumbien">Kolumbien</option>
+            <option value="Kosovo">Kosovo</option>
+            <option value="Kroatien">Kroatien</option>
+            <option value="Kuwait">Kuwait</option>
+            <option value="Lettland">Lettland</option>
+            <option value="Libanon">Libanon</option>
+            <option value="Libyen">Libyen</option>
+            <option value="Litauen">Litauen</option>
+            <option value="Luxemburg">Luxemburg</option>
+            <option value="Malaysia">Malaysia</option>
+            <option value="Malta">Malta</option>
+            <option value="Marokko">Marokko</option>
+            <option value="Mexiko">Mexiko</option>
+            <option value="Moldau">Moldau</option>
+            <option value="Neuseeland">Neuseeland</option>
+            <option value="Niederlande">Niederlande</option>
+            <option value="Nigeria">Nigeria</option>
+            <option value="Nordkorea">Nordkorea</option>
+            <option value="Nordmazedonien">Nordmazedonien</option>
+            <option value="Norwegen">Norwegen</option>
+            <option value="Oman">Oman</option>
+            <option value="Pakistan">Pakistan</option>
+            <option value="Peru">Peru</option>
+            <option value="Philippinen">Philippinen</option>
+            <option value="Polen">Polen</option>
+            <option value="Portugal">Portugal</option>
+            <option value="Rumänien">Rumänien</option>
+            <option value="Russland">Russland</option>
+            <option value="Saudi-Arabien">Saudi-Arabien</option>
+            <option value="Schweden">Schweden</option>
+            <option value="Senegal">Senegal</option>
+            <option value="Serbien">Serbien</option>
+            <option value="Singapur">Singapur</option>
+            <option value="Slowakei">Slowakei</option>
+            <option value="Slowenien">Slowenien</option>
+            <option value="Somalia">Somalia</option>
+            <option value="Spanien">Spanien</option>
+            <option value="Sri Lanka">Sri Lanka</option>
+            <option value="Südafrika">Südafrika</option>
+            <option value="Südkorea">Südkorea</option>
+            <option value="Syrien">Syrien</option>
+            <option value="Thailand">Thailand</option>
+            <option value="Tschechien">Tschechien</option>
+            <option value="Tunesien">Tunesien</option>
+            <option value="Türkei">Türkei</option>
+            <option value="Ukraine">Ukraine</option>
+            <option value="Ungarn">Ungarn</option>
+            <option value="USA">USA</option>
+            <option value="Vereinigte Arabische Emirate">Vereinigte Arabische Emirate</option>
+            <option value="Vereinigtes Königreich">Vereinigtes Königreich</option>
+            <option value="Vietnam">Vietnam</option>
+            <option value="Zypern">Zypern</option>
+            <option value="Andere">Andere</option>
+          </select>
         </div>
       </div>
 
@@ -744,7 +838,7 @@
         <div class="field-row">
           <div class="field">
             <label>PLZ <span class="req">*</span></label>
-            <input type="text" name="plz" placeholder="8001" required>
+            <input type="text" name="plz" placeholder="8001" pattern="\d{4}" inputmode="numeric" maxlength="4" required>
           </div>
           <div class="field">
             <label>Ort <span class="req">*</span></label>
@@ -1271,9 +1365,74 @@ document.getElementById('mainForm').addEventListener('submit', async function(e)
   e.preventDefault();
   const btn = document.getElementById('submitBtn');
 
+  // ─── VALIDIERUNGS-HELFER ─────────────────────────────────────
+  function validateEmail(v) {
+    if (!v) return { ok: true, value: '' };
+    const t = String(v).trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(t)) return { ok: false, error: 'Ungültige E-Mail-Adresse' };
+    return { ok: true, value: t };
+  }
+  function validatePhone(v) {
+    if (!v) return { ok: true, value: '' };
+    const cleaned = String(v).replace(/[^\d+\s]/g, '').trim();
+    const digits = cleaned.replace(/\D/g, '');
+    if (digits.length < 9) return { ok: false, error: 'Telefonnummer zu kurz (mind. 9 Ziffern)' };
+    if (digits.length > 15) return { ok: false, error: 'Telefonnummer zu lang' };
+    // Format CH: 0781234567 → 078 123 45 67
+    if (digits.length === 10 && digits[0] === '0') {
+      return { ok: true, value: `${digits.slice(0,3)} ${digits.slice(3,6)} ${digits.slice(6,8)} ${digits.slice(8,10)}` };
+    }
+    if (digits.length === 11 && digits.startsWith('41')) {
+      return { ok: true, value: `+41 ${digits.slice(2,4)} ${digits.slice(4,7)} ${digits.slice(7,9)} ${digits.slice(9,11)}` };
+    }
+    return { ok: true, value: cleaned };
+  }
+  function validateDate(v, opts) {
+    if (!v) return { ok: true, value: '' };
+    const t = String(v).trim();
+    let day, month, year;
+    if (/^\d{1,2}\.\d{1,2}\.\d{4}$/.test(t)) {
+      [day, month, year] = t.split('.').map(n => parseInt(n, 10));
+    } else if (/^\d{4}-\d{2}-\d{2}$/.test(t)) {
+      [year, month, day] = t.split('-').map(n => parseInt(n, 10));
+    } else {
+      return { ok: false, error: 'Format: TT.MM.JJJJ' };
+    }
+    if (month < 1 || month > 12) return { ok: false, error: 'Monat ungültig' };
+    if (day < 1 || day > 31) return { ok: false, error: 'Tag ungültig' };
+    if (year < 1900 || year > 2100) return { ok: false, error: 'Jahr ungültig' };
+    const dt = new Date(year, month - 1, day);
+    if (dt.getDate() !== day || dt.getMonth() !== month - 1) return { ok: false, error: 'Datum existiert nicht' };
+    if (opts && opts.type === 'birthday') {
+      const age = (new Date() - dt) / (1000 * 60 * 60 * 24 * 365.25);
+      if (age < 0) return { ok: false, error: 'Geburtstag in der Zukunft?' };
+      if (age < 16) return { ok: false, error: 'Mindestalter 16 Jahre' };
+      if (age > 120) return { ok: false, error: 'Alter unrealistisch' };
+    }
+    return { ok: true, value: `${String(day).padStart(2,'0')}.${String(month).padStart(2,'0')}.${year}` };
+  }
+  function validatePLZ(v) {
+    if (!v) return { ok: true, value: '' };
+    const t = String(v).trim();
+    if (/^\d{4}$/.test(t)) {
+      const n = parseInt(t, 10);
+      if (n >= 1000 && n <= 9999) return { ok: true, value: t };
+    }
+    if (/^[A-Z0-9 -]{3,10}$/i.test(t)) return { ok: true, value: t.toUpperCase() };
+    return { ok: false, error: 'PLZ ungültig (4 Ziffern für CH)' };
+  }
+
+  // Reset all field highlights
+  this.querySelectorAll('input, select, textarea').forEach(el => {
+    el.style.borderColor = '';
+  });
+
   const required = this.querySelectorAll('[required]');
   let valid = true;
   let firstInvalid = null;
+  const validationErrors = [];
+  
+  // Required-Check
   required.forEach(el => {
     let elValid = false;
     if (el.type === 'radio') {
@@ -1287,8 +1446,6 @@ document.getElementById('mainForm').addEventListener('submit', async function(e)
       if (el.type !== 'radio') el.style.borderColor = '#f87171';
       valid = false;
       if (!firstInvalid) firstInvalid = el;
-    } else {
-      if (el.type !== 'radio') el.style.borderColor = '';
     }
   });
 
@@ -1297,9 +1454,49 @@ document.getElementById('mainForm').addEventListener('submit', async function(e)
     return;
   }
 
+  // Format-Validierung
   const fd = new FormData(this);
   const data = {};
   fd.forEach((v,k) => data[k] = v);
+
+  // Email
+  const emailRes = validateEmail(data.email);
+  if (!emailRes.ok) {
+    validationErrors.push(`E-Mail: ${emailRes.error}`);
+    const el = this.querySelector('[name="email"]');
+    if (el) { el.style.borderColor = '#f87171'; if (!firstInvalid) firstInvalid = el; }
+  } else if (emailRes.value) data.email = emailRes.value;
+
+  // Phone
+  const phoneRes = validatePhone(data.phone);
+  if (!phoneRes.ok) {
+    validationErrors.push(`Telefon: ${phoneRes.error}`);
+    const el = this.querySelector('[name="phone"]');
+    if (el) { el.style.borderColor = '#f87171'; if (!firstInvalid) firstInvalid = el; }
+  } else if (phoneRes.value) data.phone = phoneRes.value;
+
+  // Geburtstag
+  const gebRes = validateDate(data.geburt, {type: 'birthday'});
+  if (!gebRes.ok) {
+    validationErrors.push(`Geburtstag: ${gebRes.error}`);
+    const el = this.querySelector('[name="geburt"]');
+    if (el) { el.style.borderColor = '#f87171'; if (!firstInvalid) firstInvalid = el; }
+  } else if (gebRes.value) data.geburt = gebRes.value;
+
+  // PLZ
+  const plzRes = validatePLZ(data.plz);
+  if (!plzRes.ok) {
+    validationErrors.push(`PLZ: ${plzRes.error}`);
+    const el = this.querySelector('[name="plz"]');
+    if (el) { el.style.borderColor = '#f87171'; if (!firstInvalid) firstInvalid = el; }
+  } else if (plzRes.value) data.plz = plzRes.value;
+
+  if (validationErrors.length > 0) {
+    alert('Bitte korrigiere folgende Felder:\n\n• ' + validationErrors.join('\n• '));
+    firstInvalid?.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+
   data.id = 'B' + Date.now();
   data.status = 'Neu';
   data.eingereichtAm = new Date().toLocaleDateString('de-CH');

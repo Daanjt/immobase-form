@@ -957,16 +957,25 @@
         <!-- MÖBLIERUNG -->
         <div class="field" style="margin-top:22px">
           <label style="margin-bottom:10px">Möblierung <span class="req">*</span></label>
+          
+          <div style="background:#f0f7f2;border:1px solid #c5dccb;border-radius:8px;padding:12px 14px;margin-bottom:12px;display:flex;gap:10px;align-items:flex-start;">
+            <div style="font-size:18px;line-height:1;flex-shrink:0;">✓</div>
+            <div style="font-size:13px;color:#2a4a35;line-height:1.5;">
+              <strong>Gemeinschaftsräumlichkeiten wie Küche und Badezimmer sind in allen Wohnungen voll ausgestattet und möbliert (inkl. WLAN).</strong><br>
+              <span style="color:#5a6e4a;font-size:12px;">Die Auswahl unten betrifft nur dein eigenes Zimmer.</span>
+            </div>
+          </div>
+          
           <div class="option-cards">
             <label class="option-card" data-option="moebel">
               <input type="radio" name="moebliert" value="ja" required>
               <div class="radio-dot"></div>
               <div class="body">
                 <div class="head-row">
-                  <span class="title">Möbliert</span>
+                  <span class="title">Zimmer möbliert</span>
                   <span class="price">CHF 990.– einmalig</span>
                 </div>
-                <div class="desc">Zimmer wird vollständig möbliert übergeben — einmalige Pauschale beim Einzug</div>
+                <div class="desc">Dein Zimmer wird vollständig möbliert übergeben (Bett, Kleiderschrank, Schreibtisch) — einmalige Pauschale beim Einzug</div>
               </div>
             </label>
             <label class="option-card" data-option="moebel">
@@ -974,10 +983,10 @@
               <div class="radio-dot"></div>
               <div class="body">
                 <div class="head-row">
-                  <span class="title">Unmöbliert</span>
+                  <span class="title">Zimmer unmöbliert</span>
                   <span class="price">CHF 0.–</span>
                 </div>
-                <div class="desc">Zimmer wird leer übergeben — eigene Möblierung mitbringen</div>
+                <div class="desc">Dein Zimmer wird leer übergeben — eigene Möbel mitbringen. Küche & Bad bleiben weiterhin möbliert.</div>
               </div>
             </label>
           </div>
@@ -1481,7 +1490,14 @@ document.getElementById('mainForm').addEventListener('submit', async function(e)
     validationErrors.push(`Geburtstag: ${gebRes.error}`);
     const el = this.querySelector('[name="geburt"]');
     if (el) { el.style.borderColor = '#f87171'; if (!firstInvalid) firstInvalid = el; }
-  } else if (gebRes.value) data.geburt = gebRes.value;
+  } else if (gebRes.value) {
+    data.geburt = gebRes.value;
+  } else if (data.geburt) {
+    // Fallback: Wenn validateDate kein Ergebnis liefert aber wir einen Wert haben,
+    // versuche YYYY-MM-DD (vom date input) auf TT.MM.JJJJ zu konvertieren
+    const m = data.geburt.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (m) data.geburt = `${m[3]}.${m[2]}.${m[1]}`;
+  }
 
   // PLZ
   const plzRes = validatePLZ(data.plz);
@@ -1567,6 +1583,8 @@ document.getElementById('mainForm').addEventListener('submit', async function(e)
       adresse: dbRow.adresse,
       plz: dbRow.plz,
       ort: dbRow.ort,
+      gender: dbRow.gender,
+      beruf: dbRow.beruf,
       type: dbRow.type,
       job: dbRow.job,
       einkommen: dbRow.einkommen,

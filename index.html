@@ -1548,9 +1548,7 @@ document.getElementById('mainForm').addEventListener('submit', async function(e)
     plz: data.plz || '',
     ort: data.ort || '',
     type: data.type || '',
-    anstellung: data.type || '',  // also write as anstellung
     job: data.job || '',
-    beruf: data.job || '',  // also write as beruf
     einkommen: data.einkommen || '',
     arbeitgeber: data.arbeitgeber || '',
     einzug: data.einzug || '',
@@ -1584,7 +1582,6 @@ document.getElementById('mainForm').addEventListener('submit', async function(e)
       plz: dbRow.plz,
       ort: dbRow.ort,
       gender: dbRow.gender,
-      beruf: dbRow.beruf,
       type: dbRow.type,
       job: dbRow.job,
       einkommen: dbRow.einkommen,

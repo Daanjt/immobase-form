@@ -831,27 +831,29 @@
           <label>Telefonnummer <span class="req">*</span></label>
           <input type="tel" name="phone" placeholder="+41 79 123 45 67" required>
         </div>
-        <div class="field">
+        <div class="field" style="position:relative">
           <label>Aktuelle Adresse <span class="req">*</span></label>
-          <input type="text" name="adresse" placeholder="Musterstrasse 1" required>
+          <input type="text" name="adresse" id="adresseInput" placeholder="Musterstrasse 1" autocomplete="off" required>
+          <div id="adresseSuggestions" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #d4c7a8;border-radius:8px;margin-top:4px;max-height:280px;overflow-y:auto;z-index:100;box-shadow:0 4px 16px rgba(0,0,0,0.08)"></div>
+          <div id="adresseLoading" style="display:none;position:absolute;right:14px;top:42px;font-size:11px;color:#8a8174;font-style:italic">Suche…</div>
         </div>
         <div class="field-row">
           <div class="field">
             <label>PLZ <span class="req">*</span></label>
-            <input type="text" name="plz" placeholder="8001" pattern="\d{4}" inputmode="numeric" maxlength="4" required>
+            <input type="text" name="plz" id="plzInput" placeholder="8001" pattern="\d{4}" inputmode="numeric" maxlength="4" required>
           </div>
           <div class="field">
             <label>Ort <span class="req">*</span></label>
-            <input type="text" name="ort" placeholder="Zürich" required>
+            <input type="text" name="ort" id="ortInput" placeholder="Zürich" required>
           </div>
         </div>
       </div>
 
       <!-- 3. Zimmerwahl -->
       <div class="form-card" style="animation-delay:.15s">
-        <div class="section-title"><span class="section-num">III</span> Wunsch-Zimmer auswählen</div>
+        <div class="section-title"><span class="section-num">III</span> Wunsch-Zimmer auswählen <span class="req">*</span></div>
         <div class="info-box" style="margin-bottom:14px">
-          Wählen Sie das Zimmer, das Sie bevorzugen. Alle gezeigten Zimmer sind aktuell verfügbar. Die Zuteilung erfolgt nach Prüfung Ihrer Bewerbung.
+          Bitte ein Zimmer auswählen (Pflichtfeld). Alle gezeigten Zimmer sind aktuell verfügbar. Die Zuteilung erfolgt nach Prüfung Ihrer Bewerbung.
         </div>
         <div class="room-grid" id="roomGrid">
           <!-- Wird per JS befüllt -->
@@ -1060,6 +1062,159 @@
   </div>
 
 </div>
+
+<script>
+// ─── ADRESS-AUTOCOMPLETE (CH) ───────────────────────────────────────────
+// Nutzt OpenPLZ API (gratis, Open Data) für Schweizer Strassen-Suche
+// API-Doku: https://openplzapi.org
+
+(function setupAdressAutocomplete() {
+  let debounceTimer = null;
+  let currentRequestId = 0;
+  
+  function init() {
+    const adresseInput = document.getElementById('adresseInput');
+    const plzInput = document.getElementById('plzInput');
+    const ortInput = document.getElementById('ortInput');
+    const suggestionsBox = document.getElementById('adresseSuggestions');
+    const loadingEl = document.getElementById('adresseLoading');
+    
+    if (!adresseInput || !suggestionsBox) return;
+    
+    // Hide suggestions when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!adresseInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
+        suggestionsBox.style.display = 'none';
+      }
+    });
+    
+    adresseInput.addEventListener('input', () => {
+      const value = adresseInput.value.trim();
+      // Min. 3 Zeichen
+      if (value.length < 3) {
+        suggestionsBox.style.display = 'none';
+        loadingEl.style.display = 'none';
+        return;
+      }
+      
+      // Debounce 350ms
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => searchAddress(value), 350);
+    });
+    
+    adresseInput.addEventListener('focus', () => {
+      if (adresseInput.value.trim().length >= 3 && suggestionsBox.children.length > 0) {
+        suggestionsBox.style.display = 'block';
+      }
+    });
+    
+    async function searchAddress(query) {
+      const reqId = ++currentRequestId;
+      loadingEl.style.display = 'block';
+      
+      // Strasse + Nummer trennen
+      // "Engimattstrasse 31" → strasse: "Engimattstrasse", hausnummer: "31"
+      const match = query.match(/^(.+?)\s+(\d+\w*)\s*$/);
+      const strasse = match ? match[1].trim() : query;
+      const hausnummer = match ? match[2].trim() : '';
+      
+      // OpenPLZ kürzt "strasse" zu "str." → wir versuchen beide Varianten
+      // Regex-Suche: Engimatt(strasse|str\.) 
+      const baseName = strasse.replace(/\s*(strasse|str\.?|street)\s*$/i, '');
+      const searchPattern = baseName !== strasse
+        ? `^${baseName}\\s*(str\\.?|strasse|street)` // mit/ohne strasse-Endung
+        : strasse;
+      
+      try {
+        // OpenPLZ API: Schweizer Strassen-Suche (Regex-Support eingebaut)
+        const url = `https://openplzapi.org/ch/Streets?name=${encodeURIComponent(searchPattern)}&page=1&pageSize=15`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('API error');
+        const results = await res.json();
+        
+        // Falls zwischenzeitlich neue Suche → ignoriere alte Antwort
+        if (reqId !== currentRequestId) return;
+        
+        loadingEl.style.display = 'none';
+        renderSuggestions(results, hausnummer);
+      } catch (e) {
+        if (reqId !== currentRequestId) return;
+        loadingEl.style.display = 'none';
+        suggestionsBox.style.display = 'none';
+        console.warn('Adress-Suche fehlgeschlagen:', e);
+      }
+    }
+    
+    function renderSuggestions(results, hausnummer) {
+      if (!results || results.length === 0) {
+        suggestionsBox.innerHTML = '<div style="padding:14px;text-align:center;color:#8a8174;font-size:12px;font-style:italic">Keine Treffer — bitte manuell PLZ und Ort eingeben.</div>';
+        suggestionsBox.style.display = 'block';
+        return;
+      }
+      
+      // Dedupliziere nach Strasse+PLZ+Ort
+      const seen = new Set();
+      const filtered = results.filter(r => {
+        const key = `${r.name}_${r.postalCode}_${r.locality}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+      
+      // "Strasse" wieder ausschreiben für bessere Lesbarkeit
+      function expandStrasse(name) {
+        if (!name) return name;
+        return name.replace(/(\S)str\.\s*$/i, '$1strasse').replace(/\s+str\.\s*$/i, ' strasse');
+      }
+      
+      suggestionsBox.innerHTML = '';
+      filtered.forEach(r => {
+        const displayName = expandStrasse(r.name);
+        const item = document.createElement('div');
+        item.style.cssText = 'padding:10px 14px;cursor:pointer;border-bottom:1px solid #f0e9d8;font-size:13px;line-height:1.4;transition:background .15s';
+        item.innerHTML = `
+          <div style="font-weight:600;color:#1a1814">${escapeHtml(displayName)}${hausnummer ? ' ' + escapeHtml(hausnummer) : ''}</div>
+          <div style="font-size:11.5px;color:#8a8174;margin-top:2px">${escapeHtml(r.postalCode)} ${escapeHtml(r.locality)}${r.canton ? ' · ' + escapeHtml(r.canton.shortName || r.canton.name || '') : ''}</div>
+        `;
+        item.addEventListener('mouseenter', () => item.style.background = '#f9f6ef');
+        item.addEventListener('mouseleave', () => item.style.background = '#fff');
+        item.addEventListener('click', () => {
+          adresseInput.value = `${displayName}${hausnummer ? ' ' + hausnummer : ''}`;
+          plzInput.value = r.postalCode || '';
+          ortInput.value = r.locality || '';
+          // Visuelle Bestätigung
+          [plzInput, ortInput].forEach(el => {
+            el.style.background = '#f0f7f2';
+            el.style.borderColor = '#c5dccb';
+            setTimeout(() => {
+              el.style.background = '';
+              el.style.borderColor = '';
+            }, 1200);
+          });
+          suggestionsBox.style.display = 'none';
+        });
+        suggestionsBox.appendChild(item);
+      });
+      
+      // Letzten Border weg
+      if (suggestionsBox.lastChild) suggestionsBox.lastChild.style.borderBottom = 'none';
+      
+      suggestionsBox.style.display = 'block';
+    }
+    
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+  }
+  
+  // Init wenn DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
 
 <script>
 // ─── VERFÜGBARE ZIMMER ───────────────────────────────────────────────────
@@ -1460,6 +1615,25 @@ document.getElementById('mainForm').addEventListener('submit', async function(e)
 
   if (!valid) {
     firstInvalid?.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+
+  // EXPLIZITE PRÜFUNG: Zimmer muss ausgewählt sein
+  const selectedRoom = this.querySelector('input[name="zimmerWunsch"]:checked');
+  if (!selectedRoom) {
+    alert('Bitte wähle ein Zimmer aus der Liste aus.');
+    const roomGrid = document.getElementById('roomGrid');
+    if (roomGrid) {
+      roomGrid.scrollIntoView({behavior:'smooth', block:'center'});
+      // Visueller Hinweis: Rahmen kurz rot blinken lassen
+      roomGrid.style.outline = '2px solid #f87171';
+      roomGrid.style.outlineOffset = '8px';
+      roomGrid.style.borderRadius = '8px';
+      setTimeout(() => {
+        roomGrid.style.outline = '';
+        roomGrid.style.outlineOffset = '';
+      }, 2500);
+    }
     return;
   }
 

@@ -236,6 +236,28 @@
     .apt-matterport {
       margin-bottom: 14px;
     }
+    .apt-floorplan {
+      margin-bottom: 14px;
+    }
+    .floorplan-frame {
+      background: #fff;
+      border: 1px solid var(--bd);
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: zoom-in;
+      transition: box-shadow .15s;
+    }
+    .floorplan-frame:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,.08);
+    }
+    .floorplan-frame img {
+      width: 100%;
+      height: auto;
+      max-height: 500px;
+      object-fit: contain;
+      display: block;
+      background: #fff;
+    }
     .matterport-frame {
       position: relative;
       width: 100%;
@@ -1417,6 +1439,7 @@ async function loadFreieZimmer() {
           befristung: bef,
           aptPhotos: Array.isArray(a.photos) ? a.photos : [],
           aptMatterport: a.matterport_url || null,
+          aptFloorplan: a.floorplan_path || null,
         };
       })
       .sort((x,y) => x.id.localeCompare(y.id, undefined, {numeric:true, sensitivity:'base'}));
@@ -1475,6 +1498,7 @@ async function renderRooms() {
         befristung: r.befristung,
         photos: r.aptPhotos || [],
         matterport: r.aptMatterport || null,
+        floorplan: r.aptFloorplan || null,
         rooms: []
       };
     }
@@ -1500,7 +1524,7 @@ async function renderRooms() {
           <span class="meta-pill ${apt.befristung.type}">${apt.befristung.label}</span>
         </div>
       </div>
-      ${(apt.matterport || (apt.photos && apt.photos.length > 0)) ? `
+      ${(apt.matterport || apt.floorplan || (apt.photos && apt.photos.length > 0)) ? `
         <div class="apt-media">
           ${(apt.photos && apt.photos.length > 0) ? `
             <div class="apt-gallery">
@@ -1512,6 +1536,14 @@ async function renderRooms() {
                     ${p.category ? `<div class="gallery-caption">${categoryLabelForm(p.category)}</div>` : ''}
                   </div>
                 `).join('')}
+              </div>
+            </div>
+          ` : ''}
+          ${apt.floorplan ? `
+            <div class="apt-floorplan">
+              <div class="media-label">📐 Grundriss</div>
+              <div class="floorplan-frame" data-apt="${apt.aptId}">
+                <img src="${SB_URL_FORM}/storage/v1/object/public/assets/${apt.floorplan}" alt="Grundriss" loading="lazy"/>
               </div>
             </div>
           ` : ''}
@@ -2009,6 +2041,13 @@ function wireGalleryClicks(){
       const idx = parseInt(thumb.dataset.idx);
       const apt = FREIE_ZIMMER.find(z => z.aptId === aptId);
       if (apt && apt.aptPhotos && apt.aptPhotos.length) openLightbox(apt.aptPhotos, idx);
+    };
+  });
+  document.querySelectorAll('.floorplan-frame').forEach(frame => {
+    frame.onclick = () => {
+      const aptId = frame.dataset.apt;
+      const apt = FREIE_ZIMMER.find(z => z.aptId === aptId);
+      if (apt && apt.aptFloorplan) openLightbox([{path: apt.aptFloorplan}], 0);
     };
   });
 }

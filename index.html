@@ -251,42 +251,26 @@
       width: 100%; height: 100%;
       border: 0;
     }
-    /* ─── Compact extras (Fotos + Grundriss collapsed) ─── */
-    .apt-extras {
+    /* ─── Compact extras (always visible, dezent) ─── */
+    .apt-extras-visible {
       border-bottom: 1px solid var(--bd);
       background: #fafafa;
-    }
-    .apt-extras summary {
-      list-style: none;
-      cursor: pointer;
-      padding: 11px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 12px;
-      color: #5a5448;
-      transition: background .15s;
-    }
-    .apt-extras summary::-webkit-details-marker { display: none; }
-    .apt-extras summary:hover { background: #f5efe2; }
-    .extras-label {
-      font-weight: 500;
-      letter-spacing: .02em;
-    }
-    .extras-toggle {
-      font-size: 14px;
-      color: var(--muted);
-      transition: transform .2s;
-      display: inline-block;
-    }
-    .apt-extras[open] .extras-toggle {
-      transform: rotate(180deg);
-    }
-    .extras-content {
-      padding: 4px 20px 16px;
+      padding: 14px 20px 16px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 14px;
+    }
+    .extras-section {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .extras-section-label {
+      font-size: 10.5px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-weight: 600;
     }
     .mini-gallery {
       display: grid;
@@ -330,23 +314,15 @@
       background: #fff;
       border: 1px solid var(--bd);
       border-radius: 6px;
-      padding: 10px;
+      padding: 8px;
       cursor: zoom-in;
-      transition: box-shadow .15s;
+      transition: box-shadow .15s, transform .15s;
       text-align: center;
     }
-    .mini-floorplan:hover { box-shadow: 0 3px 8px rgba(0,0,0,.06); }
-    .mini-floorplan-label {
-      font-size: 10px;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.15em;
-      font-weight: 600;
-      margin-bottom: 6px;
-    }
+    .mini-floorplan:hover { box-shadow: 0 3px 8px rgba(0,0,0,.06); transform: translateY(-1px); }
     .mini-floorplan img {
       width: 100%;
-      max-height: 180px;
+      max-height: 140px;
       object-fit: contain;
       display: block;
       margin: 0 auto;
@@ -1731,17 +1707,18 @@ async function renderRooms() {
         const generalPhotos = (apt.photos || []).filter(p => !p.category || !p.category.startsWith("room:"));
         if (generalPhotos.length === 0 && !apt.floorplan) return '';
         return `
-        <details class="apt-extras">
-          <summary class="extras-summary">
-            <span class="extras-label">
-              ${generalPhotos.length > 0 ? `📷 ${generalPhotos.length} Foto${generalPhotos.length>1?'s':''}` : ''}
-              ${generalPhotos.length > 0 && apt.floorplan ? ' · ' : ''}
-              ${apt.floorplan ? '📐 Grundriss' : ''}
-            </span>
-            <span class="extras-toggle">▾</span>
-          </summary>
-          <div class="extras-content">
-            ${generalPhotos.length > 0 ? `
+        <div class="apt-extras-visible">
+          ${apt.floorplan ? `
+            <div class="extras-section">
+              <div class="extras-section-label">📐 Grundriss</div>
+              <div class="mini-floorplan floorplan-frame" data-apt="${apt.aptId}">
+                <img src="${SB_URL_FORM}/storage/v1/object/public/assets/${apt.floorplan}" alt="Grundriss" loading="lazy"/>
+              </div>
+            </div>
+          ` : ''}
+          ${generalPhotos.length > 0 ? `
+            <div class="extras-section">
+              <div class="extras-section-label">📷 Bilder der Wohnung (${generalPhotos.length})</div>
               <div class="mini-gallery">
                 ${generalPhotos.map((p, idx) => `
                   <div class="mini-thumb gallery-thumb" data-apt="${apt.aptId}" data-general-idx="${idx}">
@@ -1750,15 +1727,9 @@ async function renderRooms() {
                   </div>
                 `).join('')}
               </div>
-            ` : ''}
-            ${apt.floorplan ? `
-              <div class="mini-floorplan floorplan-frame" data-apt="${apt.aptId}">
-                <div class="mini-floorplan-label">📐 Grundriss</div>
-                <img src="${SB_URL_FORM}/storage/v1/object/public/assets/${apt.floorplan}" alt="Grundriss" loading="lazy"/>
-              </div>
-            ` : ''}
-          </div>
-        </details>`;
+            </div>
+          ` : ''}
+        </div>`;
       })()}
       <div class="rooms-header">
         <h3 class="rooms-title">🛏 Wähle dein Zimmer</h3>

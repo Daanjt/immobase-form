@@ -332,6 +332,41 @@
       display: block;
       margin: 0 auto;
     }
+    .mini-floorplan-pdf {
+      background: #fff;
+      border: 1px solid var(--bd);
+      border-radius: 6px;
+      padding: 18px 10px;
+      cursor: pointer;
+      transition: box-shadow .15s, transform .15s;
+      text-align: center;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      min-height: 100px;
+    }
+    .mini-floorplan-pdf:hover {
+      box-shadow: 0 3px 8px rgba(0,0,0,.06);
+      transform: translateY(-1px);
+      background: #fefcf7;
+    }
+    .pdf-icon { font-size: 32px; line-height: 1; }
+    .pdf-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #1a1814;
+      letter-spacing: .02em;
+      margin-top: 4px;
+    }
+    .pdf-hint {
+      font-size: 10px;
+      color: var(--muted);
+      font-style: italic;
+    }
     /* Legacy floorplan-frame cursor for lightbox interaction */
     .floorplan-frame { cursor: zoom-in; }
     /* ─── Rooms section header ─── */
@@ -1721,11 +1756,24 @@ async function renderRooms() {
             <div class="extras-section">
               <div class="extras-section-label">📐 Grundriss${floorplanPhotos.length>1 ? ` (${floorplanPhotos.length})` : ''}</div>
               <div class="floorplan-row">
-                ${floorplanPhotos.map((p, idx) => `
-                  <div class="mini-floorplan floorplan-frame" data-apt="${apt.aptId}" data-floorplan-idx="${idx}">
-                    <img src="${SB_URL_FORM}/storage/v1/object/public/assets/${p.path}" alt="Grundriss ${idx+1}" loading="lazy"/>
-                  </div>
-                `).join('')}
+                ${floorplanPhotos.map((p, idx) => {
+                  const isPdf = p.path.toLowerCase().endsWith(".pdf");
+                  const url = `${SB_URL_FORM}/storage/v1/object/public/assets/${p.path}`;
+                  if (isPdf) {
+                    return `
+                      <a class="mini-floorplan mini-floorplan-pdf" href="${url}" target="_blank" rel="noopener">
+                        <div class="pdf-icon">📄</div>
+                        <div class="pdf-label">PDF Grundriss</div>
+                        <div class="pdf-hint">klick zum Öffnen</div>
+                      </a>
+                    `;
+                  }
+                  return `
+                    <div class="mini-floorplan floorplan-frame" data-apt="${apt.aptId}" data-floorplan-idx="${idx}">
+                      <img src="${url}" alt="Grundriss ${idx+1}" loading="lazy"/>
+                    </div>
+                  `;
+                }).join('')}
               </div>
             </div>
           ` : useLegacyFloorplan ? `
@@ -2304,14 +2352,14 @@ function wireGalleryClicks(){
       const aptId = frame.dataset.apt;
       const apt = FREIE_ZIMMER.find(z => z.aptId === aptId);
       if (!apt) return;
-      // New: photos with category=grundriss
-      const fps = (apt.aptPhotos || []).filter(p => p.category === "grundriss");
+      // Image floorplans only (PDFs use their own anchor tag)
+      const fps = (apt.aptPhotos || []).filter(p => p.category === "grundriss" && !p.path.toLowerCase().endsWith(".pdf"));
       if (fps.length > 0) {
         const idx = parseInt(frame.dataset.floorplanIdx || "0");
         openLightbox(fps, idx);
         return;
       }
-      // Legacy fallback
+      // Legacy fallback (always an image)
       if (apt.aptFloorplan) openLightbox([{path: apt.aptFloorplan}], 0);
     };
   });

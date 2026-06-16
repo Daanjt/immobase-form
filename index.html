@@ -16,6 +16,7 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
   :root {
     --bg: #f6f1e8;
@@ -332,40 +333,36 @@
       display: block;
       margin: 0 auto;
     }
-    .mini-floorplan-pdf {
-      background: #fff;
-      border: 1px solid var(--bd);
-      border-radius: 6px;
-      padding: 18px 10px;
-      cursor: pointer;
-      transition: box-shadow .15s, transform .15s;
-      text-align: center;
+    .mini-floorplan-pdfimg {
+      display: block;
       text-decoration: none;
       color: inherit;
+    }
+    .pdf-render {
+      width: 100%;
+      max-height: 140px;
+      aspect-ratio: 4/3;
+      overflow: hidden;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 4px;
-      min-height: 100px;
+      background: #fafafa;
     }
-    .mini-floorplan-pdf:hover {
-      box-shadow: 0 3px 8px rgba(0,0,0,.06);
-      transform: translateY(-1px);
-      background: #fefcf7;
-    }
-    .pdf-icon { font-size: 32px; line-height: 1; }
-    .pdf-label {
+    .pdf-loading {
       font-size: 11px;
-      font-weight: 600;
-      color: #1a1814;
-      letter-spacing: .02em;
-      margin-top: 4px;
-    }
-    .pdf-hint {
-      font-size: 10px;
       color: var(--muted);
       font-style: italic;
+    }
+    .pdf-fallback {
+      font-size: 28px;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.1;
+    }
+    .pdf-fallback span {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .04em;
     }
     /* Legacy floorplan-frame cursor for lightbox interaction */
     .floorplan-frame { cursor: zoom-in; }
@@ -1761,10 +1758,10 @@ async function renderRooms() {
                   const url = `${SB_URL_FORM}/storage/v1/object/public/assets/${p.path}`;
                   if (isPdf) {
                     return `
-                      <a class="mini-floorplan mini-floorplan-pdf" href="${url}" target="_blank" rel="noopener">
-                        <div class="pdf-icon">📄</div>
-                        <div class="pdf-label">PDF Grundriss</div>
-                        <div class="pdf-hint">klick zum Öffnen</div>
+                      <a class="mini-floorplan mini-floorplan-pdfimg" href="${url}" target="_blank" rel="noopener" title="PDF in neuem Tab öffnen">
+                        <div class="pdf-render" data-pdf-url="${url}">
+                          <div class="pdf-loading">📄 wird geladen…</div>
+                        </div>
                       </a>
                     `;
                   }
@@ -1845,6 +1842,7 @@ async function renderRooms() {
     </div>
   `).join('');
   wireGalleryClicks();
+  fillPdfPreviews();
 
   // Wire up listeners
   grid.querySelectorAll('input[type="radio"]').forEach(radio => {
@@ -2320,6 +2318,70 @@ document.getElementById('lightbox')?.addEventListener('click', e => {
   if (e.target.id === 'lightbox') closeLightbox();
 });
 // Wire up gallery thumbs after render
+
+// ═══ PDF Rendering ═══
+let _pdfjsReady = null;
+function _ensurePdfJs(){
+  if (_pdfjsReady) return _pdfjsReady;
+  _pdfjsReady = new Promise((resolve, reject) => {
+    if (window.pdfjsLib){
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      resolve(window.pdfjsLib);
+      return;
+    }
+    let tries = 0;
+    const check = setInterval(() => {
+      if (window.pdfjsLib){
+        clearInterval(check);
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        resolve(window.pdfjsLib);
+      } else if (++tries > 50){
+        clearInterval(check);
+        reject(new Error('pdf.js not loaded'));
+      }
+    }, 100);
+  });
+  return _pdfjsReady;
+}
+const _pdfCache = new Map();
+async function _renderPdfFirstPage(pdfUrl){
+  if (_pdfCache.has(pdfUrl)) return _pdfCache.get(pdfUrl);
+  const p = (async () => {
+    const pdfjs = await _ensurePdfJs();
+    const pdf = await pdfjs.getDocument(pdfUrl).promise;
+    const page = await pdf.getPage(1);
+    const viewport = page.getViewport({ scale: 2 });
+    const canvas = document.createElement('canvas');
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    const ctx = canvas.getContext('2d');
+    await page.render({ canvasContext: ctx, viewport }).promise;
+    return canvas.toDataURL('image/png');
+  })();
+  _pdfCache.set(pdfUrl, p);
+  return p;
+}
+async function fillPdfPreviews(){
+  const targets = document.querySelectorAll('.pdf-render:not([data-rendered="1"])');
+  for (const el of targets){
+    el.dataset.rendered = '1';
+    const url = el.dataset.pdfUrl;
+    if (!url) continue;
+    try {
+      const dataUrl = await _renderPdfFirstPage(url);
+      const img = new Image();
+      img.src = dataUrl;
+      img.alt = 'PDF Grundriss';
+      img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block';
+      el.innerHTML = '';
+      el.appendChild(img);
+    } catch(e){
+      console.warn('PDF render failed for', url, e);
+      el.innerHTML = '<div class="pdf-fallback">📄<br><span>PDF</span></div>';
+    }
+  }
+}
+
 function wireGalleryClicks(){
   // General apt gallery: uses data-general-idx, filtered to non-room photos
   document.querySelectorAll('.gallery-thumb').forEach(thumb => {

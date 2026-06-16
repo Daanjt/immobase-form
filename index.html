@@ -277,6 +277,18 @@
       object-fit: cover;
       display: block;
     }
+    .gallery-caption {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      background: linear-gradient(to top, rgba(0,0,0,.75), rgba(0,0,0,0));
+      color: #fff;
+      font-size: 10.5px;
+      font-weight: 500;
+      padding: 14px 8px 6px;
+      text-align: center;
+      letter-spacing: .03em;
+      pointer-events: none;
+    }
     .lightbox {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -1414,6 +1426,28 @@ async function loadFreieZimmer() {
   }
 }
 
+
+// Category label mapping for photo captions
+function categoryLabelForm(cat){
+  if (!cat) return '';
+  if (cat.startsWith('room:')){
+    const roomId = cat.substring(5);
+    const parts = roomId.split('-');
+    return 'Zimmer ' + (parts[1] || roomId);
+  }
+  const map = {
+    kueche: 'Küche',
+    bad: 'Bad',
+    wohnzimmer: 'Wohnzimmer',
+    balkon: 'Balkon',
+    eingang: 'Eingang',
+    aussen: 'Aussenansicht',
+    sonstiges: 'Sonstiges',
+  };
+  return map[cat] || cat;
+}
+
+
 // Render rooms (live aus DB)
 async function renderRooms() {
   const grid = document.getElementById('roomGrid');
@@ -1468,14 +1502,6 @@ async function renderRooms() {
       </div>
       ${(apt.matterport || (apt.photos && apt.photos.length > 0)) ? `
         <div class="apt-media">
-          ${apt.matterport ? `
-            <div class="apt-matterport">
-              <div class="media-label">🎥 Virtuelle 3D-Tour</div>
-              <div class="matterport-frame">
-                <iframe src="${apt.matterport}" frameborder="0" allowfullscreen allow="xr-spatial-tracking" loading="lazy"></iframe>
-              </div>
-            </div>
-          ` : ''}
           ${(apt.photos && apt.photos.length > 0) ? `
             <div class="apt-gallery">
               <div class="media-label">📷 Bilder der Wohnung</div>
@@ -1483,8 +1509,17 @@ async function renderRooms() {
                 ${apt.photos.map((p, idx) => `
                   <div class="gallery-thumb" data-apt="${apt.aptId}" data-idx="${idx}">
                     <img src="${SB_URL_FORM}/storage/v1/object/public/assets/${p.path}" alt="Foto ${idx+1}" loading="lazy"/>
+                    ${p.category ? `<div class="gallery-caption">${categoryLabelForm(p.category)}</div>` : ''}
                   </div>
                 `).join('')}
+              </div>
+            </div>
+          ` : ''}
+          ${apt.matterport ? `
+            <div class="apt-matterport">
+              <div class="media-label">🎥 Virtuelle 3D-Tour</div>
+              <div class="matterport-frame">
+                <iframe src="${apt.matterport}" frameborder="0" allowfullscreen allow="xr-spatial-tracking" loading="lazy"></iframe>
               </div>
             </div>
           ` : ''}

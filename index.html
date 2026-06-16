@@ -287,12 +287,33 @@
       background: #fafafa;
       border: 1px solid var(--bd);
       transition: transform .15s, box-shadow .15s;
+      display: block;
+      text-decoration: none;
+      color: inherit;
     }
     .mini-thumb:hover {
       transform: translateY(-1px);
       box-shadow: 0 3px 8px rgba(0,0,0,.08);
     }
     .mini-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .mini-thumb-pdf .pdf-render {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fafafa;
+    }
+    .mini-thumb-pdf .pdf-loading {
+      font-size: 18px;
+      color: var(--muted);
+    }
+    .mini-thumb-pdf img {
       width: 100%;
       height: 100%;
       object-fit: cover;
@@ -1673,6 +1694,7 @@ function categoryLabelForm(cat){
     balkon: 'Balkon',
     eingang: 'Eingang',
     aussen: 'Aussenansicht',
+    grundriss: 'Grundriss',
     sonstiges: 'Sonstiges',
   };
   return map[cat] || cat;
@@ -1742,60 +1764,42 @@ async function renderRooms() {
       ` : ''}
       ${(() => {
         const allPhotos = apt.photos || [];
-        const floorplanPhotos = allPhotos.filter(p => p.category === "grundriss");
-        const generalPhotos = allPhotos.filter(p => p.category !== "grundriss" && (!p.category || !p.category.startsWith("room:")));
-        // Legacy fallback: use apt.floorplan if no grundriss-tagged photos
-        const useLegacyFloorplan = floorplanPhotos.length === 0 && apt.floorplan;
-        if (generalPhotos.length === 0 && floorplanPhotos.length === 0 && !useLegacyFloorplan) return '';
+        // Everything except room-specific photos goes into the general gallery (Küche, Bad, Grundriss, etc. all together)
+        const generalPhotos = allPhotos.filter(p => !p.category || !p.category.startsWith("room:"));
+        // Legacy fallback: if no grundriss-tagged photos AND legacy floorplan_path exists, append as a synthetic entry
+        const hasGrundrissPhoto = generalPhotos.some(p => p.category === "grundriss");
+        if (!hasGrundrissPhoto && apt.floorplan){
+          generalPhotos.push({ path: apt.floorplan, category: "grundriss", _legacy: true });
+        }
+        if (generalPhotos.length === 0) return '';
         return `
         <div class="apt-extras-visible">
-          ${floorplanPhotos.length > 0 ? `
-            <div class="extras-section">
-              <div class="extras-section-label">📐 Grundriss${floorplanPhotos.length>1 ? ` (${floorplanPhotos.length})` : ''}</div>
-              <div class="floorplan-row">
-                ${floorplanPhotos.map((p, idx) => {
-                  const isPdf = p.path.toLowerCase().endsWith(".pdf");
-                  const url = `${SB_URL_FORM}/storage/v1/object/public/assets/${p.path}`;
-                  if (isPdf) {
-                    return `
-                      <a class="mini-floorplan mini-floorplan-pdfimg" href="${url}" target="_blank" rel="noopener" title="PDF in neuem Tab öffnen">
-                        <div class="pdf-render" data-pdf-url="${url}">
-                          <div class="pdf-loading">📄 wird geladen…</div>
-                        </div>
-                      </a>
-                    `;
-                  }
+          <div class="extras-section">
+            <div class="extras-section-label">📷 Bilder der Wohnung (${generalPhotos.length})</div>
+            <div class="mini-gallery">
+              ${generalPhotos.map((p, idx) => {
+                const isPdf = p.path.toLowerCase().endsWith(".pdf");
+                const url = `${SB_URL_FORM}/storage/v1/object/public/assets/${p.path}`;
+                const caption = p.category ? `<div class="mini-caption">${categoryLabelForm(p.category)}</div>` : '';
+                if (isPdf) {
                   return `
-                    <div class="mini-floorplan floorplan-frame" data-apt="${apt.aptId}" data-floorplan-idx="${idx}">
-                      <img src="${url}" alt="Grundriss ${idx+1}" loading="lazy"/>
-                    </div>
+                    <a class="mini-thumb mini-thumb-pdf" href="${url}" target="_blank" rel="noopener" title="PDF in neuem Tab öffnen">
+                      <div class="pdf-render" data-pdf-url="${url}">
+                        <div class="pdf-loading">📄</div>
+                      </div>
+                      ${caption}
+                    </a>
                   `;
-                }).join('')}
-              </div>
-            </div>
-          ` : useLegacyFloorplan ? `
-            <div class="extras-section">
-              <div class="extras-section-label">📐 Grundriss</div>
-              <div class="floorplan-row">
-                <div class="mini-floorplan floorplan-frame" data-apt="${apt.aptId}" data-legacy="1">
-                  <img src="${SB_URL_FORM}/storage/v1/object/public/assets/${apt.floorplan}" alt="Grundriss" loading="lazy"/>
-                </div>
-              </div>
-            </div>
-          ` : ''}
-          ${generalPhotos.length > 0 ? `
-            <div class="extras-section">
-              <div class="extras-section-label">📷 Bilder der Wohnung (${generalPhotos.length})</div>
-              <div class="mini-gallery">
-                ${generalPhotos.map((p, idx) => `
+                }
+                return `
                   <div class="mini-thumb gallery-thumb" data-apt="${apt.aptId}" data-general-idx="${idx}">
-                    <img src="${SB_URL_FORM}/storage/v1/object/public/assets/${p.path}" alt="Foto ${idx+1}" loading="lazy"/>
-                    ${p.category ? `<div class="mini-caption">${categoryLabelForm(p.category)}</div>` : ''}
+                    <img src="${url}" alt="Foto ${idx+1}" loading="lazy"/>
+                    ${caption}
                   </div>
-                `).join('')}
-              </div>
+                `;
+              }).join('')}
             </div>
-          ` : ''}
+          </div>
         </div>`;
       })()}
       <div class="rooms-header">

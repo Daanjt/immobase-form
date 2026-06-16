@@ -493,6 +493,28 @@
       border: 1px solid rgba(255,255,255,.15);
       letter-spacing: .03em;
     }
+    #lightbox-pdf-link {
+      position: absolute;
+      bottom: 24px;
+      right: 24px;
+      background: rgba(255,255,255,.12);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 9px 16px;
+      border-radius: 99px;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,.15);
+      text-decoration: none;
+      letter-spacing: .03em;
+      transition: all .15s ease;
+      align-items: center;
+      gap: 6px;
+    }
+    #lightbox-pdf-link:hover {
+      background: rgba(255,255,255,.22);
+      transform: translateY(-1px);
+    }
     @media (max-width: 600px) {
       .lightbox-nav { width: 42px; height: 42px; font-size: 20px; }
       .lightbox-prev { left: 8px; }
@@ -1764,13 +1786,8 @@ async function renderRooms() {
       ` : ''}
       ${(() => {
         const allPhotos = apt.photos || [];
-        // Everything except room-specific photos goes into the general gallery (Küche, Bad, Grundriss, etc. all together)
+        // All non-room photos go in the general gallery (Küche, Bad, Grundriss, etc.)
         const generalPhotos = allPhotos.filter(p => !p.category || !p.category.startsWith("room:"));
-        // Legacy fallback: if no grundriss-tagged photos AND legacy floorplan_path exists, append as a synthetic entry
-        const hasGrundrissPhoto = generalPhotos.some(p => p.category === "grundriss");
-        if (!hasGrundrissPhoto && apt.floorplan){
-          generalPhotos.push({ path: apt.floorplan, category: "grundriss", _legacy: true });
-        }
         if (generalPhotos.length === 0) return '';
         return `
         <div class="apt-extras-visible">
@@ -1783,12 +1800,12 @@ async function renderRooms() {
                 const caption = p.category ? `<div class="mini-caption">${categoryLabelForm(p.category)}</div>` : '';
                 if (isPdf) {
                   return `
-                    <a class="mini-thumb mini-thumb-pdf" href="${url}" target="_blank" rel="noopener" title="PDF in neuem Tab öffnen">
+                    <div class="mini-thumb mini-thumb-pdf gallery-thumb" data-apt="${apt.aptId}" data-general-idx="${idx}" data-is-pdf="1">
                       <div class="pdf-render" data-pdf-url="${url}">
                         <div class="pdf-loading">📄</div>
                       </div>
                       ${caption}
-                    </a>
+                    </div>
                   `;
                 }
                 return `
@@ -2299,9 +2316,39 @@ function navLightbox(dir){
   LIGHTBOX_IDX = (LIGHTBOX_IDX + dir + LIGHTBOX_PHOTOS.length) % LIGHTBOX_PHOTOS.length;
   updateLightbox();
 }
-function updateLightbox(){
+async function updateLightbox(){
   const total = LIGHTBOX_PHOTOS.length;
-  document.getElementById('lightbox-img').src = SB_URL_FORM + '/storage/v1/object/public/assets/' + LIGHTBOX_PHOTOS[LIGHTBOX_IDX].path;
+  const cur = LIGHTBOX_PHOTOS[LIGHTBOX_IDX];
+  const img = document.getElementById('lightbox-img');
+  const isPdf = cur.path.toLowerCase().endsWith('.pdf');
+  const rawUrl = SB_URL_FORM + '/storage/v1/object/public/assets/' + cur.path;
+  // PDF: render first page as image, show download link
+  const pdfLink = document.getElementById('lightbox-pdf-link');
+  if (isPdf) {
+    img.src = '';
+    img.alt = 'PDF wird geladen…';
+    try {
+      const dataUrl = await _renderPdfFirstPage(rawUrl);
+      // Only apply if still on this same idx (user might have navigated away)
+      if (LIGHTBOX_PHOTOS[LIGHTBOX_IDX] === cur) {
+        img.src = dataUrl;
+        img.alt = 'PDF Vorschau';
+      }
+    } catch(e){
+      console.warn('PDF render failed:', e);
+      if (LIGHTBOX_PHOTOS[LIGHTBOX_IDX] === cur) {
+        img.alt = 'PDF konnte nicht angezeigt werden';
+      }
+    }
+    if (pdfLink){
+      pdfLink.href = rawUrl;
+      pdfLink.style.display = 'inline-flex';
+    }
+  } else {
+    img.src = rawUrl;
+    img.alt = '';
+    if (pdfLink) pdfLink.style.display = 'none';
+  }
   const counter = document.getElementById('lightbox-counter');
   const prev = document.querySelector('.lightbox-prev');
   const next = document.querySelector('.lightbox-next');
@@ -2450,6 +2497,7 @@ function wireGalleryClicks(){
   <img id="lightbox-img" src="" alt=""/>
   <button class="lightbox-nav lightbox-next" onclick="navLightbox(1)" aria-label="Nächstes Bild">›</button>
   <div class="lightbox-counter" id="lightbox-counter"></div>
+  <a id="lightbox-pdf-link" href="#" target="_blank" rel="noopener" style="display:none">📄 PDF in neuem Tab öffnen</a>
 </div>
 
 </body>

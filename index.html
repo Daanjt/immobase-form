@@ -310,11 +310,16 @@
       pointer-events: none;
       line-height: 1.2;
     }
+    .floorplan-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 6px;
+    }
     .mini-floorplan {
       background: #fff;
       border: 1px solid var(--bd);
       border-radius: 6px;
-      padding: 8px;
+      padding: 6px;
       cursor: zoom-in;
       transition: box-shadow .15s, transform .15s;
       text-align: center;
@@ -1704,15 +1709,32 @@ async function renderRooms() {
         </div>
       ` : ''}
       ${(() => {
-        const generalPhotos = (apt.photos || []).filter(p => !p.category || !p.category.startsWith("room:"));
-        if (generalPhotos.length === 0 && !apt.floorplan) return '';
+        const allPhotos = apt.photos || [];
+        const floorplanPhotos = allPhotos.filter(p => p.category === "grundriss");
+        const generalPhotos = allPhotos.filter(p => p.category !== "grundriss" && (!p.category || !p.category.startsWith("room:")));
+        // Legacy fallback: use apt.floorplan if no grundriss-tagged photos
+        const useLegacyFloorplan = floorplanPhotos.length === 0 && apt.floorplan;
+        if (generalPhotos.length === 0 && floorplanPhotos.length === 0 && !useLegacyFloorplan) return '';
         return `
         <div class="apt-extras-visible">
-          ${apt.floorplan ? `
+          ${floorplanPhotos.length > 0 ? `
+            <div class="extras-section">
+              <div class="extras-section-label">📐 Grundriss${floorplanPhotos.length>1 ? ` (${floorplanPhotos.length})` : ''}</div>
+              <div class="floorplan-row">
+                ${floorplanPhotos.map((p, idx) => `
+                  <div class="mini-floorplan floorplan-frame" data-apt="${apt.aptId}" data-floorplan-idx="${idx}">
+                    <img src="${SB_URL_FORM}/storage/v1/object/public/assets/${p.path}" alt="Grundriss ${idx+1}" loading="lazy"/>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          ` : useLegacyFloorplan ? `
             <div class="extras-section">
               <div class="extras-section-label">📐 Grundriss</div>
-              <div class="mini-floorplan floorplan-frame" data-apt="${apt.aptId}">
-                <img src="${SB_URL_FORM}/storage/v1/object/public/assets/${apt.floorplan}" alt="Grundriss" loading="lazy"/>
+              <div class="floorplan-row">
+                <div class="mini-floorplan floorplan-frame" data-apt="${apt.aptId}" data-legacy="1">
+                  <img src="${SB_URL_FORM}/storage/v1/object/public/assets/${apt.floorplan}" alt="Grundriss" loading="lazy"/>
+                </div>
               </div>
             </div>
           ` : ''}
@@ -2281,7 +2303,16 @@ function wireGalleryClicks(){
     frame.onclick = () => {
       const aptId = frame.dataset.apt;
       const apt = FREIE_ZIMMER.find(z => z.aptId === aptId);
-      if (apt && apt.aptFloorplan) openLightbox([{path: apt.aptFloorplan}], 0);
+      if (!apt) return;
+      // New: photos with category=grundriss
+      const fps = (apt.aptPhotos || []).filter(p => p.category === "grundriss");
+      if (fps.length > 0) {
+        const idx = parseInt(frame.dataset.floorplanIdx || "0");
+        openLightbox(fps, idx);
+        return;
+      }
+      // Legacy fallback
+      if (apt.aptFloorplan) openLightbox([{path: apt.aptFloorplan}], 0);
     };
   });
   // Room select button: explicitly toggle the radio

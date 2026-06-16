@@ -220,98 +220,160 @@
     flex-direction: column;
     gap: 20px;
   }
-  .apt-media {
-      padding: 14px 18px 8px;
-      background: #fafafa;
+  /* ─── Matterport Hero (groß und prominent) ─── */
+    .apt-matterport-hero {
+      padding: 20px 20px 12px;
+      background: linear-gradient(180deg, #fafafa 0%, #fff 100%);
       border-bottom: 1px solid var(--bd);
     }
-    .media-label {
-      font-size: 10px;
-      color: var(--muted);
+    .media-label-hero {
+      font-size: 11px;
+      color: #5a6e4a;
       text-transform: uppercase;
-      letter-spacing: 0.18em;
-      font-weight: 600;
-      margin-bottom: 8px;
+      letter-spacing: 0.22em;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
-    .apt-matterport {
-      margin-bottom: 14px;
-    }
-    .apt-floorplan {
-      margin-bottom: 14px;
-    }
-    .floorplan-frame {
-      background: #fff;
-      border: 1px solid var(--bd);
-      border-radius: 8px;
-      overflow: hidden;
-      cursor: zoom-in;
-      transition: box-shadow .15s;
-    }
-    .floorplan-frame:hover {
-      box-shadow: 0 4px 12px rgba(0,0,0,.08);
-    }
-    .floorplan-frame img {
-      width: 100%;
-      height: auto;
-      max-height: 500px;
-      object-fit: contain;
-      display: block;
-      background: #fff;
-    }
-    .matterport-frame {
+    .matterport-frame-big {
       position: relative;
       width: 100%;
-      padding-bottom: 56.25%; /* 16:9 */
+      padding-bottom: 60%; /* taller than 16:9 — more immersive */
       overflow: hidden;
-      border-radius: 8px;
+      border-radius: 12px;
       background: #1a1814;
+      box-shadow: 0 8px 32px rgba(0,0,0,.12);
     }
-    .matterport-frame iframe {
+    .matterport-frame-big iframe {
       position: absolute; top: 0; left: 0;
       width: 100%; height: 100%;
       border: 0;
     }
-    .apt-gallery {
-      margin-bottom: 6px;
+    /* ─── Compact extras (Fotos + Grundriss collapsed) ─── */
+    .apt-extras {
+      border-bottom: 1px solid var(--bd);
+      background: #fafafa;
     }
-    .gallery-grid {
+    .apt-extras summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 11px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: #5a5448;
+      transition: background .15s;
+    }
+    .apt-extras summary::-webkit-details-marker { display: none; }
+    .apt-extras summary:hover { background: #f5efe2; }
+    .extras-label {
+      font-weight: 500;
+      letter-spacing: .02em;
+    }
+    .extras-toggle {
+      font-size: 14px;
+      color: var(--muted);
+      transition: transform .2s;
+      display: inline-block;
+    }
+    .apt-extras[open] .extras-toggle {
+      transform: rotate(180deg);
+    }
+    .extras-content {
+      padding: 4px 20px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .mini-gallery {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-      gap: 8px;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 5px;
     }
-    .gallery-thumb {
+    .mini-thumb {
       position: relative;
       aspect-ratio: 4/3;
       overflow: hidden;
-      border-radius: 6px;
-      cursor: pointer;
-      border: 1px solid var(--bd);
+      border-radius: 5px;
+      cursor: zoom-in;
       background: #fafafa;
+      border: 1px solid var(--bd);
       transition: transform .15s, box-shadow .15s;
     }
-    .gallery-thumb:hover {
+    .mini-thumb:hover {
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0,0,0,.08);
+      box-shadow: 0 3px 8px rgba(0,0,0,.08);
     }
-    .gallery-thumb img {
+    .mini-thumb img {
       width: 100%;
       height: 100%;
       object-fit: cover;
       display: block;
     }
-    .gallery-caption {
+    .mini-caption {
       position: absolute;
       bottom: 0; left: 0; right: 0;
-      background: linear-gradient(to top, rgba(0,0,0,.75), rgba(0,0,0,0));
+      background: linear-gradient(to top, rgba(0,0,0,.7), rgba(0,0,0,0));
       color: #fff;
-      font-size: 10.5px;
+      font-size: 9px;
       font-weight: 500;
-      padding: 14px 8px 6px;
+      padding: 6px 3px 2px;
       text-align: center;
       letter-spacing: .03em;
       pointer-events: none;
+      line-height: 1.2;
     }
-    .lightbox {
+    .mini-floorplan {
+      background: #fff;
+      border: 1px solid var(--bd);
+      border-radius: 6px;
+      padding: 10px;
+      cursor: zoom-in;
+      transition: box-shadow .15s;
+      text-align: center;
+    }
+    .mini-floorplan:hover { box-shadow: 0 3px 8px rgba(0,0,0,.06); }
+    .mini-floorplan-label {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .mini-floorplan img {
+      width: 100%;
+      max-height: 180px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto;
+    }
+    /* Legacy floorplan-frame cursor for lightbox interaction */
+    .floorplan-frame { cursor: zoom-in; }
+    /* ─── Rooms section header ─── */
+    .rooms-header {
+      padding: 18px 20px 10px;
+      background: #fff;
+      border-bottom: 1px solid #f0e8d8;
+    }
+    .rooms-title {
+      font-family: 'Manrope', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: #1a1814;
+      margin: 0 0 3px 0;
+      letter-spacing: -0.01em;
+    }
+    .rooms-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin: 0;
+      letter-spacing: .01em;
+    }
+        .lightbox {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(15,13,10,.96);
@@ -1657,42 +1719,51 @@ async function renderRooms() {
           <span class="meta-pill ${apt.befristung.type}">${apt.befristung.label}</span>
         </div>
       </div>
-      ${(apt.matterport || apt.floorplan || (apt.photos && apt.photos.length > 0)) ? `
-        <div class="apt-media">
-          ${(() => {
-            const generalPhotos = (apt.photos || []).filter(p => !p.category || !p.category.startsWith("room:"));
-            if (generalPhotos.length === 0) return '';
-            return `
-            <div class="apt-gallery">
-              <div class="media-label">📷 Bilder der Wohnung</div>
-              <div class="gallery-grid">
+      ${apt.matterport ? `
+        <div class="apt-matterport-hero">
+          <div class="media-label-hero">🎥 Virtuelle 3D-Tour</div>
+          <div class="matterport-frame-big">
+            <iframe src="${apt.matterport}" frameborder="0" allowfullscreen allow="xr-spatial-tracking" loading="lazy"></iframe>
+          </div>
+        </div>
+      ` : ''}
+      ${(() => {
+        const generalPhotos = (apt.photos || []).filter(p => !p.category || !p.category.startsWith("room:"));
+        if (generalPhotos.length === 0 && !apt.floorplan) return '';
+        return `
+        <details class="apt-extras">
+          <summary class="extras-summary">
+            <span class="extras-label">
+              ${generalPhotos.length > 0 ? `📷 ${generalPhotos.length} Foto${generalPhotos.length>1?'s':''}` : ''}
+              ${generalPhotos.length > 0 && apt.floorplan ? ' · ' : ''}
+              ${apt.floorplan ? '📐 Grundriss' : ''}
+            </span>
+            <span class="extras-toggle">▾</span>
+          </summary>
+          <div class="extras-content">
+            ${generalPhotos.length > 0 ? `
+              <div class="mini-gallery">
                 ${generalPhotos.map((p, idx) => `
-                  <div class="gallery-thumb" data-apt="${apt.aptId}" data-general-idx="${idx}">
+                  <div class="mini-thumb gallery-thumb" data-apt="${apt.aptId}" data-general-idx="${idx}">
                     <img src="${SB_URL_FORM}/storage/v1/object/public/assets/${p.path}" alt="Foto ${idx+1}" loading="lazy"/>
-                    ${p.category ? `<div class="gallery-caption">${categoryLabelForm(p.category)}</div>` : ''}
+                    ${p.category ? `<div class="mini-caption">${categoryLabelForm(p.category)}</div>` : ''}
                   </div>
                 `).join('')}
               </div>
-            </div>`;
-          })()}
-          ${apt.floorplan ? `
-            <div class="apt-floorplan">
-              <div class="media-label">📐 Grundriss</div>
-              <div class="floorplan-frame" data-apt="${apt.aptId}">
+            ` : ''}
+            ${apt.floorplan ? `
+              <div class="mini-floorplan floorplan-frame" data-apt="${apt.aptId}">
+                <div class="mini-floorplan-label">📐 Grundriss</div>
                 <img src="${SB_URL_FORM}/storage/v1/object/public/assets/${apt.floorplan}" alt="Grundriss" loading="lazy"/>
               </div>
-            </div>
-          ` : ''}
-          ${apt.matterport ? `
-            <div class="apt-matterport">
-              <div class="media-label">🎥 Virtuelle 3D-Tour</div>
-              <div class="matterport-frame">
-                <iframe src="${apt.matterport}" frameborder="0" allowfullscreen allow="xr-spatial-tracking" loading="lazy"></iframe>
-              </div>
-            </div>
-          ` : ''}
-        </div>
-      ` : ''}
+            ` : ''}
+          </div>
+        </details>`;
+      })()}
+      <div class="rooms-header">
+        <h3 class="rooms-title">🛏 Wähle dein Zimmer</h3>
+        <p class="rooms-sub">${apt.rooms.length} Zimmer verfügbar in dieser WG</p>
+      </div>
       <div class="apt-rooms">
         ${apt.rooms.map(r => {
           const roomPhotos = (apt.photos || []).filter(p => p.category === `room:${r.id}`);

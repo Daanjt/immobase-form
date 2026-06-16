@@ -314,47 +314,95 @@
     .lightbox {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,.92);
+      background: rgba(15,13,10,.96);
       z-index: 1000;
       display: none;
       align-items: center;
       justify-content: center;
-      padding: 24px;
+      padding: 16px;
+      backdrop-filter: blur(8px);
+      animation: lbFadeIn .15s ease;
+    }
+    @keyframes lbFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
     .lightbox.open { display: flex; }
     .lightbox img {
       max-width: 100%;
-      max-height: 90vh;
+      max-height: 95vh;
       object-fit: contain;
-      box-shadow: 0 10px 30px rgba(0,0,0,.4);
+      box-shadow: 0 20px 60px rgba(0,0,0,.5);
+      border-radius: 8px;
+      animation: lbZoomIn .2s ease;
+    }
+    @keyframes lbZoomIn {
+      from { transform: scale(.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
     }
     .lightbox-close {
       position: absolute;
-      top: 16px; right: 16px;
-      background: rgba(255,255,255,.1);
+      top: 20px; right: 20px;
+      background: rgba(255,255,255,.12);
       color: #fff;
-      border: none;
-      width: 40px; height: 40px;
+      border: 1px solid rgba(255,255,255,.15);
+      width: 44px; height: 44px;
       border-radius: 50%;
       cursor: pointer;
-      font-size: 22px;
+      font-size: 24px;
       line-height: 1;
+      transition: all .15s ease;
+      backdrop-filter: blur(8px);
+      z-index: 2;
+    }
+    .lightbox-close:hover {
+      background: rgba(255,255,255,.2);
+      transform: scale(1.05);
     }
     .lightbox-nav {
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
-      background: rgba(255,255,255,.1);
+      background: rgba(255,255,255,.12);
       color: #fff;
-      border: none;
-      width: 44px; height: 44px;
+      border: 1px solid rgba(255,255,255,.15);
+      width: 52px; height: 52px;
       border-radius: 50%;
       cursor: pointer;
-      font-size: 20px;
+      font-size: 24px;
       line-height: 1;
+      transition: all .15s ease;
+      backdrop-filter: blur(8px);
+      z-index: 2;
     }
-    .lightbox-prev { left: 16px; }
-    .lightbox-next { right: 16px; }
+    .lightbox-nav:hover {
+      background: rgba(255,255,255,.2);
+    }
+    .lightbox-prev { left: 20px; }
+    .lightbox-prev:hover { transform: translateY(-50%) translateX(-2px); }
+    .lightbox-next { right: 20px; }
+    .lightbox-next:hover { transform: translateY(-50%) translateX(2px); }
+    .lightbox-counter {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,.12);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 7px 14px;
+      border-radius: 99px;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,.15);
+      letter-spacing: .03em;
+    }
+    @media (max-width: 600px) {
+      .lightbox-nav { width: 42px; height: 42px; font-size: 20px; }
+      .lightbox-prev { left: 8px; }
+      .lightbox-next { right: 8px; }
+      .lightbox-close { top: 12px; right: 12px; width: 38px; height: 38px; font-size: 20px; }
+    }
     .apt-group {
     background: var(--surface);
     border: 1px solid var(--line);
@@ -398,19 +446,18 @@
   .room-card {
     position: relative;
     background: #fff;
-    border: 1.5px solid var(--bd);
-    border-radius: 10px;
-    padding: 14px;
+    border: 2px solid var(--bd);
+    border-radius: 12px;
     cursor: pointer;
-    transition: all .15s ease;
+    transition: all .2s ease;
     display: flex;
     flex-direction: column;
-    gap: 10px;
     overflow: hidden;
   }
-  .room-card:hover {
+  .room-card:hover:not(.checked) {
     border-color: #c5b896;
-    box-shadow: 0 2px 8px rgba(0,0,0,.04);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0,0,0,.06);
   }
   .room-card input[type="radio"] {
     position: absolute;
@@ -418,23 +465,37 @@
     pointer-events: none;
   }
   .room-card.checked {
-    border-color: #1a1814;
+    border-color: #5a6e4a;
     background: #fefcf7;
-    box-shadow: 0 2px 12px rgba(26,24,20,.08);
+    box-shadow: 0 4px 20px rgba(90,110,74,.18), 0 0 0 4px rgba(90,110,74,.1);
   }
-  .room-card.has-photos {
-    padding: 0;
+  .selected-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: #5a6e4a;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 5px 11px;
+    border-radius: 99px;
+    letter-spacing: .04em;
+    z-index: 3;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: all .2s ease;
+    box-shadow: 0 2px 8px rgba(90,110,74,.3);
+    pointer-events: none;
   }
-  .room-card.has-photos .room-info {
-    padding: 12px 14px;
+  .room-card.checked .selected-badge {
+    opacity: 1;
+    transform: translateY(0);
   }
   .room-photos {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 2px;
     background: var(--bd);
-    border-radius: 9px 9px 0 0;
-    overflow: hidden;
   }
   .room-photos:has(.room-thumb:only-child) {
     grid-template-columns: 1fr;
@@ -457,27 +518,52 @@
     height: 100%;
     object-fit: cover;
     display: block;
-    transition: transform .2s ease;
+    transition: transform .25s ease;
   }
   .room-thumb:hover img {
-    transform: scale(1.04);
+    transform: scale(1.08);
+  }
+  .zoom-hint {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 30px;
+    height: 30px;
+    background: rgba(26,24,20,.75);
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    opacity: 0;
+    transform: scale(.7);
+    transition: all .15s ease;
+    pointer-events: none;
+    backdrop-filter: blur(4px);
+  }
+  .room-thumb:hover .zoom-hint {
+    opacity: 1;
+    transform: scale(1);
   }
   .room-thumb-more {
     position: absolute;
     inset: 0;
-    background: rgba(26,24,20,.6);
+    background: rgba(26,24,20,.7);
     color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
-    font-weight: 600;
+    font-size: 22px;
+    font-weight: 700;
     letter-spacing: .02em;
+    backdrop-filter: blur(2px);
   }
   .room-info {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
+    padding: 14px 16px;
   }
   .room-header {
     display: flex;
@@ -488,15 +574,16 @@
   .room-card .room-id {
     font-family: 'Manrope', sans-serif;
     font-weight: 700;
-    font-size: 15px;
+    font-size: 16px;
     color: #1a1814;
     letter-spacing: -0.01em;
   }
   .room-card .room-price {
-    font-size: 16px;
-    font-weight: 600;
+    font-size: 18px;
+    font-weight: 700;
     color: #5a6e4a;
     white-space: nowrap;
+    letter-spacing: -0.01em;
   }
   .room-card .room-price small {
     font-size: 11px;
@@ -510,8 +597,8 @@
     gap: 5px;
   }
   .room-card .meta-pill {
-    font-size: 10.5px;
-    padding: 3px 9px;
+    font-size: 11px;
+    padding: 4px 10px;
     border-radius: 99px;
     background: #f5efe2;
     color: #5a5448;
@@ -526,29 +613,31 @@
     background: #f0e5d0;
     color: #8a6a2e;
   }
-  .room-card .check-mark {
-    position: absolute;
-    top: 10px; right: 10px;
-    width: 22px; height: 22px;
-    border-radius: 50%;
-    background: #fff;
-    border: 1.5px solid var(--bd);
-    z-index: 2;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all .15s ease;
-  }
-  .room-card.checked .check-mark {
+  .room-select-btn {
+    margin-top: 4px;
+    width: 100%;
     background: #1a1814;
-    border-color: #1a1814;
+    color: #fefcf7;
+    border: none;
+    border-radius: 8px;
+    padding: 11px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: .02em;
+    transition: all .15s ease;
+    font-family: inherit;
   }
-  .room-card.checked .check-mark::after {
-    content: '✓';
-    color: #fff;
-    font-size: 12px;
-    font-weight: 700;
+  .room-select-btn:hover {
+    background: #2d2925;
+    transform: translateY(-1px);
   }
+  .room-card.checked .room-select-btn {
+    background: #5a6e4a;
+  }
+  .room-select-btn .when-selected { display: none; }
+  .room-card.checked .room-select-btn .not-selected { display: none; }
+  .room-card.checked .room-select-btn .when-selected { display: inline; }
   @media (max-width: 540px) {
     .room-grid { gap: 14px; }
     .apt-rooms { grid-template-columns: 1fr; }
@@ -1608,14 +1697,15 @@ async function renderRooms() {
         ${apt.rooms.map(r => {
           const roomPhotos = (apt.photos || []).filter(p => p.category === `room:${r.id}`);
           return `
-          <label class="room-card${roomPhotos.length ? ' has-photos' : ''}" data-room="${r.id}">
+          <label class="room-card${roomPhotos.length ? ' has-photos' : ''}${currentSel===r.id?' checked':''}" data-room="${r.id}">
             <input type="radio" name="zimmerWunsch" value="${r.id}" required ${currentSel===r.id?'checked':''}>
-            <div class="check-mark"></div>
+            <div class="selected-badge">✓ Dein Zimmer</div>
             ${roomPhotos.length > 0 ? `
               <div class="room-photos">
                 ${roomPhotos.slice(0, 4).map((p, idx) => `
                   <div class="room-thumb" data-apt="${apt.aptId}" data-room-id="${r.id}" data-room-idx="${idx}">
                     <img src="${SB_URL_FORM}/storage/v1/object/public/assets/${p.path}" alt="Zimmer ${r.id.split('-')[1] || r.id} Foto ${idx+1}" loading="lazy"/>
+                    <div class="zoom-hint">🔍</div>
                     ${idx === 3 && roomPhotos.length > 4 ? `<div class="room-thumb-more">+${roomPhotos.length - 4}</div>` : ''}
                   </div>
                 `).join('')}
@@ -1629,8 +1719,12 @@ async function renderRooms() {
               <div class="room-details">
                 ${r.qm ? `<span class="meta-pill">${r.qm}</span>` : ''}
                 ${r.balkon ? '<span class="meta-pill balcony">🌿 Balkon</span>' : ''}
-                ${roomPhotos.length > 0 ? `<span class="meta-pill photos">📷 ${roomPhotos.length}</span>` : ''}
+                ${roomPhotos.length > 0 ? `<span class="meta-pill photos">📷 ${roomPhotos.length} Foto${roomPhotos.length>1?'s':''}</span>` : ''}
               </div>
+              <button type="button" class="room-select-btn">
+                <span class="not-selected">Dieses Zimmer wählen</span>
+                <span class="when-selected">✓ Ausgewählt</span>
+              </button>
             </div>
           </label>
           `;
@@ -2078,16 +2172,31 @@ let LIGHTBOX_IDX = 0;
 function openLightbox(photos, idx){
   LIGHTBOX_PHOTOS = photos;
   LIGHTBOX_IDX = idx;
-  document.getElementById('lightbox-img').src = SB_URL_FORM + '/storage/v1/object/public/assets/' + photos[idx].path;
+  updateLightbox();
   document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
 }
 function closeLightbox(){
   document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
 }
 function navLightbox(dir){
   if (!LIGHTBOX_PHOTOS.length) return;
   LIGHTBOX_IDX = (LIGHTBOX_IDX + dir + LIGHTBOX_PHOTOS.length) % LIGHTBOX_PHOTOS.length;
+  updateLightbox();
+}
+function updateLightbox(){
+  const total = LIGHTBOX_PHOTOS.length;
   document.getElementById('lightbox-img').src = SB_URL_FORM + '/storage/v1/object/public/assets/' + LIGHTBOX_PHOTOS[LIGHTBOX_IDX].path;
+  const counter = document.getElementById('lightbox-counter');
+  const prev = document.querySelector('.lightbox-prev');
+  const next = document.querySelector('.lightbox-next');
+  if (counter){
+    counter.textContent = total > 1 ? `${LIGHTBOX_IDX + 1} / ${total}` : '';
+    counter.style.display = total > 1 ? 'block' : 'none';
+  }
+  if (prev) prev.style.display = total > 1 ? '' : 'none';
+  if (next) next.style.display = total > 1 ? '' : 'none';
 }
 document.addEventListener('keydown', e => {
   if (!document.getElementById('lightbox').classList.contains('open')) return;
@@ -2133,14 +2242,27 @@ function wireGalleryClicks(){
       if (apt && apt.aptFloorplan) openLightbox([{path: apt.aptFloorplan}], 0);
     };
   });
+  // Room select button: explicitly toggle the radio
+  document.querySelectorAll('.room-select-btn').forEach(btn => {
+    btn.onclick = (e) => {
+      const label = btn.closest('.room-card');
+      if (!label) return;
+      const radio = label.querySelector('input[type="radio"]');
+      if (radio && !radio.checked) {
+        radio.checked = true;
+        radio.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    };
+  });
 }
 
 </script>
 <div class="lightbox" id="lightbox">
-  <button class="lightbox-close" onclick="closeLightbox()">×</button>
-  <button class="lightbox-nav lightbox-prev" onclick="navLightbox(-1)">‹</button>
+  <button class="lightbox-close" onclick="closeLightbox()" aria-label="Schliessen">×</button>
+  <button class="lightbox-nav lightbox-prev" onclick="navLightbox(-1)" aria-label="Vorheriges Bild">‹</button>
   <img id="lightbox-img" src="" alt=""/>
-  <button class="lightbox-nav lightbox-next" onclick="navLightbox(1)">›</button>
+  <button class="lightbox-nav lightbox-next" onclick="navLightbox(1)" aria-label="Nächstes Bild">›</button>
+  <div class="lightbox-counter" id="lightbox-counter"></div>
 </div>
 
 </body>

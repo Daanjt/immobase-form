@@ -2080,7 +2080,7 @@ async function renderRooms() {
           const roomPhotos = (apt.photos || []).filter(p => p.category === `room:${r.id}`);
           return `
           <label class="room-card${roomPhotos.length ? ' has-photos' : ''}${currentSel===r.id?' checked':''}" data-room="${r.id}">
-            <input type="radio" name="zimmerWunsch" value="${r.id}" required ${currentSel===r.id?'checked':''}>
+            <input type="radio" name="zimmerWunsch" value="${r.id}" data-miete="${r.miete}" data-qm="${r.qm||''}" data-balkon="${r.balkon?1:0}" data-apt-label="${apt.adresse||''}" data-apt-id="${apt.aptId}" required ${currentSel===r.id?'checked':''}>
             <div class="selected-badge">✓ Dein Zimmer</div>
             ${roomPhotos.length > 0 ? `
               <div class="room-photos">
@@ -2692,11 +2692,14 @@ let CURRENT_STEP = 1;
 function getSelectedRoomData(){
   const selected = document.querySelector('input[name="zimmerWunsch"]:checked');
   if (!selected) return null;
-  const roomId = selected.value;
-  for (const z of FREIE_ZIMMER){
-    if (z.id === roomId) return z;
-  }
-  return null;
+  return {
+    id: selected.value,
+    miete: parseFloat(selected.dataset.miete) || 0,
+    qm: selected.dataset.qm || '',
+    balkon: selected.dataset.balkon === '1',
+    aptLabel: selected.dataset.aptLabel || '',
+    aptId: selected.dataset.aptId || '',
+  };
 }
 function updateStep1NavState(){
   const room = getSelectedRoomData();
@@ -2749,10 +2752,30 @@ function wireWizard(){
       updateStep1NavState();
     }
   });
+  // Extra safety: any click inside the rooms grid re-checks state on next tick
+  document.addEventListener('click', e => {
+    if (e.target && e.target.closest && e.target.closest('.apt-rooms')){
+      setTimeout(updateStep1NavState, 50);
+    }
+  });
   const btnNext = document.getElementById('btnToStep2');
-  if (btnNext) btnNext.onclick = () => {
+  if (btnNext) btnNext.onclick = (e) => {
+    e.preventDefault();
     const room = getSelectedRoomData();
-    if (!room) return;
+    if (!room) {
+      // Visual feedback
+      const grid = document.getElementById('roomGrid');
+      if (grid) {
+        grid.scrollIntoView({behavior:'smooth', block:'center'});
+        grid.style.outline = '2px solid #f87171';
+        grid.style.outlineOffset = '8px';
+        grid.style.borderRadius = '8px';
+        setTimeout(() => { grid.style.outline=''; grid.style.outlineOffset=''; }, 2000);
+      }
+      const hint = document.getElementById('step1Hint');
+      if (hint) hint.classList.remove('hidden');
+      return;
+    }
     goToStep(2);
   };
   const btnBack = document.getElementById('btnBackToStep1');

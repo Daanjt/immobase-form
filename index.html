@@ -1970,12 +1970,8 @@ let FREIE_ZIMMER = [];
 // thumbUrl uses Supabase Image Transformation (Pro plan) — much smaller files
 // origUrl is the full-res original (used for lightbox zoom)
 function thumbUrl(path, opts){
-  const o = opts || {};
-  const w = o.width || 300;
-  const q = o.quality || 70;
-  const resize = o.resize || 'cover';
-  const fmt = o.format ? '&format=' + o.format : '';
-  return `${SB_URL_FORM}/storage/v1/render/image/public/assets/${path}?width=${w}&quality=${q}&resize=${resize}${fmt}`;
+  // Fallback to original URL — Supabase image transformations not enabled on this plan
+  return `${SB_URL_FORM}/storage/v1/object/public/assets/${path}`;
 }
 function origUrl(path){
   return `${SB_URL_FORM}/storage/v1/object/public/assets/${path}`;

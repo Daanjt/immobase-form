@@ -2260,6 +2260,13 @@ document.getElementById('mainForm').addEventListener('submit', async function(e)
   e.preventDefault();
   console.log('[FORM] submit triggered');
   const btn = document.getElementById('submitBtn');
+  // Immediate visual feedback that submit was actually handled
+  if (btn) {
+    const origText = btn.textContent;
+    btn.textContent = 'Wird gesendet…';
+    // Restore if validation fails later
+    setTimeout(() => { if (btn.textContent === 'Wird gesendet…') btn.textContent = origText; }, 5000);
+  }
 
   // ─── VALIDIERUNGS-HELFER ─────────────────────────────────────
   function validateEmail(v) {
@@ -2802,6 +2809,33 @@ function wireWizard(){
   }
   const btnBack = document.getElementById('btnBackToStep1');
   if (btnBack) btnBack.onclick = () => goToStep(1);
+
+  // ─── ROBUST SUBMIT HANDLING ───
+  const submitBtn = document.getElementById('submitBtn');
+  const mainForm = document.getElementById('mainForm');
+  if (submitBtn && mainForm) {
+    const handleSubmitClick = (e) => {
+      // IMMEDIATE feedback so user knows click registered
+      const originalText = submitBtn.textContent;
+      submitBtn.style.opacity = '0.7';
+      setTimeout(() => { submitBtn.style.opacity = ''; }, 200);
+      
+      // Try to trigger form submit programmatically
+      try {
+        if (typeof mainForm.requestSubmit === 'function') {
+          mainForm.requestSubmit();
+        } else {
+          // Fallback: dispatch synthetic submit event
+          mainForm.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+        }
+      } catch (err) {
+        console.error('[SUBMIT] Error triggering submit:', err);
+        alert('Fehler beim Absenden: ' + (err.message || err) + '\n\nBitte versuche es erneut oder kontaktiere uns direkt.');
+      }
+    };
+    // Use both onclick AND addEventListener for maximum compatibility
+    submitBtn.addEventListener('click', handleSubmitClick);
+  }
 
   updateStep1NavState();
 }

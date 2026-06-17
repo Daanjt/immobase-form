@@ -1481,17 +1481,8 @@
       </div>
       </div><!-- /step-1 -->
       
-      <!-- Step 2: Summary of selection + remaining sections -->
+      <!-- Step 2: Remaining sections -->
       <div class="form-step step-2" id="formStep2B">
-      <!-- Summary of selected room -->
-      <div class="form-card selection-summary" id="selectionSummary" style="display:none">
-        <div class="summary-content">
-          <div class="summary-label">✓ Du hast gewählt</div>
-          <div class="summary-room" id="summaryRoom">—</div>
-          <div class="summary-price" id="summaryPrice">—</div>
-        </div>
-        <button type="button" class="btn-back-inline" id="btnEditRoom">Ändern</button>
-      </div>
       
       <!-- 4. Beruf & Finanzen -->
       <div class="form-card" style="animation-delay:.2s">
@@ -2267,6 +2258,7 @@ document.querySelectorAll('input,select,textarea').forEach(el => {
 
 document.getElementById('mainForm').addEventListener('submit', async function(e) {
   e.preventDefault();
+  console.log('[FORM] submit triggered');
   const btn = document.getElementById('submitBtn');
 
   // ─── VALIDIERUNGS-HELFER ─────────────────────────────────────
@@ -2720,6 +2712,9 @@ function selectRoomCard(card){
   card.classList.add('checked');
   // Trigger any external listeners (e.g. cost calc)
   try { radio.dispatchEvent(new Event('change', { bubbles: true })); } catch(e) {}
+  // Also directly call cost + progress updates as fallback
+  try { if (typeof updateCostSummary === 'function') updateCostSummary(); } catch(e) {}
+  try { if (typeof updateProgress === 'function') updateProgress(); } catch(e) {}
   updateStep1NavState();
   return true;
 }
@@ -2748,19 +2743,7 @@ function updateStep1NavState(){
     if (hint) hint.classList.remove('hidden');
   }
 }
-function updateSelectionSummary(){
-  const room = getSelectedRoomData();
-  const summary = document.getElementById('selectionSummary');
-  if (!room || !summary) {
-    if (summary) summary.style.display = 'none';
-    return;
-  }
-  summary.style.display = 'flex';
-  const sr = document.getElementById('summaryRoom');
-  const sp = document.getElementById('summaryPrice');
-  if (sr) sr.textContent = `Zimmer ${room.id.split('-')[1] || room.id} · ${room.aptLabel}`;
-  if (sp) sp.textContent = `CHF ${room.miete.toLocaleString('de-CH')} / Monat${room.qm ? ' · ' + room.qm : ''}${room.balkon ? ' · 🌿 Balkon' : ''}`;
-}
+function updateSelectionSummary(){ /* removed - not used */ }
 function goToStep(n){
   CURRENT_STEP = n;
   document.querySelectorAll('.form-step').forEach(el => {
@@ -2819,8 +2802,7 @@ function wireWizard(){
   }
   const btnBack = document.getElementById('btnBackToStep1');
   if (btnBack) btnBack.onclick = () => goToStep(1);
-  const btnEdit = document.getElementById('btnEditRoom');
-  if (btnEdit) btnEdit.onclick = () => goToStep(1);
+
   updateStep1NavState();
 }
 

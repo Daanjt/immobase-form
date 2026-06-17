@@ -2116,6 +2116,7 @@ async function renderRooms() {
   `).join('');
   wireGalleryClicks();
   fillPdfPreviews();
+  wireRoomCardClicks();
   updateStep1NavState();
 
   // Wire up listeners
@@ -2689,17 +2690,51 @@ async function fillPdfPreviews(){
 
 // ═══ Wizard Step Navigation ═══
 let CURRENT_STEP = 1;
+let WIZARD_SELECTED_RADIO = null;
 function getSelectedRoomData(){
-  const selected = document.querySelector('input[name="zimmerWunsch"]:checked');
-  if (!selected) return null;
+  // Prefer cached reference, fall back to live DOM query
+  let r = WIZARD_SELECTED_RADIO;
+  if (!r || !r.checked || !document.body.contains(r)){
+    r = document.querySelector('input[name="zimmerWunsch"]:checked');
+    if (r) WIZARD_SELECTED_RADIO = r;
+  }
+  if (!r || !r.checked) return null;
   return {
-    id: selected.value,
-    miete: parseFloat(selected.dataset.miete) || 0,
-    qm: selected.dataset.qm || '',
-    balkon: selected.dataset.balkon === '1',
-    aptLabel: selected.dataset.aptLabel || '',
-    aptId: selected.dataset.aptId || '',
+    id: r.value,
+    miete: parseFloat(r.dataset.miete) || 0,
+    qm: r.dataset.qm || '',
+    balkon: r.dataset.balkon === '1',
+    aptLabel: r.dataset.aptLabel || '',
+    aptId: r.dataset.aptId || '',
   };
+}
+function selectRoomCard(card){
+  // Single source of truth: explicitly check the radio + update visual state
+  const radio = card.querySelector('input[type="radio"][name="zimmerWunsch"]');
+  if (!radio) return false;
+  document.querySelectorAll('input[name="zimmerWunsch"]').forEach(r => {
+    if (r !== radio) r.checked = false;
+  });
+  radio.checked = true;
+  WIZARD_SELECTED_RADIO = radio;
+  document.querySelectorAll('.room-card.checked').forEach(c => c.classList.remove('checked'));
+  card.classList.add('checked');
+  // Trigger any external listeners (e.g. cost calc)
+  try { radio.dispatchEvent(new Event('change', { bubbles: true })); } catch(e) {}
+  updateStep1NavState();
+  return true;
+}
+function wireRoomCardClicks(){
+  document.querySelectorAll('.room-card').forEach(card => {
+    if (card.dataset.wizardWired === '1') return;
+    card.dataset.wizardWired = '1';
+    card.addEventListener('click', e => {
+      // Skip if click was on a photo thumb (it opens lightbox, not select)
+      if (e.target.closest('.room-thumb')) return;
+      e.preventDefault();
+      selectRoomCard(card);
+    });
+  });
 }
 function updateStep1NavState(){
   const room = getSelectedRoomData();
@@ -2761,9 +2796,9 @@ function wireWizard(){
   const btnNext = document.getElementById('btnToStep2');
   if (btnNext) btnNext.onclick = (e) => {
     e.preventDefault();
-    const room = getSelectedRoomData();
-    if (!room) {
-      // Visual feedback
+    // Last-chance check: any checked radio anywhere?
+    const anyChecked = document.querySelector('input[name="zimmerWunsch"]:checked');
+    if (!anyChecked) {
       const grid = document.getElementById('roomGrid');
       if (grid) {
         grid.scrollIntoView({behavior:'smooth', block:'center'});
@@ -2776,6 +2811,7 @@ function wireWizard(){
       if (hint) hint.classList.remove('hidden');
       return;
     }
+    WIZARD_SELECTED_RADIO = anyChecked;
     goToStep(2);
   };
   const btnBack = document.getElementById('btnBackToStep1');

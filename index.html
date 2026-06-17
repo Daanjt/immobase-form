@@ -1,0 +1,3182 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Zimmer-Bewerbung — D&T Homes</title>
+<meta name="theme-color" content="#ffffff">
+<meta name="description" content="Bewerbungsformular für eine D&T Homes Wohnung in Zürich">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
+<link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png">
+<link rel="icon" type="image/png" sizes="180x180" href="/favicon-180.png">
+<link rel="shortcut icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+  :root {
+    --bg: #f6f1e8;
+    --surface: #fefcf7;
+    --card: #fefcf7;
+    --beige: #c9b896;
+    --beige-soft: #ede4d3;
+    --beige-line: #ddd0b8;
+    --gold: #1a1814;
+    --line: #e1d8c5;
+    --line-soft: #ebe3d2;
+    --ink: #1a1814;
+    --text: #4a4439;
+    --muted: #8a8174;
+    --muted-light: #b8af9f;
+    --green: #5a6e4a;
+    --green-soft: #e8eadb;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Manrope', sans-serif;
+    font-size: 13.5px;
+    font-weight: 400;
+    letter-spacing: .005em;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 800px 500px at 20% 0%, var(--beige-soft) 0%, transparent 60%),
+      radial-gradient(ellipse 600px 400px at 80% 100%, var(--beige-soft) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+    opacity: .6;
+  }
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 70px 28px 90px;
+  }
+
+  /* HEADER */
+  .header {
+    text-align: center;
+    margin-bottom: 60px;
+    animation: fadeUp .7s ease both;
+  }
+  .header-logo {
+    width: 130px;
+    height: auto;
+    margin: 0 auto 32px;
+    display: block;
+  }
+  h1 {
+    font-family: 'Manrope', sans-serif;
+    font-size: 48px;
+    font-weight: 300;
+    color: var(--ink);
+    line-height: 1.1;
+    margin-bottom: 18px;
+    letter-spacing: .005em;
+  }
+  h1 strong {
+    font-weight: 300;
+    color: var(--ink);
+  }
+  .subtitle {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 440px;
+    margin: 0 auto;
+    font-weight: 300;
+  }
+
+  /* PROGRESS */
+  .progress-bar {
+    height: 1px;
+    background: var(--line);
+    margin-bottom: 50px;
+    overflow: hidden;
+    animation: fadeUp .7s .1s ease both;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--gold);
+    transition: width .6s cubic-bezier(.4,0,.2,1);
+  }
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9.5px;
+    color: var(--muted);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: .25em;
+    font-weight: 500;
+  }
+
+  /* FORM CARD */
+  .form-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 44px 38px;
+    margin-bottom: 18px;
+    animation: fadeUp .7s .2s ease both;
+    opacity: 0;
+    animation-fill-mode: forwards;
+  }
+  .section-title {
+    font-family: 'Manrope', sans-serif;
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--ink);
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--line-soft);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    letter-spacing: .01em;
+  }
+  .section-num {
+    font-family: 'Manrope', sans-serif;
+    font-size: 12px;
+    font-style: italic;
+    color: var(--gold);
+    font-weight: 400;
+    letter-spacing: .1em;
+    flex-shrink: 0;
+  }
+
+  /* FIELDS */
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .field { margin-bottom: 22px; }
+  .field:last-child { margin-bottom: 0; }
+  label {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  label .req { color: var(--gold); margin-left: 3px; font-style: italic; }
+  input, select, textarea {
+    width: 100%;
+    background: var(--bg);
+    border: none;
+    border-bottom: 1px solid var(--line);
+    border-radius: 0;
+    padding: 11px 0;
+    color: var(--ink);
+    font-family: 'Manrope', sans-serif;
+    font-size: 13.5px;
+    outline: none;
+    transition: border-color .25s ease;
+    -webkit-appearance: none;
+    letter-spacing: .005em;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-bottom-color: var(--gold);
+  }
+  input::placeholder, textarea::placeholder {
+    color: var(--muted-light);
+    font-weight: 300;
+    font-style: italic;
+  }
+  select {
+    background: var(--bg) url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3e%3cpath fill='%238a8478' d='M5 6L0 0h10z'/%3e%3c/svg%3e") no-repeat right .5em center;
+    background-size: 9px;
+    padding-right: 22px;
+    cursor: pointer;
+  }
+  select option {
+    background: var(--surface);
+    color: var(--ink);
+  }
+  textarea {
+    resize: vertical;
+    min-height: 90px;
+    line-height: 1.6;
+    border: 1px solid var(--line);
+    padding: 12px 14px;
+    background: var(--bg);
+  }
+  textarea:focus { border-color: var(--gold); }
+
+  /* ROOM CARDS */
+  .room-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  /* ─── Matterport Hero (groß und prominent) ─── */
+    .apt-matterport-hero {
+      padding: 20px 20px 12px;
+      background: linear-gradient(180deg, #fafafa 0%, #fff 100%);
+      border-bottom: 1px solid var(--bd);
+    }
+    .media-label-hero {
+      font-size: 11px;
+      color: #5a6e4a;
+      text-transform: uppercase;
+      letter-spacing: 0.22em;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .matterport-frame-big {
+      position: relative;
+      width: 100%;
+      padding-bottom: 60%; /* taller than 16:9 — more immersive */
+      overflow: hidden;
+      border-radius: 12px;
+      background: #1a1814;
+      box-shadow: 0 8px 32px rgba(0,0,0,.12);
+    }
+    .matterport-frame-big iframe {
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%;
+      border: 0;
+    }
+    .matterport-placeholder {
+      transition: opacity .3s ease;
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      background: linear-gradient(135deg, #1a1814 0%, #2d2925 100%);
+      color: #fefcf7;
+    }
+    .matterport-pulse {
+      width: 48px;
+      height: 48px;
+      border: 3px solid rgba(254,252,247,.15);
+      border-top-color: #fefcf7;
+      border-radius: 50%;
+      animation: matterPulse 1s linear infinite;
+    }
+    @keyframes matterPulse {
+      to { transform: rotate(360deg); }
+    }
+    .matterport-hint {
+      font-size: 12px;
+      letter-spacing: .04em;
+      color: rgba(254,252,247,.7);
+    }
+    /* ─── Compact extras (always visible, dezent) ─── */
+    .apt-extras-visible {
+      border-bottom: 1px solid var(--bd);
+      background: #fafafa;
+      padding: 14px 20px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .extras-section {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .extras-section-label {
+      font-size: 10.5px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-weight: 600;
+    }
+    .mini-gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 5px;
+    }
+    .mini-thumb {
+      position: relative;
+      aspect-ratio: 4/3;
+      overflow: hidden;
+      border-radius: 5px;
+      cursor: zoom-in;
+      background: #fafafa;
+      border: 1px solid var(--bd);
+      transition: transform .15s, box-shadow .15s;
+      display: block;
+      text-decoration: none;
+      color: inherit;
+    }
+    .mini-thumb:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 3px 8px rgba(0,0,0,.08);
+    }
+    .mini-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .mini-thumb-pdf .pdf-render {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fafafa;
+    }
+    .mini-thumb-pdf .pdf-loading {
+      font-size: 18px;
+      color: var(--muted);
+    }
+    .mini-thumb-pdf img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .mini-caption {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      background: linear-gradient(to top, rgba(0,0,0,.7), rgba(0,0,0,0));
+      color: #fff;
+      font-size: 9px;
+      font-weight: 500;
+      padding: 6px 3px 2px;
+      text-align: center;
+      letter-spacing: .03em;
+      pointer-events: none;
+      line-height: 1.2;
+    }
+    .floorplan-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 6px;
+    }
+    .mini-floorplan {
+      background: #fff;
+      border: 1px solid var(--bd);
+      border-radius: 6px;
+      padding: 6px;
+      cursor: zoom-in;
+      transition: box-shadow .15s, transform .15s;
+      text-align: center;
+    }
+    .mini-floorplan:hover { box-shadow: 0 3px 8px rgba(0,0,0,.06); transform: translateY(-1px); }
+    .mini-floorplan img {
+      width: 100%;
+      max-height: 140px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto;
+    }
+    .mini-floorplan-pdfimg {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+    }
+    .pdf-render {
+      width: 100%;
+      max-height: 140px;
+      aspect-ratio: 4/3;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fafafa;
+    }
+    .pdf-loading {
+      font-size: 11px;
+      color: var(--muted);
+      font-style: italic;
+    }
+    .pdf-fallback {
+      font-size: 28px;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.1;
+    }
+    .pdf-fallback span {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .04em;
+    }
+    /* Legacy floorplan-frame cursor for lightbox interaction */
+    .floorplan-frame { cursor: zoom-in; }
+    /* ─── Rooms section header ─── */
+    .rooms-header {
+      padding: 18px 20px 10px;
+      background: #fff;
+      border-bottom: 1px solid #f0e8d8;
+    }
+    .rooms-title {
+      font-family: 'Manrope', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: #1a1814;
+      margin: 0 0 3px 0;
+      letter-spacing: -0.01em;
+    }
+    .rooms-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin: 0;
+      letter-spacing: .01em;
+    }
+        .lightbox {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15,13,10,.96);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      backdrop-filter: blur(8px);
+      animation: lbFadeIn .15s ease;
+    }
+    @keyframes lbFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .lightbox.open { display: flex; }
+    .lightbox img {
+      max-width: 100%;
+      max-height: 95vh;
+      object-fit: contain;
+      box-shadow: 0 20px 60px rgba(0,0,0,.5);
+      border-radius: 8px;
+      animation: lbZoomIn .2s ease;
+    }
+    @keyframes lbZoomIn {
+      from { transform: scale(.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .lightbox-close {
+      position: absolute;
+      top: 20px; right: 20px;
+      background: rgba(255,255,255,.12);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,.15);
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 24px;
+      line-height: 1;
+      transition: all .15s ease;
+      backdrop-filter: blur(8px);
+      z-index: 2;
+    }
+    .lightbox-close:hover {
+      background: rgba(255,255,255,.2);
+      transform: scale(1.05);
+    }
+    .lightbox-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,.12);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,.15);
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 24px;
+      line-height: 1;
+      transition: all .15s ease;
+      backdrop-filter: blur(8px);
+      z-index: 2;
+    }
+    .lightbox-nav:hover {
+      background: rgba(255,255,255,.2);
+    }
+    .lightbox-prev { left: 20px; }
+    .lightbox-prev:hover { transform: translateY(-50%) translateX(-2px); }
+    .lightbox-next { right: 20px; }
+    .lightbox-next:hover { transform: translateY(-50%) translateX(2px); }
+    .lightbox-counter {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,.12);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 7px 14px;
+      border-radius: 99px;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,.15);
+      letter-spacing: .03em;
+    }
+    #lightbox-pdf-link {
+      position: absolute;
+      bottom: 24px;
+      right: 24px;
+      background: rgba(255,255,255,.12);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 9px 16px;
+      border-radius: 99px;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,.15);
+      text-decoration: none;
+      letter-spacing: .03em;
+      transition: all .15s ease;
+      align-items: center;
+      gap: 6px;
+    }
+    #lightbox-pdf-link:hover {
+      background: rgba(255,255,255,.22);
+      transform: translateY(-1px);
+    }
+    @media (max-width: 600px) {
+      .lightbox-nav { width: 42px; height: 42px; font-size: 20px; }
+      .lightbox-prev { left: 8px; }
+      .lightbox-next { right: 8px; }
+      .lightbox-close { top: 12px; right: 12px; width: 38px; height: 38px; font-size: 20px; }
+    }
+    .apt-group {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .apt-header {
+    padding: 16px 20px;
+    background: linear-gradient(180deg, var(--surface) 0%, var(--bg) 100%);
+    border-bottom: 1px solid var(--line);
+  }
+  .apt-title {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+  .apt-id {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    color: var(--ink);
+    font-size: 17px;
+    letter-spacing: .02em;
+  }
+  .apt-addr {
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .apt-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .apt-rooms {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    padding: 14px;
+  }
+    /* ─── Sticky Next Bar (Step 1 only, shown after selection) ─── */
+    .sticky-next-bar {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      background: #1a1814;
+      color: #fefcf7;
+      padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+      box-shadow: 0 -8px 28px rgba(0,0,0,.18);
+      transform: translateY(110%);
+      transition: transform .25s cubic-bezier(.4,0,.2,1);
+      z-index: 100;
+      pointer-events: none;
+    }
+    .sticky-next-bar.visible {
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .sticky-bar-inner {
+      max-width: 720px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .sticky-bar-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .sticky-bar-label {
+      font-size: 9.5px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #8a8174;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    .sticky-bar-room {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #fefcf7;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      letter-spacing: -0.005em;
+      line-height: 1.3;
+    }
+    .sticky-bar-btn {
+      background: #fefcf7;
+      color: #1a1814;
+      border: none;
+      border-radius: 8px;
+      padding: 11px 18px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: .01em;
+      font-family: inherit;
+      transition: all .15s ease;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .sticky-bar-btn:hover {
+      background: #fff;
+      transform: translateY(-1px);
+    }
+    @media (max-width: 540px) {
+      .sticky-bar-label { font-size: 8.5px; }
+      .sticky-bar-room { font-size: 12.5px; }
+      .sticky-bar-btn { padding: 10px 14px; font-size: 12.5px; }
+    }
+    /* Add bottom padding to form when sticky bar visible so the page-bottom Next button isn't covered */
+    body.sticky-bar-shown #mainForm {
+      padding-bottom: 90px;
+    }
+
+    /* ─── Wizard Steps Indicator ─── */
+    .wizard-steps {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 20px 22px;
+      background: #fff;
+      border-bottom: 1px solid var(--bd);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 2px 8px rgba(0,0,0,.03);
+    }
+    .wstep {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: .45;
+      transition: opacity .25s ease;
+    }
+    .wstep.active {
+      opacity: 1;
+    }
+    .wstep.done {
+      opacity: 1;
+    }
+    .wstep-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #e8e0cd;
+      color: #1a1814;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: 'Manrope', sans-serif;
+      letter-spacing: -0.02em;
+      transition: all .25s ease;
+    }
+    .wstep.active .wstep-num {
+      background: #1a1814;
+      color: #fefcf7;
+      transform: scale(1.05);
+    }
+    .wstep.done .wstep-num {
+      background: #5a6e4a;
+      color: #fff;
+    }
+    .wstep.done .wstep-num::before {
+      content: '✓';
+      font-size: 14px;
+    }
+    .wstep.done .wstep-num .wstep-num-text { display: none; }
+    .wstep-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1a1814;
+      letter-spacing: -0.01em;
+    }
+    .wstep-divider {
+      flex: 1;
+      height: 2px;
+      background: #e8e0cd;
+      border-radius: 2px;
+      transition: background .25s;
+    }
+    .wstep-divider.done {
+      background: #5a6e4a;
+    }
+    @media (max-width: 540px) {
+      .wizard-steps { padding: 14px 16px; gap: 10px; }
+      .wstep-label { font-size: 11.5px; }
+      .wstep-num { width: 24px; height: 24px; font-size: 11.5px; }
+    }
+    
+    /* ─── Form Step Containers ─── */
+    .form-step {
+      display: none;
+      animation: stepFadeIn .25s ease;
+    }
+    .form-step.active {
+      display: block;
+    }
+    @keyframes stepFadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* ─── Step Navigation Buttons ─── */
+    .step-nav {
+      padding: 18px 22px 24px;
+      text-align: center;
+    }
+    .btn-next {
+      background: #1a1814;
+      color: #fefcf7;
+      border: none;
+      border-radius: 10px;
+      padding: 14px 36px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: .01em;
+      transition: all .15s ease;
+      font-family: inherit;
+      box-shadow: 0 4px 16px rgba(26,24,20,.15);
+    }
+    .btn-next:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 22px rgba(26,24,20,.2);
+    }
+    .btn-next:disabled {
+      opacity: .35;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    .step-nav-hint {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--muted);
+      font-style: italic;
+    }
+    .step-nav-hint.hidden {
+      visibility: hidden;
+    }
+    
+    /* ─── Submit row with Back button ─── */
+    .submit-nav-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .btn-back {
+      background: #fefcf7;
+      color: #1a1814;
+      border: 1px solid var(--bd);
+      border-radius: 10px;
+      padding: 14px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: .01em;
+      transition: all .15s ease;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+    .btn-back:hover {
+      background: #f5efe2;
+    }
+    .submit-nav-row .submit-btn {
+      flex: 1;
+    }
+    @media (max-width: 540px) {
+      .submit-nav-row { flex-direction: column-reverse; }
+      .btn-back { width: 100%; }
+    }
+    
+    /* ─── Selection Summary in Step 2 ─── */
+    .selection-summary {
+      background: linear-gradient(135deg, #fefcf7 0%, #f5efe2 100%) !important;
+      border: 1.5px solid #c5b896 !important;
+      display: flex !important;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 14px 18px !important;
+      margin-bottom: 18px;
+    }
+    .summary-content { flex: 1; }
+    .summary-label {
+      font-size: 10.5px;
+      color: #5a6e4a;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .summary-room {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1a1814;
+      font-family: 'Manrope', sans-serif;
+      margin-bottom: 2px;
+      line-height: 1.3;
+    }
+    .summary-price {
+      font-size: 14px;
+      color: #5a6e4a;
+      font-weight: 600;
+    }
+    .btn-back-inline {
+      background: transparent;
+      color: #1a1814;
+      border: 1px solid #1a1814;
+      border-radius: 8px;
+      padding: 7px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .15s ease;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+    .btn-back-inline:hover {
+      background: #1a1814;
+      color: #fefcf7;
+    }
+    
+  .room-card {
+    position: relative;
+    background: #fff;
+    border: 2px solid var(--bd);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all .2s ease;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .room-card:hover:not(.checked) {
+    border-color: #c5b896;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0,0,0,.06);
+  }
+  .room-card input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .room-card.checked {
+    border-color: #5a6e4a;
+    background: #fefcf7;
+    box-shadow: 0 4px 20px rgba(90,110,74,.18), 0 0 0 4px rgba(90,110,74,.1);
+  }
+  .selected-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: #5a6e4a;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 5px 11px;
+    border-radius: 99px;
+    letter-spacing: .04em;
+    z-index: 3;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: all .2s ease;
+    box-shadow: 0 2px 8px rgba(90,110,74,.3);
+    pointer-events: none;
+  }
+  .room-card.checked .selected-badge {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .room-photos {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+    background: var(--bd);
+  }
+  .room-photos:has(.room-thumb:only-child) {
+    grid-template-columns: 1fr;
+  }
+  .room-photos:has(.room-thumb:only-child) .room-thumb {
+    aspect-ratio: auto;
+    height: 180px;
+  }
+  .room-photos:has(.room-thumb:nth-child(2):last-child) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .room-photos:has(.room-thumb:nth-child(2):last-child) .room-thumb {
+    aspect-ratio: 3/2;
+  }
+  .room-photos:has(.room-thumb:nth-child(3):last-child) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .room-thumb {
+    position: relative;
+    aspect-ratio: 4/3;
+    overflow: hidden;
+    cursor: zoom-in;
+    background: #fafafa;
+  }
+  .room-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform .25s ease;
+  }
+  .room-thumb:hover img {
+    transform: scale(1.08);
+  }
+  .zoom-hint {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 30px;
+    height: 30px;
+    background: rgba(26,24,20,.75);
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    opacity: 0;
+    transform: scale(.7);
+    transition: all .15s ease;
+    pointer-events: none;
+    backdrop-filter: blur(4px);
+  }
+  .room-thumb:hover .zoom-hint {
+    opacity: 1;
+    transform: scale(1);
+  }
+  .room-thumb-more {
+    position: absolute;
+    inset: 0;
+    background: rgba(26,24,20,.7);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: .02em;
+    backdrop-filter: blur(2px);
+  }
+  .room-info {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px 16px;
+  }
+  .room-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .room-card .room-id {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    color: #1a1814;
+    letter-spacing: -0.01em;
+  }
+  .room-card .room-price {
+    font-size: 18px;
+    font-weight: 700;
+    color: #5a6e4a;
+    white-space: nowrap;
+    letter-spacing: -0.01em;
+  }
+  .room-card .room-price small {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--muted);
+    margin-left: 2px;
+  }
+  .room-card .room-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .room-card .meta-pill {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 99px;
+    background: #f5efe2;
+    color: #5a5448;
+    font-weight: 500;
+    letter-spacing: .02em;
+  }
+  .room-card .meta-pill.balcony {
+    background: #e8eadb;
+    color: #3d4f2f;
+  }
+  .room-card .meta-pill.photos {
+    background: #f0e5d0;
+    color: #8a6a2e;
+  }
+  .room-select-btn {
+    margin-top: 4px;
+    width: 100%;
+    background: #1a1814;
+    color: #fefcf7;
+    border: none;
+    border-radius: 8px;
+    padding: 11px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: .02em;
+    transition: all .15s ease;
+    font-family: inherit;
+  }
+  .room-select-btn:hover {
+    background: #2d2925;
+    transform: translateY(-1px);
+  }
+  .room-card.checked .room-select-btn {
+    background: #5a6e4a;
+  }
+  .room-select-btn .when-selected { display: none; }
+  .room-card.checked .room-select-btn .not-selected { display: none; }
+  .room-card.checked .room-select-btn .when-selected { display: inline; }
+  @media (max-width: 540px) {
+    .room-grid { gap: 14px; }
+    .apt-rooms { grid-template-columns: 1fr; }
+  }
+
+  /* RADIO OPTION CARDS */
+  .option-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .option-card {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 18px 22px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all .25s ease;
+  }
+  .option-card:hover { border-color: var(--gold); background: var(--surface); }
+  .option-card input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    width: 0;
+    height: 0;
+    padding: 0;
+    border: none;
+  }
+  .option-card .radio-dot {
+    width: 16px;
+    height: 16px;
+    border: 1px solid var(--muted-light);
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 3px;
+    position: relative;
+    transition: all .25s ease;
+    background: var(--surface);
+  }
+  .option-card.checked {
+    background: var(--surface);
+    border-color: var(--gold);
+    box-shadow: inset 3px 0 0 0 var(--gold);
+  }
+  .option-card.checked .radio-dot {
+    border-color: var(--gold);
+  }
+  .option-card.checked .radio-dot::after {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    background: var(--gold);
+    border-radius: 50%;
+  }
+  .option-card .body { flex: 1; min-width: 0; }
+  .option-card .head-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 5px;
+    flex-wrap: wrap;
+  }
+  .option-card .title {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 500;
+    color: var(--ink);
+    font-size: 17px;
+    letter-spacing: .01em;
+  }
+  .option-card .price {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 500;
+    color: var(--gold);
+    font-size: 11px;
+    white-space: nowrap;
+    letter-spacing: .01em;
+  }
+  .option-card .desc {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.65;
+    font-weight: 300;
+  }
+  .option-card .badge {
+    display: inline-block;
+    font-size: 8.5px;
+    font-weight: 500;
+    color: var(--gold);
+    background: var(--beige-soft);
+    padding: 2px 8px;
+    border-radius: 8px;
+    margin-left: 8px;
+    letter-spacing: .25em;
+    text-transform: uppercase;
+  }
+
+  /* INFO BOX */
+  .info-box {
+    background: var(--beige-soft);
+    border-left: 2px solid var(--gold);
+    padding: 14px 20px;
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.65;
+    margin-bottom: 22px;
+    font-weight: 300;
+  }
+  .info-box strong { color: var(--ink); font-weight: 500; }
+
+  /* CHECKBOXES */
+  .check-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    font-size: 12.5px;
+    line-height: 1.45;
+    color: var(--text);
+    padding: 12px 14px;
+    background: var(--bg);
+    border: 1.5px solid var(--line);
+    border-radius: 8px;
+    transition: all .2s ease;
+    font-weight: 300;
+    user-select: none;
+    position: relative;
+  }
+  .check-item:hover {
+    border-color: var(--gold);
+    background: var(--surface);
+  }
+  /* Native checkbox unsichtbar aber für Validation behalten */
+  .check-item input[type="checkbox"] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+  /* Custom Checkbox Box vor dem Text */
+  .check-item::before {
+    content: "";
+    display: inline-flex;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #c5b896;
+    border-radius: 5px;
+    background: #ffffff;
+    flex-shrink: 0;
+    transition: all .2s ease;
+    background-image: none;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 14px 14px;
+  }
+  /* Checked: gold mit Häkchen */
+  .check-item.checked {
+    background: var(--surface);
+    border-color: var(--gold);
+  }
+  .check-item.checked::before {
+    background-color: var(--gold);
+    border-color: var(--gold);
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='5 13 10 18 20 7'/></svg>");
+    animation: checkPop .3s cubic-bezier(.34, 1.56, .64, 1);
+  }
+  @keyframes checkPop {
+    0%   { transform: scale(.7); }
+    60%  { transform: scale(1.12); }
+    100% { transform: scale(1); }
+  }
+
+  /* SUBMIT */
+  .submit-area {
+    animation: fadeUp .7s .35s ease both;
+    opacity: 0;
+    animation-fill-mode: forwards;
+    margin-top: 36px;
+  }
+  .submit-btn {
+    width: 100%;
+    background: var(--ink);
+    border: none;
+    border-radius: 8px;
+    padding: 18px;
+    color: var(--surface);
+    font-family: 'Manrope', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all .3s ease;
+    letter-spacing: .03em;
+  }
+  .submit-btn:hover {
+    background: var(--gold);
+    transform: translateY(-1px);
+  }
+  .submit-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+  /* COST SUMMARY */
+  .cost-summary {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 2px solid var(--gold);
+    border-radius: 8px;
+    padding: 24px 28px;
+    margin-bottom: 18px;
+    animation: fadeUp .5s ease both;
+  }
+  .cost-summary h3 {
+    font-family: 'Manrope', sans-serif;
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: 0;
+    margin-bottom: 16px;
+    font-weight: 500;
+  }
+  .cost-line {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    font-size: 13px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .cost-line:last-of-type { border-bottom: none; }
+  .cost-line .lbl { color: var(--muted); font-weight: 300; }
+  .cost-line .val { color: var(--ink); font-weight: 400; }
+  .cost-total {
+    margin-top: 14px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: 'Manrope', sans-serif;
+  }
+  .cost-total .lbl {
+    font-family: 'Manrope', sans-serif;
+    color: var(--muted);
+    font-size: 12.5px;
+    letter-spacing: 0;
+    font-weight: 500;
+  }
+  .cost-total .val {
+    color: var(--gold);
+    font-size: 24px;
+    font-weight: 400;
+    letter-spacing: .01em;
+  }
+
+  /* DISCLAIMER */
+  .disclaimer {
+    text-align: center;
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 22px;
+    line-height: 1.7;
+    letter-spacing: 0;
+    font-weight: 400;
+  }
+
+  /* SUCCESS */
+  .success-screen {
+    display: none;
+    text-align: center;
+    padding: 80px 36px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    animation: fadeUp .6s ease both;
+  }
+  .success-icon {
+    width: 56px;
+    height: 56px;
+    border: 1px solid var(--gold);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: var(--gold);
+    margin: 0 auto 28px;
+    font-weight: 300;
+  }
+  .success-screen h2 {
+    font-family: 'Manrope', sans-serif;
+    font-size: 32px;
+    font-weight: 400;
+    color: var(--ink);
+    margin-bottom: 16px;
+    letter-spacing: .01em;
+  }
+  .success-screen p {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.8;
+    font-weight: 300;
+  }
+  .success-screen p strong {
+    color: var(--ink);
+    font-weight: 500;
+    font-family: 'Manrope', sans-serif;
+    font-size: 16px;
+    letter-spacing: .04em;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 540px) {
+    .field-row { grid-template-columns: 1fr; }
+    h1 { font-size: 34px; }
+    .form-card { padding: 28px 22px; }
+    .container { padding: 50px 18px 70px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <img src="data:image/png;base64,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" alt="D&amp;T Homes" class="header-logo"/>
+    <h1><strong>Bewerbung Zimmer</strong></h1>
+    <p class="subtitle">Bitte füllen Sie das Formular vollständig aus. Ihre Angaben werden vertraulich behandelt und ausschliesslich intern verwendet.</p>
+  </div>
+
+  <div id="formArea">
+    <div class="progress-label">
+      <span>Fortschritt</span>
+      <span id="progressText">0 / 5 Abschnitte</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+    <form id="mainForm" novalidate>
+
+      <!-- Wizard Step Indicator -->
+      <div class="wizard-steps">
+        <div class="wstep active" data-step="1">
+          <div class="wstep-num">1</div>
+          <div class="wstep-label">Zimmer wählen</div>
+        </div>
+        <div class="wstep-divider"></div>
+        <div class="wstep" data-step="2">
+          <div class="wstep-num">2</div>
+          <div class="wstep-label">Deine Angaben</div>
+        </div>
+      </div>
+
+      <div class="form-step step-2" id="formStep2A">
+      <!-- 1. Persönliche Daten -->
+      <div class="form-card">
+        <div class="section-title"><span class="section-num">2</span> Persönliche Angaben</div>
+        <div class="field-row">
+          <div class="field">
+            <label>Vorname <span class="req">*</span></label>
+            <input type="text" name="vorname" placeholder="Max" required>
+          </div>
+          <div class="field">
+            <label>Nachname <span class="req">*</span></label>
+            <input type="text" name="nachname" placeholder="Mustermann" required>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Geburtsdatum <span class="req">*</span></label>
+            <input type="date" name="geburt" min="1900-01-01" max="2010-12-31" required>
+          </div>
+          <div class="field">
+            <label>Geschlecht <span class="req">*</span></label>
+            <select name="gender" required>
+              <option value="">— Bitte wählen —</option>
+              <option value="Frau">Frau</option>
+              <option value="Mann">Mann</option>
+              <option value="Divers">Divers</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Nationalität <span class="req">*</span></label>
+          <select name="nat" required>
+            <option value="">— Bitte wählen —</option>
+            <option value="Schweiz">Schweiz</option>
+            <option value="Deutschland">Deutschland</option>
+            <option value="Italien">Italien</option>
+            <option value="Österreich">Österreich</option>
+            <option disabled>──────────</option>
+            <option value="Afghanistan">Afghanistan</option>
+            <option value="Albanien">Albanien</option>
+            <option value="Algerien">Algerien</option>
+            <option value="Argentinien">Argentinien</option>
+            <option value="Australien">Australien</option>
+            <option value="Ägypten">Ägypten</option>
+            <option value="Äthiopien">Äthiopien</option>
+            <option value="Bangladesch">Bangladesch</option>
+            <option value="Belarus">Belarus</option>
+            <option value="Belgien">Belgien</option>
+            <option value="Bosnien und Herzegowina">Bosnien und Herzegowina</option>
+            <option value="Brasilien">Brasilien</option>
+            <option value="Bulgarien">Bulgarien</option>
+            <option value="Chile">Chile</option>
+            <option value="China">China</option>
+            <option value="Dänemark">Dänemark</option>
+            <option value="Eritrea">Eritrea</option>
+            <option value="Estland">Estland</option>
+            <option value="Finnland">Finnland</option>
+            <option value="Frankreich">Frankreich</option>
+            <option value="Ghana">Ghana</option>
+            <option value="Griechenland">Griechenland</option>
+            <option value="Indien">Indien</option>
+            <option value="Indonesien">Indonesien</option>
+            <option value="Irak">Irak</option>
+            <option value="Iran">Iran</option>
+            <option value="Irland">Irland</option>
+            <option value="Island">Island</option>
+            <option value="Israel">Israel</option>
+            <option value="Japan">Japan</option>
+            <option value="Jordanien">Jordanien</option>
+            <option value="Kanada">Kanada</option>
+            <option value="Katar">Katar</option>
+            <option value="Kenia">Kenia</option>
+            <option value="Kolumbien">Kolumbien</option>
+            <option value="Kosovo">Kosovo</option>
+            <option value="Kroatien">Kroatien</option>
+            <option value="Kuwait">Kuwait</option>
+            <option value="Lettland">Lettland</option>
+            <option value="Libanon">Libanon</option>
+            <option value="Libyen">Libyen</option>
+            <option value="Litauen">Litauen</option>
+            <option value="Luxemburg">Luxemburg</option>
+            <option value="Malaysia">Malaysia</option>
+            <option value="Malta">Malta</option>
+            <option value="Marokko">Marokko</option>
+            <option value="Mexiko">Mexiko</option>
+            <option value="Moldau">Moldau</option>
+            <option value="Neuseeland">Neuseeland</option>
+            <option value="Niederlande">Niederlande</option>
+            <option value="Nigeria">Nigeria</option>
+            <option value="Nordkorea">Nordkorea</option>
+            <option value="Nordmazedonien">Nordmazedonien</option>
+            <option value="Norwegen">Norwegen</option>
+            <option value="Oman">Oman</option>
+            <option value="Pakistan">Pakistan</option>
+            <option value="Peru">Peru</option>
+            <option value="Philippinen">Philippinen</option>
+            <option value="Polen">Polen</option>
+            <option value="Portugal">Portugal</option>
+            <option value="Rumänien">Rumänien</option>
+            <option value="Russland">Russland</option>
+            <option value="Saudi-Arabien">Saudi-Arabien</option>
+            <option value="Schweden">Schweden</option>
+            <option value="Senegal">Senegal</option>
+            <option value="Serbien">Serbien</option>
+            <option value="Singapur">Singapur</option>
+            <option value="Slowakei">Slowakei</option>
+            <option value="Slowenien">Slowenien</option>
+            <option value="Somalia">Somalia</option>
+            <option value="Spanien">Spanien</option>
+            <option value="Sri Lanka">Sri Lanka</option>
+            <option value="Südafrika">Südafrika</option>
+            <option value="Südkorea">Südkorea</option>
+            <option value="Syrien">Syrien</option>
+            <option value="Thailand">Thailand</option>
+            <option value="Tschechien">Tschechien</option>
+            <option value="Tunesien">Tunesien</option>
+            <option value="Türkei">Türkei</option>
+            <option value="Ukraine">Ukraine</option>
+            <option value="Ungarn">Ungarn</option>
+            <option value="USA">USA</option>
+            <option value="Vereinigte Arabische Emirate">Vereinigte Arabische Emirate</option>
+            <option value="Vereinigtes Königreich">Vereinigtes Königreich</option>
+            <option value="Vietnam">Vietnam</option>
+            <option value="Zypern">Zypern</option>
+            <option value="Andere">Andere</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 2. Kontakt -->
+      <div class="form-card" style="animation-delay:.1s">
+        <div class="section-title"><span class="section-num">3</span> Kontaktdaten</div>
+        <div class="field">
+          <label>E-Mail-Adresse <span class="req">*</span></label>
+          <input type="email" name="email" placeholder="max@beispiel.ch" required>
+        </div>
+        <div class="field">
+          <label>Telefonnummer <span class="req">*</span></label>
+          <input type="tel" name="phone" placeholder="+41 79 123 45 67" required>
+        </div>
+        <div class="field" style="position:relative">
+          <label>Aktuelle Adresse <span class="req">*</span></label>
+          <input type="text" name="adresse" id="adresseInput" placeholder="Musterstrasse 1" autocomplete="off" required>
+          <div id="adresseSuggestions" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #d4c7a8;border-radius:8px;margin-top:4px;max-height:280px;overflow-y:auto;z-index:100;box-shadow:0 4px 16px rgba(0,0,0,0.08)"></div>
+          <div id="adresseLoading" style="display:none;position:absolute;right:14px;top:42px;font-size:11px;color:#8a8174;font-style:italic">Suche…</div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>PLZ <span class="req">*</span></label>
+            <input type="text" name="plz" id="plzInput" placeholder="8001" pattern="\d{4}" inputmode="numeric" maxlength="4" required>
+          </div>
+          <div class="field">
+            <label>Ort <span class="req">*</span></label>
+            <input type="text" name="ort" id="ortInput" placeholder="Zürich" required>
+          </div>
+        </div>
+      </div>
+
+      </div>
+      <!-- 3. Zimmerwahl -->
+      <div class="form-step step-1 active" id="formStep1">
+      <div class="form-card" style="animation-delay:.15s">
+        <div class="section-title"><span class="section-num">1</span> Wunsch-Zimmer auswählen <span class="req">*</span></div>
+        <div class="info-box" style="margin-bottom:14px">
+          Bitte ein Zimmer auswählen (Pflichtfeld). Alle gezeigten Zimmer sind aktuell verfügbar. Die Zuteilung erfolgt nach Prüfung Ihrer Bewerbung.
+        </div>
+        <div class="room-grid" id="roomGrid">
+          <!-- Wird per JS befüllt -->
+        </div>
+      </div>
+
+      <!-- Step 1 → Step 2 transition: Next button -->
+      <div class="step-nav step-nav-1">
+        <button type="button" class="btn-next" id="btnToStep2">
+          Weiter zu deinen Angaben →
+        </button>
+        <div class="step-nav-hint" id="step1Hint">Bitte zuerst ein Zimmer auswählen</div>
+      </div>
+      </div><!-- /step-1 -->
+      
+      <!-- Step 2: Remaining sections -->
+      <div class="form-step step-2" id="formStep2B">
+      
+      <!-- 4. Beruf & Finanzen -->
+      <div class="form-card" style="animation-delay:.2s">
+        <div class="section-title"><span class="section-num">4</span> Beruf &amp; Finanzen</div>
+        <div class="field-row">
+          <div class="field">
+            <label>Beschäftigungsstatus <span class="req">*</span></label>
+            <select name="type" required>
+              <option value="">— Bitte wählen —</option>
+              <option>Arbeitnehmer</option>
+              <option>Student</option>
+              <option>Selbstständig</option>
+              <option>AOZ / Sozialhilfe</option>
+              <option>Rentner</option>
+              <option>Sonstiges</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Beruf / Tätigkeit</label>
+            <input type="text" name="job" placeholder="z.B. Informatiker, Student…">
+          </div>
+        </div>
+        <div class="field">
+          <label>Monatliches Nettoeinkommen (CHF)</label>
+          <input type="number" name="einkommen" placeholder="z.B. 4500" min="0">
+        </div>
+        <div class="field">
+          <label>Arbeitgeber / Ausbildungsstätte</label>
+          <input type="text" name="arbeitgeber" placeholder="Name des Unternehmens oder Schule">
+        </div>
+      </div>
+
+      <!-- 5. Mietverhältnis & Optionen -->
+      <div class="form-card" style="animation-delay:.25s">
+        <div class="section-title"><span class="section-num">5</span> Mietverhältnis &amp; Optionen</div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Gewünschter Einzug <span class="req">*</span></label>
+            <input type="date" name="einzug" required id="einzugInput">
+          </div>
+        </div>
+
+        <!-- KAUTIONS-OPTIONEN -->
+        <div class="field" style="margin-top:18px">
+          <label style="margin-bottom:10px">Kaution wählen <span class="req">*</span></label>
+          <div class="info-box">
+            Die Kaution wird über <strong>Evorest</strong> abgewickelt. Sie können wählen, wie viel Sie hinterlegen möchten — je weniger Kaution, desto höher die monatliche Pauschale.
+          </div>
+          <div class="option-cards">
+            <label class="option-card" data-option="kaution">
+              <input type="radio" name="kautionOpt" value="3x" required>
+              <div class="radio-dot"></div>
+              <div class="body">
+                <div class="head-row">
+                  <span class="title">3× Monatsmiete <span class="badge">Standard</span></span>
+                  <span class="price">+ CHF 0.– / Mt.</span>
+                </div>
+                <div class="desc">Volle Kaution wird auf Evorest hinterlegt — keine zusätzliche Monatsmiete</div>
+              </div>
+            </label>
+            <label class="option-card" data-option="kaution">
+              <input type="radio" name="kautionOpt" value="2x" required>
+              <div class="radio-dot"></div>
+              <div class="body">
+                <div class="head-row">
+                  <span class="title">2× Monatsmiete</span>
+                  <span class="price">+ CHF 50.– / Mt.</span>
+                </div>
+                <div class="desc">Reduzierte Kaution — CHF 50.– zusätzlich zur Monatsmiete</div>
+              </div>
+            </label>
+            <label class="option-card" data-option="kaution">
+              <input type="radio" name="kautionOpt" value="1x" required>
+              <div class="radio-dot"></div>
+              <div class="body">
+                <div class="head-row">
+                  <span class="title">1× Monatsmiete</span>
+                  <span class="price">+ CHF 100.– / Mt.</span>
+                </div>
+                <div class="desc">Stark reduzierte Kaution — CHF 100.– zusätzlich zur Monatsmiete</div>
+              </div>
+            </label>
+            <label class="option-card" data-option="kaution">
+              <input type="radio" name="kautionOpt" value="0x" required>
+              <div class="radio-dot"></div>
+              <div class="body">
+                <div class="head-row">
+                  <span class="title">Keine Kaution <span class="badge" >Beliebt</span></span>
+                  <span class="price">+ CHF 150.– / Mt.</span>
+                </div>
+                <div class="desc">Keine Kaution erforderlich — CHF 150.– zusätzlich zur Monatsmiete</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- MÖBLIERUNG -->
+        <div class="field" style="margin-top:22px">
+          <label style="margin-bottom:10px">Möblierung <span class="req">*</span></label>
+          
+          <div style="background:#f0f7f2;border:1px solid #c5dccb;border-radius:8px;padding:12px 14px;margin-bottom:12px;display:flex;gap:10px;align-items:flex-start;">
+            <div style="font-size:18px;line-height:1;flex-shrink:0;">✓</div>
+            <div style="font-size:13px;color:#2a4a35;line-height:1.5;">
+              <strong>Gemeinschaftsräumlichkeiten wie Küche und Badezimmer sind in allen Wohnungen voll ausgestattet und möbliert (inkl. WLAN).</strong><br>
+              <span style="color:#5a6e4a;font-size:12px;">Die Auswahl unten betrifft nur dein eigenes Zimmer.</span>
+            </div>
+          </div>
+          
+          <div class="option-cards">
+            <label class="option-card" data-option="moebel">
+              <input type="radio" name="moebliert" value="ja" required>
+              <div class="radio-dot"></div>
+              <div class="body">
+                <div class="head-row">
+                  <span class="title">Zimmer möbliert</span>
+                  <span class="price">CHF 990.– einmalig</span>
+                </div>
+                <div class="desc">Dein Zimmer wird vollständig möbliert übergeben (Bett, Kleiderschrank, Schreibtisch) — einmalige Pauschale beim Einzug</div>
+              </div>
+            </label>
+            <label class="option-card" data-option="moebel">
+              <input type="radio" name="moebliert" value="nein" required>
+              <div class="radio-dot"></div>
+              <div class="body">
+                <div class="head-row">
+                  <span class="title">Zimmer unmöbliert</span>
+                  <span class="price">CHF 0.–</span>
+                </div>
+                <div class="desc">Dein Zimmer wird leer übergeben — eigene Möbel mitbringen. Küche & Bad bleiben weiterhin möbliert.</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:18px">
+          <label>Zusätzliche Angaben / Bemerkungen</label>
+          <textarea name="bemerkung" placeholder="Weitere relevante Informationen zu Ihrer Bewerbung…"></textarea>
+        </div>
+
+        <div class="field" style="margin-top:14px">
+          <label style="margin-bottom:10px">Bestätigungen <span class="req">*</span></label>
+          <div class="check-group">
+            <label class="check-item" id="check1">
+              <input type="checkbox" name="noDebt" required onchange="updateCheck(this,'check1')">
+              Ich bestätige, dass ich keine offenen Betreibungen habe
+            </label>
+            <label class="check-item" id="check2">
+              <input type="checkbox" name="truthful" required onchange="updateCheck(this,'check2')">
+              Ich bestätige, dass alle Angaben der Wahrheit entsprechen
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- KOSTENZUSAMMENFASSUNG -->
+      <div class="cost-summary" id="costSummary" style="display:none">
+        <h3>Ihre Konditionen im Überblick</h3>
+
+        <div style="margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--line)">
+          <div style="font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.25em;font-weight:600;margin-bottom:8px">Wunsch-Zimmer</div>
+          <div class="cost-line"><span class="lbl">Zimmer</span><span class="val" id="zimmerLabel">—</span></div>
+          <div class="cost-line"><span class="lbl">Adresse</span><span class="val" id="adresseLabel">—</span></div>
+          <div class="cost-line"><span class="lbl">Wohnungstyp</span><span class="val" id="wgLabel">—</span></div>
+        </div>
+
+        <div style="margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--line)">
+          <div style="font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.25em;font-weight:600;margin-bottom:8px">Monatliche Kosten</div>
+          <div class="cost-line"><span class="lbl">Bruttomiete (Zimmer)</span><span class="val" id="mieteLabel">—</span></div>
+          <div class="cost-line"><span class="lbl">Stromkosten (pauschal)</span><span class="val">CHF 25.–</span></div>
+          <div class="cost-line"><span class="lbl">Kautions-Aufschlag</span><span class="val" id="aufschlagLabel">CHF 0.–</span></div>
+          <div class="cost-total"><span class="lbl">Total / Monat</span><span class="val" id="totalLabel">CHF 0.–</span></div>
+        </div>
+
+        <div>
+          <div style="font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.25em;font-weight:600;margin-bottom:8px">Einmalige Kosten</div>
+          <div class="cost-line"><span class="lbl">Kaution</span><span class="val" id="kautionLabel">—</span></div>
+          <div class="cost-line"><span class="lbl">Möblierung</span><span class="val" id="moebelLabel">—</span></div>
+        </div>
+      </div>
+
+      <div class="submit-area">
+        <div class="submit-nav-row">
+          <button type="button" class="btn-back" id="btnBackToStep1">← Zurück zur Auswahl</button>
+          <button type="submit" class="submit-btn" id="submitBtn">
+            Bewerbung einreichen →
+          </button>
+        </div>
+        <p class="disclaimer">
+          Ihre Daten werden vertraulich behandelt und nicht an Dritte weitergegeben.<br>
+          D&T Homes · Zürich
+        </p>
+      </div>
+
+      </div><!-- /step-2B -->
+    </form>
+    
+    <!-- Sticky bottom bar — appears after room selection in Step 1 -->
+    <div class="sticky-next-bar" id="stickyNextBar" aria-hidden="true">
+      <div class="sticky-bar-inner">
+        <div class="sticky-bar-info">
+          <div class="sticky-bar-label">Ausgewählt</div>
+          <div class="sticky-bar-room" id="stickyBarRoom">—</div>
+        </div>
+        <button type="button" class="sticky-bar-btn" id="stickyBarNext">
+          Weiter <span style="opacity:.7;margin-left:4px">→</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="success-screen" id="successScreen">
+      <div class="success-icon">✓</div>
+      <h2>Vielen Dank.</h2>
+      <p>Ihre Bewerbung ist bei uns eingegangen.<br>Wir melden uns in Kürze persönlich bei Ihnen.<br><br>
+      <strong>D&amp;T Homes</strong><br>
+      <span style="font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)">Zürich</span></p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─── ADRESS-AUTOCOMPLETE (CH) ───────────────────────────────────────────
+// Nutzt OpenPLZ API (gratis, Open Data) für Schweizer Strassen-Suche
+// API-Doku: https://openplzapi.org
+
+(function setupAdressAutocomplete() {
+  let debounceTimer = null;
+  let currentRequestId = 0;
+  
+  function init() {
+    const adresseInput = document.getElementById('adresseInput');
+    const plzInput = document.getElementById('plzInput');
+    const ortInput = document.getElementById('ortInput');
+    const suggestionsBox = document.getElementById('adresseSuggestions');
+    const loadingEl = document.getElementById('adresseLoading');
+    
+    if (!adresseInput || !suggestionsBox) return;
+    
+    // Hide suggestions when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!adresseInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
+        suggestionsBox.style.display = 'none';
+      }
+    });
+    
+    adresseInput.addEventListener('input', () => {
+      const value = adresseInput.value.trim();
+      // Min. 3 Zeichen
+      if (value.length < 3) {
+        suggestionsBox.style.display = 'none';
+        loadingEl.style.display = 'none';
+        return;
+      }
+      
+      // Debounce 350ms
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => searchAddress(value), 350);
+    });
+    
+    adresseInput.addEventListener('focus', () => {
+      if (adresseInput.value.trim().length >= 3 && suggestionsBox.children.length > 0) {
+        suggestionsBox.style.display = 'block';
+      }
+    });
+    
+    async function searchAddress(query) {
+      const reqId = ++currentRequestId;
+      loadingEl.style.display = 'block';
+      
+      // Strasse + Nummer trennen
+      // "Engimattstrasse 31" → strasse: "Engimattstrasse", hausnummer: "31"
+      const match = query.match(/^(.+?)\s+(\d+\w*)\s*$/);
+      const strasse = match ? match[1].trim() : query;
+      const hausnummer = match ? match[2].trim() : '';
+      
+      // OpenPLZ kürzt "strasse" zu "str." → wir versuchen beide Varianten
+      // Regex-Suche: Engimatt(strasse|str\.) 
+      const baseName = strasse.replace(/\s*(strasse|str\.?|street)\s*$/i, '');
+      const searchPattern = baseName !== strasse
+        ? `^${baseName}\\s*(str\\.?|strasse|street)` // mit/ohne strasse-Endung
+        : strasse;
+      
+      try {
+        // OpenPLZ API: Schweizer Strassen-Suche (Regex-Support eingebaut)
+        const url = `https://openplzapi.org/ch/Streets?name=${encodeURIComponent(searchPattern)}&page=1&pageSize=15`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('API error');
+        const results = await res.json();
+        
+        // Falls zwischenzeitlich neue Suche → ignoriere alte Antwort
+        if (reqId !== currentRequestId) return;
+        
+        loadingEl.style.display = 'none';
+        renderSuggestions(results, hausnummer);
+      } catch (e) {
+        if (reqId !== currentRequestId) return;
+        loadingEl.style.display = 'none';
+        suggestionsBox.style.display = 'none';
+        console.warn('Adress-Suche fehlgeschlagen:', e);
+      }
+    }
+    
+    function renderSuggestions(results, hausnummer) {
+      if (!results || results.length === 0) {
+        suggestionsBox.innerHTML = '<div style="padding:14px;text-align:center;color:#8a8174;font-size:12px;font-style:italic">Keine Treffer — bitte manuell PLZ und Ort eingeben.</div>';
+        suggestionsBox.style.display = 'block';
+        return;
+      }
+      
+      // Dedupliziere nach Strasse+PLZ+Ort
+      const seen = new Set();
+      const filtered = results.filter(r => {
+        const key = `${r.name}_${r.postalCode}_${r.locality}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+      
+      // "Strasse" wieder ausschreiben für bessere Lesbarkeit
+      function expandStrasse(name) {
+        if (!name) return name;
+        return name.replace(/(\S)str\.\s*$/i, '$1strasse').replace(/\s+str\.\s*$/i, ' strasse');
+      }
+      
+      suggestionsBox.innerHTML = '';
+      filtered.forEach(r => {
+        const displayName = expandStrasse(r.name);
+        const item = document.createElement('div');
+        item.style.cssText = 'padding:10px 14px;cursor:pointer;border-bottom:1px solid #f0e9d8;font-size:13px;line-height:1.4;transition:background .15s';
+        item.innerHTML = `
+          <div style="font-weight:600;color:#1a1814">${escapeHtml(displayName)}${hausnummer ? ' ' + escapeHtml(hausnummer) : ''}</div>
+          <div style="font-size:11.5px;color:#8a8174;margin-top:2px">${escapeHtml(r.postalCode)} ${escapeHtml(r.locality)}${r.canton ? ' · ' + escapeHtml(r.canton.shortName || r.canton.name || '') : ''}</div>
+        `;
+        item.addEventListener('mouseenter', () => item.style.background = '#f9f6ef');
+        item.addEventListener('mouseleave', () => item.style.background = '#fff');
+        item.addEventListener('click', () => {
+          adresseInput.value = `${displayName}${hausnummer ? ' ' + hausnummer : ''}`;
+          plzInput.value = r.postalCode || '';
+          ortInput.value = r.locality || '';
+          // Visuelle Bestätigung
+          [plzInput, ortInput].forEach(el => {
+            el.style.background = '#f0f7f2';
+            el.style.borderColor = '#c5dccb';
+            setTimeout(() => {
+              el.style.background = '';
+              el.style.borderColor = '';
+            }, 1200);
+          });
+          suggestionsBox.style.display = 'none';
+        });
+        suggestionsBox.appendChild(item);
+      });
+      
+      // Letzten Border weg
+      if (suggestionsBox.lastChild) suggestionsBox.lastChild.style.borderBottom = 'none';
+      
+      suggestionsBox.style.display = 'block';
+    }
+    
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+  }
+  
+  // Init wenn DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+
+<script>
+// ─── VERFÜGBARE ZIMMER ───────────────────────────────────────────────────
+// Diese Liste wird LIVE aus Supabase geladen (nur freie Zimmer in WG-Wohnungen)
+let FREIE_ZIMMER = [];
+
+// ─── Image URL helpers ───
+// thumbUrl uses Supabase Image Transformation (Pro plan) — much smaller files
+// origUrl is the full-res original (used for lightbox zoom)
+function thumbUrl(path, opts){
+  // Use wsrv.nl (free image proxy CDN by Photopea) for on-the-fly resize + WebP conversion
+  // This works for ALL existing images without needing Supabase Pro plan transformations.
+  // PDFs and SVGs bypass the proxy (kept as original).
+  const o = opts || {};
+  const w = o.width || 300;
+  const q = o.quality || 75;
+  const pathLow = path.toLowerCase();
+  // Skip PDFs and SVGs — return original URL
+  if (pathLow.endsWith('.pdf') || pathLow.endsWith('.svg')) {
+    return `${SB_URL_FORM}/storage/v1/object/public/assets/${path}`;
+  }
+  const sourceUrl = `${SB_URL_FORM}/storage/v1/object/public/assets/${path}`;
+  // wsrv.nl format: ?url=...&w=300&q=75&output=webp&we (we = without enlargement)
+  return `https://wsrv.nl/?url=${encodeURIComponent(sourceUrl)}&w=${w}&q=${q}&output=webp&we`;
+}
+function origUrl(path){
+  return `${SB_URL_FORM}/storage/v1/object/public/assets/${path}`;
+}
+
+const SB_URL_FORM = 'https://aohcqrxpsqronlcwssrk.supabase.co';
+const SB_KEY_FORM = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFvaGNxcnhwc3Fyb25sY3dzc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5ODM0MjEsImV4cCI6MjA5MzU1OTQyMX0.izqvV2CPiOyVXoCsFTq_k8KRzBgfomp8LXwwAx22XP4';
+const sbForm = window.supabase.createClient(SB_URL_FORM, SB_KEY_FORM);
+
+async function loadFreieZimmer() {
+  try {
+    // Get free rooms (occupied=false)
+    const {data: rooms, error: rErr} = await sbForm.from('rooms').select('*').eq('occupied', false);
+    if (rErr) throw rErr;
+    // Get apartments to enrich with address info
+    const {data: apts, error: aErr} = await sbForm.from('apartments').select('*').eq('type', 'WG');
+    if (aErr) throw aErr;
+    
+    const aptMap = {};
+    apts.forEach(a => { aptMap[a.id] = a; });
+    
+    // Helper: normalize room size for display (e.g. "14" → "14 m²", "14m2" → "14 m²")
+    function normGroesse(s) {
+      if (!s) return null;
+      const str = String(s).trim();
+      if (!str) return null;
+      const match = str.match(/^(\d+(?:[.,]\d+)?)/);
+      if (!match) return str;
+      return `${match[1].replace(",", ".")} m²`;
+    }
+    
+    // Compute befristung from apartment.mietende
+    function parseDate(str) {
+      if (!str) return null;
+      const s = String(str).trim();
+      if (!s) return null;
+      // ISO format YYYY-MM-DD
+      if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
+        const d = new Date(s);
+        return isNaN(d.getTime()) ? null : d;
+      }
+      // German format DD.MM.YYYY
+      const m = s.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+      if (m) {
+        const d = new Date(+m[3], +m[2]-1, +m[1]);
+        return isNaN(d.getTime()) ? null : d;
+      }
+      // Fallback
+      const d = new Date(s);
+      return isNaN(d.getTime()) ? null : d;
+    }
+    
+    function computeBefristung(mietende) {
+      const d = parseDate(mietende);
+      if (!d) return { type: "unbefristet", label: "Unbefristet", endDate: null };
+      const now = new Date();
+      const months = (d - now) / (1000*60*60*24*30.44);
+      if (months < 12 && months > 0) {
+        return { 
+          type: "befristet", 
+          label: `Befristet bis ${d.toLocaleDateString('de-CH', {day:'2-digit', month:'2-digit', year:'numeric'})}`,
+          endDate: d
+        };
+      }
+      return { type: "unbefristet", label: "Unbefristet", endDate: null };
+    }
+    
+    // Combine
+    FREIE_ZIMMER = rooms
+      .filter(r => aptMap[r.apt_id]) // Only rooms in WG apartments
+      .map(r => {
+        const a = aptMap[r.apt_id];
+        const bef = computeBefristung(a.mietende);
+        return {
+          id: r.id,
+          aptId: r.apt_id,
+          aptLabel: `${a.adresse}, ${a.plz||""} ${a.ort||""}`.trim(),
+          aptZimmer: a.zimmer ? `${a.zimmer}-Zimmer-WG` : "WG",
+          aptEtage: a.stockwerk || "",
+          adresse: `${a.adresse}, ${a.plz||""} ${a.ort||""}`.trim(),
+          miete: r.miete || 0,
+          balkon: !!r.balkon,
+          qm: normGroesse(r.groesse),
+          etage: a.stockwerk || "",
+          wgGroesse: a.zimmer ? `${a.zimmer}-Zimmer-WG` : "WG",
+          befristung: bef,
+          aptPhotos: Array.isArray(a.photos) ? a.photos : [],
+          aptMatterport: a.matterport_url || null,
+          aptFloorplan: a.floorplan_path || null,
+        };
+      })
+      .sort((x,y) => x.id.localeCompare(y.id, undefined, {numeric:true, sensitivity:'base'}));
+  } catch (err) {
+    console.error("Fehler beim Laden der freien Zimmer:", err);
+    FREIE_ZIMMER = [];
+  }
+}
+
+
+// Category label mapping for photo captions
+function categoryLabelForm(cat){
+  if (!cat) return '';
+  if (cat.startsWith('room:')){
+    const roomId = cat.substring(5);
+    const parts = roomId.split('-');
+    return 'Zimmer ' + (parts[1] || roomId);
+  }
+  const map = {
+    kueche: 'Küche',
+    bad: 'Bad',
+    wohnzimmer: 'Wohnzimmer',
+    balkon: 'Balkon',
+    eingang: 'Eingang',
+    aussen: 'Aussenansicht',
+    grundriss: 'Grundriss',
+    sonstiges: 'Sonstiges',
+  };
+  return map[cat] || cat;
+}
+
+
+// Render rooms (live aus DB)
+async function renderRooms() {
+  const grid = document.getElementById('roomGrid');
+  grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:30px;color:var(--muted);font-size:13px">⏳ Verfügbare Zimmer werden geladen...</div>';
+  
+  await loadFreieZimmer();
+  
+  if (FREIE_ZIMMER.length === 0) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:30px;color:var(--muted);font-size:13px">Aktuell sind keine Zimmer verfügbar.<br><br>Du kannst dich trotzdem als Interessent registrieren und wir melden uns bei dir, sobald wieder etwas frei wird.</div>';
+    return;
+  }
+  
+  // Save current selection if any
+  const currentSel = document.querySelector('input[name="zimmerWunsch"]:checked')?.value;
+  
+  // Group rooms by apartment
+  const grouped = {};
+  FREIE_ZIMMER.forEach(r => {
+    if (!grouped[r.aptId]) {
+      grouped[r.aptId] = {
+        aptId: r.aptId,
+        adresse: r.adresse,
+        zimmer: r.aptZimmer,
+        etage: r.aptEtage,
+        befristung: r.befristung,
+        photos: r.aptPhotos || [],
+        matterport: r.aptMatterport || null,
+        floorplan: r.aptFloorplan || null,
+        rooms: []
+      };
+    }
+    grouped[r.aptId].rooms.push(r);
+  });
+  
+  // Sort: apartments by id (natural sort A1, A2, ... A10, A11), rooms by id within
+  const sortedApts = Object.values(grouped).sort((a,b) => a.aptId.localeCompare(b.aptId, undefined, {numeric:true, sensitivity:'base'}));
+  sortedApts.forEach(apt => {
+    apt.rooms.sort((a,b) => a.id.localeCompare(b.id, undefined, {numeric:true, sensitivity:'base'}));
+  });
+  
+  grid.innerHTML = sortedApts.map(apt => `
+    <div class="apt-group">
+      <div class="apt-header">
+        <div class="apt-title">
+          <span class="apt-id">${apt.aptId}</span>
+          <span class="apt-addr">${apt.adresse}</span>
+        </div>
+        <div class="apt-meta">
+          <span class="meta-pill wg">${apt.zimmer}</span>
+          ${apt.etage ? `<span class="meta-pill">${apt.etage}</span>` : ''}
+          <span class="meta-pill ${apt.befristung.type}">${apt.befristung.label}</span>
+        </div>
+      </div>
+      ${apt.matterport ? `
+        <div class="apt-matterport-hero">
+          <div class="media-label-hero">🎥 Virtuelle 3D-Tour</div>
+          <div class="matterport-frame-big matterport-lazy" data-src="${apt.matterport}">
+            <div class="matterport-placeholder">
+              <div class="matterport-pulse"></div>
+              <div class="matterport-hint">🎥 3D-Tour lädt beim Scrollen</div>
+            </div>
+          </div>
+        </div>
+      ` : ''}
+      ${(() => {
+        const allPhotos = apt.photos || [];
+        // All non-room photos go in the general gallery (Küche, Bad, Grundriss, etc.)
+        const generalPhotos = allPhotos.filter(p => !p.category || !p.category.startsWith("room:"));
+        if (generalPhotos.length === 0) return '';
+        return `
+        <div class="apt-extras-visible">
+          <div class="extras-section">
+            <div class="extras-section-label">📷 Bilder der Wohnung (${generalPhotos.length})</div>
+            <div class="mini-gallery">
+              ${generalPhotos.map((p, idx) => {
+                const isPdf = p.path.toLowerCase().endsWith(".pdf");
+                const rawUrl = origUrl(p.path);
+                const imgSrc = thumbUrl(p.path, {width: 240, quality: 70});
+                const caption = p.category ? `<div class="mini-caption">${categoryLabelForm(p.category)}</div>` : '';
+                if (isPdf) {
+                  return `
+                    <div class="mini-thumb mini-thumb-pdf gallery-thumb" data-apt="${apt.aptId}" data-general-idx="${idx}" data-is-pdf="1">
+                      <div class="pdf-render" data-pdf-url="${rawUrl}">
+                        <div class="pdf-loading">📄</div>
+                      </div>
+                      ${caption}
+                    </div>
+                  `;
+                }
+                return `
+                  <div class="mini-thumb gallery-thumb" data-apt="${apt.aptId}" data-general-idx="${idx}">
+                    <img src="${imgSrc}" alt="Foto ${idx+1}" loading="lazy"/>
+                    ${caption}
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        </div>`;
+      })()}
+      <div class="rooms-header">
+        <h3 class="rooms-title">🛏 Wähle dein Zimmer</h3>
+        <p class="rooms-sub">${apt.rooms.length} Zimmer verfügbar in dieser WG</p>
+      </div>
+      <div class="apt-rooms">
+        ${apt.rooms.map(r => {
+          const roomPhotos = (apt.photos || []).filter(p => p.category === `room:${r.id}`);
+          return `
+          <label class="room-card${roomPhotos.length ? ' has-photos' : ''}${currentSel===r.id?' checked':''}" data-room="${r.id}">
+            <input type="radio" name="zimmerWunsch" value="${r.id}" data-miete="${r.miete}" data-qm="${r.qm||''}" data-balkon="${r.balkon?1:0}" data-apt-label="${apt.adresse||''}" data-apt-id="${apt.aptId}" required ${currentSel===r.id?'checked':''}>
+            <div class="selected-badge">✓ Dein Zimmer</div>
+            ${roomPhotos.length > 0 ? `
+              <div class="room-photos">
+                ${roomPhotos.slice(0, 4).map((p, idx) => `
+                  <div class="room-thumb" data-apt="${apt.aptId}" data-room-id="${r.id}" data-room-idx="${idx}">
+                    <img src="${thumbUrl(p.path, {width: roomPhotos.length === 1 ? 700 : 300, quality: 75})}" alt="Zimmer ${r.id.split('-')[1] || r.id} Foto ${idx+1}" loading="lazy"/>
+                    <div class="zoom-hint">🔍</div>
+                    ${idx === 3 && roomPhotos.length > 4 ? `<div class="room-thumb-more">+${roomPhotos.length - 4}</div>` : ''}
+                  </div>
+                `).join('')}
+              </div>
+            ` : ''}
+            <div class="room-info">
+              <div class="room-header">
+                <div class="room-id">Zimmer ${r.id.split('-')[1] || r.id}</div>
+                <div class="room-price">CHF ${r.miete.toLocaleString('de-CH')}<small> / Mt.</small></div>
+              </div>
+              <div class="room-details">
+                ${r.qm ? `<span class="meta-pill">${r.qm}</span>` : ''}
+                ${r.balkon ? '<span class="meta-pill balcony">🌿 Balkon</span>' : ''}
+                ${roomPhotos.length > 0 ? `<span class="meta-pill photos">📷 ${roomPhotos.length} Foto${roomPhotos.length>1?'s':''}</span>` : ''}
+              </div>
+              <button type="button" class="room-select-btn">
+                <span class="not-selected">Dieses Zimmer wählen</span>
+                <span class="when-selected">✓ Ausgewählt</span>
+              </button>
+            </div>
+          </label>
+          `;
+        }).join('')}
+      </div>
+    </div>
+  `).join('');
+  wireGalleryClicks();
+  fillPdfPreviews();
+  wireRoomCardClicks();
+  _initMatterportLazy();
+  updateStep1NavState();
+
+  // Wire up listeners
+  grid.querySelectorAll('input[type="radio"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+      grid.querySelectorAll('.room-card').forEach(c => {
+        c.classList.toggle('checked', c.querySelector('input').checked);
+      });
+      updateCostSummary();
+      updateProgress();
+    });
+  });
+  
+  // Restore visual selection
+  if (currentSel) {
+    grid.querySelectorAll('.room-card').forEach(c => {
+      c.classList.toggle('checked', c.querySelector('input').checked);
+    });
+  }
+}
+
+renderRooms();
+
+// Refresh free rooms every 60 seconds (in case admin adds new ones while form is open)
+setInterval(() => renderRooms(), 60000);
+
+
+function updateCheck(el, id) {
+  document.getElementById(id).classList.toggle('checked', el.checked);
+  updateProgress();
+}
+
+// Handle option card selection
+document.querySelectorAll('.option-card input[type="radio"]').forEach(radio => {
+  radio.addEventListener('change', function() {
+    const group = this.name;
+    document.querySelectorAll(`input[name="${group}"]`).forEach(r => {
+      r.closest('.option-card').classList.toggle('checked', r.checked);
+    });
+    updateCostSummary();
+    updateProgress();
+  });
+});
+
+const KAUTION_LABELS = {
+  '3x': { label: '3× Miete (volle Kaution)', extra: 0 },
+  '2x': { label: '2× Miete', extra: 50 },
+  '1x': { label: '1× Miete', extra: 100 },
+  '0x': { label: 'Keine Kaution', extra: 150 },
+};
+
+const MOEBEL_LABELS = {
+  'ja': 'Möbliert (CHF 990.– einmalig)',
+  'nein': 'Unmöbliert',
+};
+
+function updateCostSummary() {
+  const zimmerInput = document.querySelector('input[name="zimmerWunsch"]:checked');
+  const kaution = document.querySelector('input[name="kautionOpt"]:checked');
+  const moebel = document.querySelector('input[name="moebliert"]:checked');
+  const summary = document.getElementById('costSummary');
+
+  // Show summary only if at least zimmer OR kaution OR moebel selected
+  if (!zimmerInput && !kaution && !moebel) {
+    summary.style.display = 'none';
+    return;
+  }
+  summary.style.display = 'block';
+
+  // Zimmer details
+  let bruttomiete = 0;
+  if (zimmerInput) {
+    const room = FREIE_ZIMMER.find(r => r.id === zimmerInput.value);
+    if (room) {
+      bruttomiete = room.miete;
+      document.getElementById('zimmerLabel').textContent = room.id;
+      document.getElementById('adresseLabel').textContent = room.adresse;
+      document.getElementById('wgLabel').textContent = room.wgGroesse + (room.qm ? ' · ' + room.qm : '') + (room.balkon ? ' · 🌿 Balkon' : '');
+      document.getElementById('mieteLabel').textContent = 'CHF ' + bruttomiete.toLocaleString('de-CH') + '.–';
+    }
+  } else {
+    document.getElementById('zimmerLabel').textContent = '— noch wählen —';
+    document.getElementById('adresseLabel').textContent = '—';
+    document.getElementById('wgLabel').textContent = '—';
+    document.getElementById('mieteLabel').textContent = '—';
+  }
+
+  // Kaution
+  let aufschlag = 0;
+  let kautionBetrag = 0;
+  if (kaution) {
+    const opt = KAUTION_LABELS[kaution.value];
+    aufschlag = opt.extra;
+    // Kautionsbetrag = (Bruttomiete + Strom) × Anzahl Monate
+    const monate = kaution.value === '3x' ? 3 : kaution.value === '2x' ? 2 : kaution.value === '1x' ? 1 : 0;
+    kautionBetrag = (bruttomiete + 25) * monate;
+    if (monate > 0 && bruttomiete > 0) {
+      document.getElementById('kautionLabel').textContent = opt.label + ' · CHF ' + kautionBetrag.toLocaleString('de-CH') + '.–';
+    } else if (monate === 0) {
+      document.getElementById('kautionLabel').textContent = opt.label + ' (keine Hinterlegung)';
+    } else {
+      document.getElementById('kautionLabel').textContent = opt.label;
+    }
+  } else {
+    document.getElementById('kautionLabel').textContent = '— noch wählen —';
+  }
+
+  // Möblierung
+  if (moebel) {
+    document.getElementById('moebelLabel').textContent = MOEBEL_LABELS[moebel.value];
+  } else {
+    document.getElementById('moebelLabel').textContent = '— noch wählen —';
+  }
+
+  // Aufschlag-Zeile
+  document.getElementById('aufschlagLabel').textContent =
+    aufschlag === 0 ? 'CHF 0.–' : '+ CHF ' + aufschlag + '.–';
+
+  // Total = Bruttomiete + Strom + Aufschlag
+  const total = bruttomiete + 25 + aufschlag;
+  document.getElementById('totalLabel').textContent =
+    bruttomiete > 0 ? 'CHF ' + total.toLocaleString('de-CH') + '.–' : 'CHF — / Mt.';
+}
+
+function updateProgress() {
+  const form = document.getElementById('mainForm');
+  const sections = form.querySelectorAll('.form-card');
+  let filled = 0;
+  sections.forEach(s => {
+    const inputs = s.querySelectorAll('input,select,textarea');
+    let hasValue = false;
+    inputs.forEach(i => {
+      if (i.type === 'radio' || i.type === 'checkbox') {
+        if (i.checked) hasValue = true;
+      } else if (i.value && i.value.trim()) {
+        hasValue = true;
+      }
+    });
+    if (hasValue) filled++;
+  });
+  const pct = Math.round(filled/sections.length*100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = filled + ' / ' + sections.length + ' Abschnitte';
+}
+
+document.querySelectorAll('input,select,textarea').forEach(el => {
+  el.addEventListener('input', updateProgress);
+});
+
+document.getElementById('mainForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  console.log('[FORM] submit triggered');
+  const btn = document.getElementById('submitBtn');
+  // Immediate visual feedback that submit was actually handled
+  if (btn) {
+    const origText = btn.textContent;
+    btn.textContent = 'Wird gesendet…';
+    // Restore if validation fails later
+    setTimeout(() => { if (btn.textContent === 'Wird gesendet…') btn.textContent = origText; }, 5000);
+  }
+
+  // ─── VALIDIERUNGS-HELFER ─────────────────────────────────────
+  function validateEmail(v) {
+    if (!v) return { ok: true, value: '' };
+    const t = String(v).trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(t)) return { ok: false, error: 'Ungültige E-Mail-Adresse' };
+    return { ok: true, value: t };
+  }
+  function validatePhone(v) {
+    if (!v) return { ok: true, value: '' };
+    const cleaned = String(v).replace(/[^\d+\s]/g, '').trim();
+    const digits = cleaned.replace(/\D/g, '');
+    if (digits.length < 9) return { ok: false, error: 'Telefonnummer zu kurz (mind. 9 Ziffern)' };
+    if (digits.length > 15) return { ok: false, error: 'Telefonnummer zu lang' };
+    // Format CH: 0781234567 → 078 123 45 67
+    if (digits.length === 10 && digits[0] === '0') {
+      return { ok: true, value: `${digits.slice(0,3)} ${digits.slice(3,6)} ${digits.slice(6,8)} ${digits.slice(8,10)}` };
+    }
+    if (digits.length === 11 && digits.startsWith('41')) {
+      return { ok: true, value: `+41 ${digits.slice(2,4)} ${digits.slice(4,7)} ${digits.slice(7,9)} ${digits.slice(9,11)}` };
+    }
+    return { ok: true, value: cleaned };
+  }
+  function validateDate(v, opts) {
+    if (!v) return { ok: true, value: '' };
+    const t = String(v).trim();
+    let day, month, year;
+    if (/^\d{1,2}\.\d{1,2}\.\d{4}$/.test(t)) {
+      [day, month, year] = t.split('.').map(n => parseInt(n, 10));
+    } else if (/^\d{4}-\d{2}-\d{2}$/.test(t)) {
+      [year, month, day] = t.split('-').map(n => parseInt(n, 10));
+    } else {
+      return { ok: false, error: 'Format: TT.MM.JJJJ' };
+    }
+    if (month < 1 || month > 12) return { ok: false, error: 'Monat ungültig' };
+    if (day < 1 || day > 31) return { ok: false, error: 'Tag ungültig' };
+    if (year < 1900 || year > 2100) return { ok: false, error: 'Jahr ungültig' };
+    const dt = new Date(year, month - 1, day);
+    if (dt.getDate() !== day || dt.getMonth() !== month - 1) return { ok: false, error: 'Datum existiert nicht' };
+    if (opts && opts.type === 'birthday') {
+      const age = (new Date() - dt) / (1000 * 60 * 60 * 24 * 365.25);
+      if (age < 0) return { ok: false, error: 'Geburtstag in der Zukunft?' };
+      if (age < 16) return { ok: false, error: 'Mindestalter 16 Jahre' };
+      if (age > 120) return { ok: false, error: 'Alter unrealistisch' };
+    }
+    return { ok: true, value: `${String(day).padStart(2,'0')}.${String(month).padStart(2,'0')}.${year}` };
+  }
+  function validatePLZ(v) {
+    if (!v) return { ok: true, value: '' };
+    const t = String(v).trim();
+    if (/^\d{4}$/.test(t)) {
+      const n = parseInt(t, 10);
+      if (n >= 1000 && n <= 9999) return { ok: true, value: t };
+    }
+    if (/^[A-Z0-9 -]{3,10}$/i.test(t)) return { ok: true, value: t.toUpperCase() };
+    return { ok: false, error: 'PLZ ungültig (4 Ziffern für CH)' };
+  }
+
+  // Reset all field highlights
+  this.querySelectorAll('input, select, textarea').forEach(el => {
+    el.style.borderColor = '';
+  });
+
+  const required = this.querySelectorAll('[required]');
+  let valid = true;
+  let firstInvalid = null;
+  const validationErrors = [];
+  
+  // Required-Check
+  required.forEach(el => {
+    let elValid = false;
+    if (el.type === 'radio') {
+      elValid = !!document.querySelector(`input[name="${el.name}"]:checked`);
+    } else if (el.type === 'checkbox') {
+      elValid = el.checked;
+    } else {
+      elValid = !!el.value;
+    }
+    if (!elValid) {
+      if (el.type !== 'radio') el.style.borderColor = '#f87171';
+      valid = false;
+      if (!firstInvalid) firstInvalid = el;
+    }
+  });
+
+  if (!valid) {
+    firstInvalid?.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+
+  // EXPLIZITE PRÜFUNG: Zimmer muss ausgewählt sein
+  const selectedRoom = this.querySelector('input[name="zimmerWunsch"]:checked');
+  if (!selectedRoom) {
+    alert('Bitte wähle ein Zimmer aus der Liste aus.');
+    const roomGrid = document.getElementById('roomGrid');
+    if (roomGrid) {
+      roomGrid.scrollIntoView({behavior:'smooth', block:'center'});
+      // Visueller Hinweis: Rahmen kurz rot blinken lassen
+      roomGrid.style.outline = '2px solid #f87171';
+      roomGrid.style.outlineOffset = '8px';
+      roomGrid.style.borderRadius = '8px';
+      setTimeout(() => {
+        roomGrid.style.outline = '';
+        roomGrid.style.outlineOffset = '';
+      }, 2500);
+    }
+    return;
+  }
+
+  // Format-Validierung
+  const fd = new FormData(this);
+  const data = {};
+  fd.forEach((v,k) => data[k] = v);
+
+  // Email
+  const emailRes = validateEmail(data.email);
+  if (!emailRes.ok) {
+    validationErrors.push(`E-Mail: ${emailRes.error}`);
+    const el = this.querySelector('[name="email"]');
+    if (el) { el.style.borderColor = '#f87171'; if (!firstInvalid) firstInvalid = el; }
+  } else if (emailRes.value) data.email = emailRes.value;
+
+  // Phone
+  const phoneRes = validatePhone(data.phone);
+  if (!phoneRes.ok) {
+    validationErrors.push(`Telefon: ${phoneRes.error}`);
+    const el = this.querySelector('[name="phone"]');
+    if (el) { el.style.borderColor = '#f87171'; if (!firstInvalid) firstInvalid = el; }
+  } else if (phoneRes.value) data.phone = phoneRes.value;
+
+  // Geburtstag
+  const gebRes = validateDate(data.geburt, {type: 'birthday'});
+  if (!gebRes.ok) {
+    validationErrors.push(`Geburtstag: ${gebRes.error}`);
+    const el = this.querySelector('[name="geburt"]');
+    if (el) { el.style.borderColor = '#f87171'; if (!firstInvalid) firstInvalid = el; }
+  } else if (gebRes.value) {
+    data.geburt = gebRes.value;
+  } else if (data.geburt) {
+    // Fallback: Wenn validateDate kein Ergebnis liefert aber wir einen Wert haben,
+    // versuche YYYY-MM-DD (vom date input) auf TT.MM.JJJJ zu konvertieren
+    const m = data.geburt.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (m) data.geburt = `${m[3]}.${m[2]}.${m[1]}`;
+  }
+
+  // PLZ
+  const plzRes = validatePLZ(data.plz);
+  if (!plzRes.ok) {
+    validationErrors.push(`PLZ: ${plzRes.error}`);
+    const el = this.querySelector('[name="plz"]');
+    if (el) { el.style.borderColor = '#f87171'; if (!firstInvalid) firstInvalid = el; }
+  } else if (plzRes.value) data.plz = plzRes.value;
+
+  if (validationErrors.length > 0) {
+    alert('Bitte korrigiere folgende Felder:\n\n• ' + validationErrors.join('\n• '));
+    firstInvalid?.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+
+  data.id = 'B' + Date.now();
+  data.status = 'Neu';
+  data.eingereichtAm = new Date().toLocaleDateString('de-CH');
+
+  // Fallback: Gender direkt aus dem DOM holen, falls FormData es nicht erfasst hat
+  // (Sicherheits-Fallback gegen iOS-Safari-Bugs mit Select-Elementen)
+  if (!data.gender) {
+    const genderEl = this.querySelector('[name="gender"]');
+    if (genderEl && genderEl.value) data.gender = genderEl.value;
+  }
+  // Falls trotzdem leer: Validierung fehlgeschlagen, nicht abschicken
+  if (!data.gender) {
+    alert('Bitte wähle ein Geschlecht aus.');
+    const genderEl = this.querySelector('[name="gender"]');
+    if (genderEl) {
+      genderEl.scrollIntoView({behavior:'smooth', block:'center'});
+      genderEl.style.borderColor = '#f87171';
+      setTimeout(() => { genderEl.style.borderColor = ''; }, 2500);
+    }
+    btn.textContent = 'Bewerbung senden';
+    btn.disabled = false;
+    return;
+  }
+
+  // Translate kaution option to readable form
+  if (data.kautionOpt) {
+    data.kautionType = KAUTION_LABELS[data.kautionOpt].label;
+    data.kautionAufschlag = KAUTION_LABELS[data.kautionOpt].extra;
+  }
+  if (data.moebliert) {
+    data.moeblierungPauschale = data.moebliert === 'ja' ? 990 : 0;
+  }
+
+  btn.textContent = 'Wird gesendet…';
+  btn.disabled = true;
+
+  // ─── Save to Supabase ───
+  const SUPABASE_URL = 'https://aohcqrxpsqronlcwssrk.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFvaGNxcnhwc3Fyb25sY3dzc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5ODM0MjEsImV4cCI6MjA5MzU1OTQyMX0.izqvV2CPiOyVXoCsFTq_k8KRzBgfomp8LXwwAx22XP4';
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // Map to DB column names (snake_case)
+  const dbRow = {
+    id: data.id,
+    vorname: data.vorname || '',
+    nachname: data.nachname || '',
+    email: data.email || '',
+    phone: data.phone || '',
+    geburt: data.geburt || '',
+    gender: data.gender || '',
+    nat: data.nat || '',
+    adresse: data.adresse || '',
+    plz: data.plz || '',
+    ort: data.ort || '',
+    type: data.type || '',
+    job: data.job || '',
+    einkommen: data.einkommen || '',
+    arbeitgeber: data.arbeitgeber || '',
+    einzug: data.einzug || '',
+    zimmer_wunsch: data.zimmerWunsch || '',
+    kaution_opt: data.kautionOpt || '',
+    kaution_type: data.kautionType || '',
+    kaution_aufschlag: data.kautionAufschlag || 0,
+    moebliert: data.moebliert || '',
+    moeblierung_pauschale: data.moeblierungPauschale || 0,
+    bemerkung: data.bemerkung || '',
+    no_debt: !!data.noDebt,
+    truthful: !!data.truthful,
+    status: 'Neu',
+    eingereicht_am: data.eingereichtAm,
+  };
+
+  let { error } = await sb.from('applicants').insert([dbRow]);
+
+  // Retry without potentially-missing columns if first attempt fails
+  if (error && (error.message.includes('column') || error.code === 'PGRST204' || error.code === '42703')) {
+    console.warn('First insert failed, retrying with minimal columns:', error.message);
+    const minimalRow = {
+      id: dbRow.id,
+      vorname: dbRow.vorname,
+      nachname: dbRow.nachname,
+      email: dbRow.email,
+      phone: dbRow.phone,
+      geburt: dbRow.geburt,
+      nat: dbRow.nat,
+      adresse: dbRow.adresse,
+      plz: dbRow.plz,
+      ort: dbRow.ort,
+      gender: dbRow.gender,
+      type: dbRow.type,
+      job: dbRow.job,
+      einkommen: dbRow.einkommen,
+      arbeitgeber: dbRow.arbeitgeber,
+      einzug: dbRow.einzug,
+      zimmer_wunsch: dbRow.zimmer_wunsch,
+      kaution_opt: dbRow.kaution_opt,
+      kaution_type: dbRow.kaution_type,
+      kaution_aufschlag: dbRow.kaution_aufschlag,
+      moebliert: dbRow.moebliert,
+      moeblierung_pauschale: dbRow.moeblierung_pauschale,
+      bemerkung: dbRow.bemerkung,
+      no_debt: dbRow.no_debt,
+      status: dbRow.status,
+      eingereicht_am: dbRow.eingereicht_am,
+    };
+    const retry = await sb.from('applicants').insert([minimalRow]);
+    error = retry.error;
+  }
+
+  if (error) {
+    console.error('Supabase error:', error);
+    btn.textContent = 'Fehler — bitte erneut versuchen';
+    btn.disabled = false;
+    alert('Bewerbung konnte nicht gespeichert werden.\n\nFehler: ' + (error.message || error.hint || 'Unbekannt') + '\n\nCode: ' + (error.code || '—'));
+    return;
+  }
+
+  document.getElementById('mainForm').style.display = 'none';
+  document.getElementById('costSummary').style.display = 'none';
+  document.getElementById('successScreen').style.display = 'block';
+  document.getElementById('progressFill').style.width = '100%';
+});
+
+// ═══ Photo Lightbox ═══
+let LIGHTBOX_PHOTOS = [];
+let LIGHTBOX_IDX = 0;
+function openLightbox(photos, idx){
+  LIGHTBOX_PHOTOS = photos;
+  LIGHTBOX_IDX = idx;
+  updateLightbox();
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox(){
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function navLightbox(dir){
+  if (!LIGHTBOX_PHOTOS.length) return;
+  LIGHTBOX_IDX = (LIGHTBOX_IDX + dir + LIGHTBOX_PHOTOS.length) % LIGHTBOX_PHOTOS.length;
+  updateLightbox();
+}
+async function updateLightbox(){
+  const total = LIGHTBOX_PHOTOS.length;
+  const cur = LIGHTBOX_PHOTOS[LIGHTBOX_IDX];
+  const img = document.getElementById('lightbox-img');
+  const isPdf = cur.path.toLowerCase().endsWith('.pdf');
+  const rawUrl = SB_URL_FORM + '/storage/v1/object/public/assets/' + cur.path;
+  // For lightbox: use a larger resized version for faster loading
+  const lbUrl = cur.path.toLowerCase().endsWith('.pdf')
+    ? rawUrl  // PDFs use original for pdf.js rendering
+    : `https://wsrv.nl/?url=${encodeURIComponent(rawUrl)}&w=1600&q=85&output=webp&we`;
+  // PDF: render first page as image, show download link
+  const pdfLink = document.getElementById('lightbox-pdf-link');
+  if (isPdf) {
+    img.src = '';
+    img.alt = 'PDF wird geladen…';
+    try {
+      const dataUrl = await _renderPdfFirstPage(rawUrl);
+      // Only apply if still on this same idx (user might have navigated away)
+      if (LIGHTBOX_PHOTOS[LIGHTBOX_IDX] === cur) {
+        img.src = dataUrl;
+        img.alt = 'PDF Vorschau';
+      }
+    } catch(e){
+      console.warn('PDF render failed:', e);
+      if (LIGHTBOX_PHOTOS[LIGHTBOX_IDX] === cur) {
+        img.alt = 'PDF konnte nicht angezeigt werden';
+      }
+    }
+    if (pdfLink){
+      pdfLink.href = rawUrl;
+      pdfLink.style.display = 'inline-flex';
+    }
+  } else {
+    img.src = lbUrl;
+    img.alt = '';
+    if (pdfLink) pdfLink.style.display = 'none';
+  }
+  const counter = document.getElementById('lightbox-counter');
+  const prev = document.querySelector('.lightbox-prev');
+  const next = document.querySelector('.lightbox-next');
+  if (counter){
+    counter.textContent = total > 1 ? `${LIGHTBOX_IDX + 1} / ${total}` : '';
+    counter.style.display = total > 1 ? 'block' : 'none';
+  }
+  if (prev) prev.style.display = total > 1 ? '' : 'none';
+  if (next) next.style.display = total > 1 ? '' : 'none';
+}
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('lightbox').classList.contains('open')) return;
+  if (e.key === 'Escape') closeLightbox();
+  if (e.key === 'ArrowLeft') navLightbox(-1);
+  if (e.key === 'ArrowRight') navLightbox(1);
+});
+document.getElementById('lightbox')?.addEventListener('click', e => {
+  if (e.target.id === 'lightbox') closeLightbox();
+});
+// Wire up gallery thumbs after render
+
+// ═══ PDF Rendering ═══
+let _pdfjsReady = null;
+function _ensurePdfJs(){
+  if (_pdfjsReady) return _pdfjsReady;
+  _pdfjsReady = new Promise((resolve, reject) => {
+    if (window.pdfjsLib){
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      resolve(window.pdfjsLib);
+      return;
+    }
+    let tries = 0;
+    const check = setInterval(() => {
+      if (window.pdfjsLib){
+        clearInterval(check);
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        resolve(window.pdfjsLib);
+      } else if (++tries > 50){
+        clearInterval(check);
+        reject(new Error('pdf.js not loaded'));
+      }
+    }, 100);
+  });
+  return _pdfjsReady;
+}
+const _pdfCache = new Map();
+async function _renderPdfFirstPage(pdfUrl){
+  if (_pdfCache.has(pdfUrl)) return _pdfCache.get(pdfUrl);
+  const p = (async () => {
+    const pdfjs = await _ensurePdfJs();
+    const pdf = await pdfjs.getDocument(pdfUrl).promise;
+    const page = await pdf.getPage(1);
+    const viewport = page.getViewport({ scale: 2 });
+    const canvas = document.createElement('canvas');
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    const ctx = canvas.getContext('2d');
+    await page.render({ canvasContext: ctx, viewport }).promise;
+    return canvas.toDataURL('image/png');
+  })();
+  _pdfCache.set(pdfUrl, p);
+  return p;
+}
+async function fillPdfPreviews(){
+  const targets = document.querySelectorAll('.pdf-render:not([data-rendered="1"])');
+  for (const el of targets){
+    el.dataset.rendered = '1';
+    const url = el.dataset.pdfUrl;
+    if (!url) continue;
+    try {
+      const dataUrl = await _renderPdfFirstPage(url);
+      const img = new Image();
+      img.src = dataUrl;
+      img.alt = 'PDF Grundriss';
+      img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block';
+      el.innerHTML = '';
+      el.appendChild(img);
+    } catch(e){
+      console.warn('PDF render failed for', url, e);
+      el.innerHTML = '<div class="pdf-fallback">📄<br><span>PDF</span></div>';
+    }
+  }
+}
+
+
+// ═══ Wizard Step Navigation ═══
+let CURRENT_STEP = 1;
+let WIZARD_SELECTED_RADIO = null;
+function getSelectedRoomData(){
+  // Prefer cached reference, fall back to live DOM query
+  let r = WIZARD_SELECTED_RADIO;
+  if (!r || !r.checked || !document.body.contains(r)){
+    r = document.querySelector('input[name="zimmerWunsch"]:checked');
+    if (r) WIZARD_SELECTED_RADIO = r;
+  }
+  if (!r || !r.checked) return null;
+  return {
+    id: r.value,
+    miete: parseFloat(r.dataset.miete) || 0,
+    qm: r.dataset.qm || '',
+    balkon: r.dataset.balkon === '1',
+    aptLabel: r.dataset.aptLabel || '',
+    aptId: r.dataset.aptId || '',
+  };
+}
+function selectRoomCard(card){
+  // Single source of truth: explicitly check the radio + update visual state
+  const radio = card.querySelector('input[type="radio"][name="zimmerWunsch"]');
+  if (!radio) return false;
+  document.querySelectorAll('input[name="zimmerWunsch"]').forEach(r => {
+    if (r !== radio) r.checked = false;
+  });
+  radio.checked = true;
+  WIZARD_SELECTED_RADIO = radio;
+  document.querySelectorAll('.room-card.checked').forEach(c => c.classList.remove('checked'));
+  card.classList.add('checked');
+  // Trigger any external listeners (e.g. cost calc)
+  try { radio.dispatchEvent(new Event('change', { bubbles: true })); } catch(e) {}
+  // Also directly call cost + progress updates as fallback
+  try { if (typeof updateCostSummary === 'function') updateCostSummary(); } catch(e) {}
+  try { if (typeof updateProgress === 'function') updateProgress(); } catch(e) {}
+  updateStep1NavState();
+  updateStickyBar();
+  return true;
+}
+
+function updateStickyBar(){
+  const bar = document.getElementById('stickyNextBar');
+  if (!bar) return;
+  const room = getSelectedRoomData();
+  // Only visible in step 1 and when something is selected
+  if (CURRENT_STEP !== 1 || !room) {
+    bar.classList.remove('visible');
+    bar.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('sticky-bar-shown');
+    return;
+  }
+  const roomNum = room.id.split('-')[1] || room.id;
+  const aptLabel = room.aptLabel ? ' · ' + room.aptLabel : '';
+  const price = ' · CHF ' + room.miete.toLocaleString('de-CH') + '/Mt.';
+  const target = document.getElementById('stickyBarRoom');
+  if (target) target.textContent = `Zimmer ${roomNum}${aptLabel}${price}`;
+  bar.classList.add('visible');
+  bar.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('sticky-bar-shown');
+}
+function wireRoomCardClicks(){
+  document.querySelectorAll('.room-card').forEach(card => {
+    if (card.dataset.wizardWired === '1') return;
+    card.dataset.wizardWired = '1';
+    card.addEventListener('click', e => {
+      // Skip if click was on a photo thumb (it opens lightbox, not select)
+      if (e.target.closest('.room-thumb')) return;
+      e.preventDefault();
+      selectRoomCard(card);
+    });
+  });
+}
+function updateStep1NavState(){
+  const room = getSelectedRoomData();
+  const btn = document.getElementById('btnToStep2');
+  const hint = document.getElementById('step1Hint');
+  if (!btn) return;
+  if (room){
+    btn.disabled = false;
+    if (hint) hint.classList.add('hidden');
+  } else {
+    btn.disabled = true;
+    if (hint) hint.classList.remove('hidden');
+  }
+}
+function updateSelectionSummary(){ /* removed - not used */ }
+function goToStep(n){
+  CURRENT_STEP = n;
+  // Hide sticky bar when leaving step 1
+  const bar = document.getElementById('stickyNextBar');
+  if (bar && n !== 1) {
+    bar.classList.remove('visible');
+    bar.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('sticky-bar-shown');
+  }
+  document.querySelectorAll('.form-step').forEach(el => {
+    el.classList.toggle('active', el.classList.contains(`step-${n}`));
+  });
+  document.querySelectorAll('.wstep').forEach(el => {
+    const sNum = parseInt(el.dataset.step);
+    el.classList.remove('active', 'done');
+    if (sNum === n) el.classList.add('active');
+    else if (sNum < n) el.classList.add('done');
+  });
+  document.querySelectorAll('.wstep-divider').forEach((el, i) => {
+    el.classList.toggle('done', n > i + 1);
+  });
+  // Scroll to top of form
+  const form = document.getElementById('mainForm');
+  if (form) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (n === 2) updateSelectionSummary();
+  if (n === 1) updateStickyBar();
+}
+function wireWizard(){
+  document.addEventListener('change', e => {
+    if (e.target && e.target.name === 'zimmerWunsch'){
+      updateStep1NavState();
+    }
+  });
+  // Extra safety: any click inside the rooms grid re-checks state on next tick
+  document.addEventListener('click', e => {
+    if (e.target && e.target.closest && e.target.closest('.apt-rooms')){
+      setTimeout(updateStep1NavState, 50);
+    }
+  });
+  const goNext = (e) => {
+    if (e) e.preventDefault();
+    const anyChecked = document.querySelector('input[name="zimmerWunsch"]:checked');
+    if (!anyChecked) {
+      const grid = document.getElementById('roomGrid');
+      if (grid) {
+        grid.scrollIntoView({behavior:'smooth', block:'center'});
+        grid.style.outline = '2px solid #f87171';
+        grid.style.outlineOffset = '8px';
+        grid.style.borderRadius = '8px';
+        setTimeout(() => { grid.style.outline=''; grid.style.outlineOffset=''; }, 2000);
+      }
+      const hint = document.getElementById('step1Hint');
+      if (hint) hint.classList.remove('hidden');
+      return false;
+    }
+    WIZARD_SELECTED_RADIO = anyChecked;
+    goToStep(2);
+    return false;
+  };
+  const btnNext = document.getElementById('btnToStep2');
+  if (btnNext) {
+    btnNext.onclick = goNext;
+    btnNext.addEventListener('click', goNext);
+  }
+  const stickyBtn = document.getElementById('stickyBarNext');
+  if (stickyBtn) {
+    stickyBtn.onclick = goNext;
+    stickyBtn.addEventListener('click', goNext);
+  }
+  const btnBack = document.getElementById('btnBackToStep1');
+  if (btnBack) btnBack.onclick = () => goToStep(1);
+
+  // ─── ROBUST SUBMIT HANDLING ───
+  const submitBtn = document.getElementById('submitBtn');
+  const mainForm = document.getElementById('mainForm');
+  if (submitBtn && mainForm) {
+    const handleSubmitClick = (e) => {
+      // IMMEDIATE feedback so user knows click registered
+      const originalText = submitBtn.textContent;
+      submitBtn.style.opacity = '0.7';
+      setTimeout(() => { submitBtn.style.opacity = ''; }, 200);
+      
+      // Try to trigger form submit programmatically
+      try {
+        if (typeof mainForm.requestSubmit === 'function') {
+          mainForm.requestSubmit();
+        } else {
+          // Fallback: dispatch synthetic submit event
+          mainForm.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+        }
+      } catch (err) {
+        console.error('[SUBMIT] Error triggering submit:', err);
+        alert('Fehler beim Absenden: ' + (err.message || err) + '\n\nBitte versuche es erneut oder kontaktiere uns direkt.');
+      }
+    };
+    // Use both onclick AND addEventListener for maximum compatibility
+    submitBtn.addEventListener('click', handleSubmitClick);
+  }
+
+  updateStep1NavState();
+}
+
+
+// ═══ Lazy load Matterport iframes when scrolled near viewport ═══
+let _matterportObserver = null;
+function _initMatterportLazy(){
+  if (typeof IntersectionObserver === 'undefined') {
+    // Fallback: just load all immediately
+    document.querySelectorAll('.matterport-lazy').forEach(loadMatterport);
+    return;
+  }
+  if (!_matterportObserver) {
+    _matterportObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          loadMatterport(entry.target);
+          _matterportObserver.unobserve(entry.target);
+        }
+      });
+    }, { rootMargin: '300px' });
+  }
+  document.querySelectorAll('.matterport-lazy').forEach(el => {
+    if (el.dataset.loaded !== '1') _matterportObserver.observe(el);
+  });
+}
+function loadMatterport(el){
+  if (el.dataset.loaded === '1') return;
+  const src = el.dataset.src;
+  if (!src) return;
+  el.dataset.loaded = '1';
+  const iframe = document.createElement('iframe');
+  iframe.src = src;
+  iframe.frameBorder = '0';
+  iframe.allowFullscreen = true;
+  iframe.setAttribute('allow', 'xr-spatial-tracking');
+  iframe.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border:0;';
+  // Remove placeholder after iframe loads
+  iframe.onload = () => {
+    const ph = el.querySelector('.matterport-placeholder');
+    if (ph) ph.style.opacity = '0';
+    setTimeout(() => { if (ph) ph.remove(); }, 300);
+  };
+  el.appendChild(iframe);
+}
+
+function wireGalleryClicks(){
+  // General apt gallery: uses data-general-idx, filtered to non-room photos
+  document.querySelectorAll('.gallery-thumb').forEach(thumb => {
+    thumb.onclick = (e) => {
+      e.preventDefault();
+      const aptId = thumb.dataset.apt;
+      const idx = parseInt(thumb.dataset.generalIdx);
+      const apt = FREIE_ZIMMER.find(z => z.aptId === aptId);
+      if (!apt) return;
+      const generalPhotos = (apt.aptPhotos || []).filter(p => !p.category || !p.category.startsWith("room:"));
+      if (generalPhotos.length) openLightbox(generalPhotos, idx);
+    };
+  });
+  // Room thumbs: photos tagged room:XXX, click should NOT toggle radio
+  document.querySelectorAll('.room-thumb').forEach(thumb => {
+    thumb.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const aptId = thumb.dataset.apt;
+      const roomId = thumb.dataset.roomId;
+      const idx = parseInt(thumb.dataset.roomIdx);
+      const apt = FREIE_ZIMMER.find(z => z.aptId === aptId);
+      if (!apt) return;
+      const roomPhotos = (apt.aptPhotos || []).filter(p => p.category === `room:${roomId}`);
+      if (roomPhotos.length) openLightbox(roomPhotos, idx);
+    };
+  });
+  document.querySelectorAll('.floorplan-frame').forEach(frame => {
+    frame.onclick = () => {
+      const aptId = frame.dataset.apt;
+      const apt = FREIE_ZIMMER.find(z => z.aptId === aptId);
+      if (!apt) return;
+      // Image floorplans only (PDFs use their own anchor tag)
+      const fps = (apt.aptPhotos || []).filter(p => p.category === "grundriss" && !p.path.toLowerCase().endsWith(".pdf"));
+      if (fps.length > 0) {
+        const idx = parseInt(frame.dataset.floorplanIdx || "0");
+        openLightbox(fps, idx);
+        return;
+      }
+      // Legacy fallback (always an image)
+      if (apt.aptFloorplan) openLightbox([{path: apt.aptFloorplan}], 0);
+    };
+  });
+  // Room select button: explicitly toggle the radio
+  document.querySelectorAll('.room-select-btn').forEach(btn => {
+    btn.onclick = (e) => {
+      const label = btn.closest('.room-card');
+      if (!label) return;
+      const radio = label.querySelector('input[type="radio"]');
+      if (radio && !radio.checked) {
+        radio.checked = true;
+        radio.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    };
+  });
+}
+
+
+// ─── Wizard init: ensure runs after DOM is ready ───
+function _initWizardSafely(){
+  if (typeof wireWizard === 'function') {
+    try { wireWizard(); } catch(e) { console.error('wireWizard error:', e); }
+  }
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', _initWizardSafely);
+} else {
+  _initWizardSafely();
+}
+</script>
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" onclick="closeLightbox()" aria-label="Schliessen">×</button>
+  <button class="lightbox-nav lightbox-prev" onclick="navLightbox(-1)" aria-label="Vorheriges Bild">‹</button>
+  <img id="lightbox-img" src="" alt=""/>
+  <button class="lightbox-nav lightbox-next" onclick="navLightbox(1)" aria-label="Nächstes Bild">›</button>
+  <div class="lightbox-counter" id="lightbox-counter"></div>
+  <a id="lightbox-pdf-link" href="#" target="_blank" rel="noopener" style="display:none">📄 PDF in neuem Tab öffnen</a>
+</div>
+
+</body>
+</html>

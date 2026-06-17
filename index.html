@@ -932,8 +932,15 @@
   .room-photos:has(.room-thumb:only-child) {
     grid-template-columns: 1fr;
   }
+  .room-photos:has(.room-thumb:only-child) .room-thumb {
+    aspect-ratio: auto;
+    height: 180px;
+  }
   .room-photos:has(.room-thumb:nth-child(2):last-child) {
     grid-template-columns: repeat(2, 1fr);
+  }
+  .room-photos:has(.room-thumb:nth-child(2):last-child) .room-thumb {
+    aspect-ratio: 3/2;
   }
   .room-photos:has(.room-thumb:nth-child(3):last-child) {
     grid-template-columns: repeat(3, 1fr);
@@ -2220,7 +2227,7 @@ async function renderRooms() {
               <div class="room-photos">
                 ${roomPhotos.slice(0, 4).map((p, idx) => `
                   <div class="room-thumb" data-apt="${apt.aptId}" data-room-id="${r.id}" data-room-idx="${idx}">
-                    <img src="${thumbUrl(p.path, {width: 300, quality: 70})}" alt="Zimmer ${r.id.split('-')[1] || r.id} Foto ${idx+1}" loading="lazy"/>
+                    <img src="${thumbUrl(p.path, {width: roomPhotos.length === 1 ? 700 : 300, quality: 75})}" alt="Zimmer ${r.id.split('-')[1] || r.id} Foto ${idx+1}" loading="lazy"/>
                     <div class="zoom-hint">🔍</div>
                     ${idx === 3 && roomPhotos.length > 4 ? `<div class="room-thumb-more">+${roomPhotos.length - 4}</div>` : ''}
                   </div>

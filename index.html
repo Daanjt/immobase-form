@@ -1970,8 +1970,20 @@ let FREIE_ZIMMER = [];
 // thumbUrl uses Supabase Image Transformation (Pro plan) — much smaller files
 // origUrl is the full-res original (used for lightbox zoom)
 function thumbUrl(path, opts){
-  // Fallback to original URL — Supabase image transformations not enabled on this plan
-  return `${SB_URL_FORM}/storage/v1/object/public/assets/${path}`;
+  // Use wsrv.nl (free image proxy CDN by Photopea) for on-the-fly resize + WebP conversion
+  // This works for ALL existing images without needing Supabase Pro plan transformations.
+  // PDFs and SVGs bypass the proxy (kept as original).
+  const o = opts || {};
+  const w = o.width || 300;
+  const q = o.quality || 75;
+  const pathLow = path.toLowerCase();
+  // Skip PDFs and SVGs — return original URL
+  if (pathLow.endsWith('.pdf') || pathLow.endsWith('.svg')) {
+    return `${SB_URL_FORM}/storage/v1/object/public/assets/${path}`;
+  }
+  const sourceUrl = `${SB_URL_FORM}/storage/v1/object/public/assets/${path}`;
+  // wsrv.nl format: ?url=...&w=300&q=75&output=webp&we (we = without enlargement)
+  return `https://wsrv.nl/?url=${encodeURIComponent(sourceUrl)}&w=${w}&q=${q}&output=webp&we`;
 }
 function origUrl(path){
   return `${SB_URL_FORM}/storage/v1/object/public/assets/${path}`;
@@ -2707,6 +2719,10 @@ async function updateLightbox(){
   const img = document.getElementById('lightbox-img');
   const isPdf = cur.path.toLowerCase().endsWith('.pdf');
   const rawUrl = SB_URL_FORM + '/storage/v1/object/public/assets/' + cur.path;
+  // For lightbox: use a larger resized version for faster loading
+  const lbUrl = cur.path.toLowerCase().endsWith('.pdf')
+    ? rawUrl  // PDFs use original for pdf.js rendering
+    : `https://wsrv.nl/?url=${encodeURIComponent(rawUrl)}&w=1600&q=85&output=webp&we`;
   // PDF: render first page as image, show download link
   const pdfLink = document.getElementById('lightbox-pdf-link');
   if (isPdf) {
@@ -2730,7 +2746,7 @@ async function updateLightbox(){
       pdfLink.style.display = 'inline-flex';
     }
   } else {
-    img.src = rawUrl;
+    img.src = lbUrl;
     img.alt = '';
     if (pdfLink) pdfLink.style.display = 'none';
   }

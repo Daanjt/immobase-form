@@ -252,6 +252,35 @@
       width: 100%; height: 100%;
       border: 0;
     }
+    .matterport-placeholder {
+      transition: opacity .3s ease;
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      background: linear-gradient(135deg, #1a1814 0%, #2d2925 100%);
+      color: #fefcf7;
+    }
+    .matterport-pulse {
+      width: 48px;
+      height: 48px;
+      border: 3px solid rgba(254,252,247,.15);
+      border-top-color: #fefcf7;
+      border-radius: 50%;
+      animation: matterPulse 1s linear infinite;
+    }
+    @keyframes matterPulse {
+      to { transform: rotate(360deg); }
+    }
+    .matterport-hint {
+      font-size: 12px;
+      letter-spacing: .04em;
+      color: rgba(254,252,247,.7);
+    }
     /* ─── Compact extras (always visible, dezent) ─── */
     .apt-extras-visible {
       border-bottom: 1px solid var(--bd);
@@ -1937,6 +1966,21 @@
 // Diese Liste wird LIVE aus Supabase geladen (nur freie Zimmer in WG-Wohnungen)
 let FREIE_ZIMMER = [];
 
+// ─── Image URL helpers ───
+// thumbUrl uses Supabase Image Transformation (Pro plan) — much smaller files
+// origUrl is the full-res original (used for lightbox zoom)
+function thumbUrl(path, opts){
+  const o = opts || {};
+  const w = o.width || 300;
+  const q = o.quality || 70;
+  const resize = o.resize || 'cover';
+  const fmt = o.format ? '&format=' + o.format : '';
+  return `${SB_URL_FORM}/storage/v1/render/image/public/assets/${path}?width=${w}&quality=${q}&resize=${resize}${fmt}`;
+}
+function origUrl(path){
+  return `${SB_URL_FORM}/storage/v1/object/public/assets/${path}`;
+}
+
 const SB_URL_FORM = 'https://aohcqrxpsqronlcwssrk.supabase.co';
 const SB_KEY_FORM = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFvaGNxcnhwc3Fyb25sY3dzc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5ODM0MjEsImV4cCI6MjA5MzU1OTQyMX0.izqvV2CPiOyVXoCsFTq_k8KRzBgfomp8LXwwAx22XP4';
 const sbForm = window.supabase.createClient(SB_URL_FORM, SB_KEY_FORM);
@@ -2109,8 +2153,11 @@ async function renderRooms() {
       ${apt.matterport ? `
         <div class="apt-matterport-hero">
           <div class="media-label-hero">🎥 Virtuelle 3D-Tour</div>
-          <div class="matterport-frame-big">
-            <iframe src="${apt.matterport}" frameborder="0" allowfullscreen allow="xr-spatial-tracking" loading="lazy"></iframe>
+          <div class="matterport-frame-big matterport-lazy" data-src="${apt.matterport}">
+            <div class="matterport-placeholder">
+              <div class="matterport-pulse"></div>
+              <div class="matterport-hint">🎥 3D-Tour lädt beim Scrollen</div>
+            </div>
           </div>
         </div>
       ` : ''}
@@ -2126,12 +2173,13 @@ async function renderRooms() {
             <div class="mini-gallery">
               ${generalPhotos.map((p, idx) => {
                 const isPdf = p.path.toLowerCase().endsWith(".pdf");
-                const url = `${SB_URL_FORM}/storage/v1/object/public/assets/${p.path}`;
+                const rawUrl = origUrl(p.path);
+                const imgSrc = thumbUrl(p.path, {width: 240, quality: 70});
                 const caption = p.category ? `<div class="mini-caption">${categoryLabelForm(p.category)}</div>` : '';
                 if (isPdf) {
                   return `
                     <div class="mini-thumb mini-thumb-pdf gallery-thumb" data-apt="${apt.aptId}" data-general-idx="${idx}" data-is-pdf="1">
-                      <div class="pdf-render" data-pdf-url="${url}">
+                      <div class="pdf-render" data-pdf-url="${rawUrl}">
                         <div class="pdf-loading">📄</div>
                       </div>
                       ${caption}
@@ -2140,7 +2188,7 @@ async function renderRooms() {
                 }
                 return `
                   <div class="mini-thumb gallery-thumb" data-apt="${apt.aptId}" data-general-idx="${idx}">
-                    <img src="${url}" alt="Foto ${idx+1}" loading="lazy"/>
+                    <img src="${imgSrc}" alt="Foto ${idx+1}" loading="lazy"/>
                     ${caption}
                   </div>
                 `;
@@ -2164,7 +2212,7 @@ async function renderRooms() {
               <div class="room-photos">
                 ${roomPhotos.slice(0, 4).map((p, idx) => `
                   <div class="room-thumb" data-apt="${apt.aptId}" data-room-id="${r.id}" data-room-idx="${idx}">
-                    <img src="${SB_URL_FORM}/storage/v1/object/public/assets/${p.path}" alt="Zimmer ${r.id.split('-')[1] || r.id} Foto ${idx+1}" loading="lazy"/>
+                    <img src="${thumbUrl(p.path, {width: 300, quality: 70})}" alt="Zimmer ${r.id.split('-')[1] || r.id} Foto ${idx+1}" loading="lazy"/>
                     <div class="zoom-hint">🔍</div>
                     ${idx === 3 && roomPhotos.length > 4 ? `<div class="room-thumb-more">+${roomPhotos.length - 4}</div>` : ''}
                   </div>
@@ -2195,6 +2243,7 @@ async function renderRooms() {
   wireGalleryClicks();
   fillPdfPreviews();
   wireRoomCardClicks();
+  _initMatterportLazy();
   updateStep1NavState();
 
   // Wire up listeners
@@ -2961,6 +3010,49 @@ function wireWizard(){
   }
 
   updateStep1NavState();
+}
+
+
+// ═══ Lazy load Matterport iframes when scrolled near viewport ═══
+let _matterportObserver = null;
+function _initMatterportLazy(){
+  if (typeof IntersectionObserver === 'undefined') {
+    // Fallback: just load all immediately
+    document.querySelectorAll('.matterport-lazy').forEach(loadMatterport);
+    return;
+  }
+  if (!_matterportObserver) {
+    _matterportObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          loadMatterport(entry.target);
+          _matterportObserver.unobserve(entry.target);
+        }
+      });
+    }, { rootMargin: '300px' });
+  }
+  document.querySelectorAll('.matterport-lazy').forEach(el => {
+    if (el.dataset.loaded !== '1') _matterportObserver.observe(el);
+  });
+}
+function loadMatterport(el){
+  if (el.dataset.loaded === '1') return;
+  const src = el.dataset.src;
+  if (!src) return;
+  el.dataset.loaded = '1';
+  const iframe = document.createElement('iframe');
+  iframe.src = src;
+  iframe.frameBorder = '0';
+  iframe.allowFullscreen = true;
+  iframe.setAttribute('allow', 'xr-spatial-tracking');
+  iframe.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border:0;';
+  // Remove placeholder after iframe loads
+  iframe.onload = () => {
+    const ph = el.querySelector('.matterport-placeholder');
+    if (ph) ph.style.opacity = '0';
+    setTimeout(() => { if (ph) ph.remove(); }, 300);
+  };
+  el.appendChild(iframe);
 }
 
 function wireGalleryClicks(){

@@ -1848,7 +1848,6 @@
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
-  wireWizard();
     init();
   }
 })();
@@ -2794,26 +2793,30 @@ function wireWizard(){
     }
   });
   const btnNext = document.getElementById('btnToStep2');
-  if (btnNext) btnNext.onclick = (e) => {
-    e.preventDefault();
-    // Last-chance check: any checked radio anywhere?
-    const anyChecked = document.querySelector('input[name="zimmerWunsch"]:checked');
-    if (!anyChecked) {
-      const grid = document.getElementById('roomGrid');
-      if (grid) {
-        grid.scrollIntoView({behavior:'smooth', block:'center'});
-        grid.style.outline = '2px solid #f87171';
-        grid.style.outlineOffset = '8px';
-        grid.style.borderRadius = '8px';
-        setTimeout(() => { grid.style.outline=''; grid.style.outlineOffset=''; }, 2000);
+  if (btnNext) {
+    const goNext = (e) => {
+      if (e) e.preventDefault();
+      const anyChecked = document.querySelector('input[name="zimmerWunsch"]:checked');
+      if (!anyChecked) {
+        const grid = document.getElementById('roomGrid');
+        if (grid) {
+          grid.scrollIntoView({behavior:'smooth', block:'center'});
+          grid.style.outline = '2px solid #f87171';
+          grid.style.outlineOffset = '8px';
+          grid.style.borderRadius = '8px';
+          setTimeout(() => { grid.style.outline=''; grid.style.outlineOffset=''; }, 2000);
+        }
+        const hint = document.getElementById('step1Hint');
+        if (hint) hint.classList.remove('hidden');
+        return false;
       }
-      const hint = document.getElementById('step1Hint');
-      if (hint) hint.classList.remove('hidden');
-      return;
-    }
-    WIZARD_SELECTED_RADIO = anyChecked;
-    goToStep(2);
-  };
+      WIZARD_SELECTED_RADIO = anyChecked;
+      goToStep(2);
+      return false;
+    };
+    btnNext.onclick = goNext;
+    btnNext.addEventListener('click', goNext);
+  }
   const btnBack = document.getElementById('btnBackToStep1');
   if (btnBack) btnBack.onclick = () => goToStep(1);
   const btnEdit = document.getElementById('btnEditRoom');
@@ -2878,6 +2881,18 @@ function wireGalleryClicks(){
   });
 }
 
+
+// ─── Wizard init: ensure runs after DOM is ready ───
+function _initWizardSafely(){
+  if (typeof wireWizard === 'function') {
+    try { wireWizard(); } catch(e) { console.error('wireWizard error:', e); }
+  }
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', _initWizardSafely);
+} else {
+  _initWizardSafely();
+}
 </script>
 <div class="lightbox" id="lightbox">
   <button class="lightbox-close" onclick="closeLightbox()" aria-label="Schliessen">×</button>

@@ -561,6 +561,216 @@
     gap: 10px;
     padding: 14px;
   }
+    /* ─── Wizard Steps Indicator ─── */
+    .wizard-steps {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 20px 22px;
+      background: #fff;
+      border-bottom: 1px solid var(--bd);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 2px 8px rgba(0,0,0,.03);
+    }
+    .wstep {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: .45;
+      transition: opacity .25s ease;
+    }
+    .wstep.active {
+      opacity: 1;
+    }
+    .wstep.done {
+      opacity: 1;
+    }
+    .wstep-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #e8e0cd;
+      color: #1a1814;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: 'Manrope', sans-serif;
+      letter-spacing: -0.02em;
+      transition: all .25s ease;
+    }
+    .wstep.active .wstep-num {
+      background: #1a1814;
+      color: #fefcf7;
+      transform: scale(1.05);
+    }
+    .wstep.done .wstep-num {
+      background: #5a6e4a;
+      color: #fff;
+    }
+    .wstep.done .wstep-num::before {
+      content: '✓';
+      font-size: 14px;
+    }
+    .wstep.done .wstep-num .wstep-num-text { display: none; }
+    .wstep-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1a1814;
+      letter-spacing: -0.01em;
+    }
+    .wstep-divider {
+      flex: 1;
+      height: 2px;
+      background: #e8e0cd;
+      border-radius: 2px;
+      transition: background .25s;
+    }
+    .wstep-divider.done {
+      background: #5a6e4a;
+    }
+    @media (max-width: 540px) {
+      .wizard-steps { padding: 14px 16px; gap: 10px; }
+      .wstep-label { font-size: 11.5px; }
+      .wstep-num { width: 24px; height: 24px; font-size: 11.5px; }
+    }
+    
+    /* ─── Form Step Containers ─── */
+    .form-step {
+      display: none;
+      animation: stepFadeIn .25s ease;
+    }
+    .form-step.active {
+      display: block;
+    }
+    @keyframes stepFadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* ─── Step Navigation Buttons ─── */
+    .step-nav {
+      padding: 18px 22px 24px;
+      text-align: center;
+    }
+    .btn-next {
+      background: #1a1814;
+      color: #fefcf7;
+      border: none;
+      border-radius: 10px;
+      padding: 14px 36px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: .01em;
+      transition: all .15s ease;
+      font-family: inherit;
+      box-shadow: 0 4px 16px rgba(26,24,20,.15);
+    }
+    .btn-next:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 22px rgba(26,24,20,.2);
+    }
+    .btn-next:disabled {
+      opacity: .35;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    .step-nav-hint {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--muted);
+      font-style: italic;
+    }
+    .step-nav-hint.hidden {
+      visibility: hidden;
+    }
+    
+    /* ─── Submit row with Back button ─── */
+    .submit-nav-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .btn-back {
+      background: #fefcf7;
+      color: #1a1814;
+      border: 1px solid var(--bd);
+      border-radius: 10px;
+      padding: 14px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: .01em;
+      transition: all .15s ease;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+    .btn-back:hover {
+      background: #f5efe2;
+    }
+    .submit-nav-row .submit-btn {
+      flex: 1;
+    }
+    @media (max-width: 540px) {
+      .submit-nav-row { flex-direction: column-reverse; }
+      .btn-back { width: 100%; }
+    }
+    
+    /* ─── Selection Summary in Step 2 ─── */
+    .selection-summary {
+      background: linear-gradient(135deg, #fefcf7 0%, #f5efe2 100%) !important;
+      border: 1.5px solid #c5b896 !important;
+      display: flex !important;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 14px 18px !important;
+      margin-bottom: 18px;
+    }
+    .summary-content { flex: 1; }
+    .summary-label {
+      font-size: 10.5px;
+      color: #5a6e4a;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .summary-room {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1a1814;
+      font-family: 'Manrope', sans-serif;
+      margin-bottom: 2px;
+      line-height: 1.3;
+    }
+    .summary-price {
+      font-size: 14px;
+      color: #5a6e4a;
+      font-weight: 600;
+    }
+    .btn-back-inline {
+      background: transparent;
+      color: #1a1814;
+      border: 1px solid #1a1814;
+      border-radius: 8px;
+      padding: 7px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .15s ease;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+    .btn-back-inline:hover {
+      background: #1a1814;
+      color: #fefcf7;
+    }
+    
   .room-card {
     position: relative;
     background: #fff;
@@ -1078,9 +1288,23 @@
 
     <form id="mainForm" novalidate>
 
+      <!-- Wizard Step Indicator -->
+      <div class="wizard-steps">
+        <div class="wstep active" data-step="1">
+          <div class="wstep-num">1</div>
+          <div class="wstep-label">Zimmer wählen</div>
+        </div>
+        <div class="wstep-divider"></div>
+        <div class="wstep" data-step="2">
+          <div class="wstep-num">2</div>
+          <div class="wstep-label">Deine Angaben</div>
+        </div>
+      </div>
+
+      <div class="form-step step-2" id="formStep2A">
       <!-- 1. Persönliche Daten -->
       <div class="form-card">
-        <div class="section-title"><span class="section-num">I</span> Persönliche Angaben</div>
+        <div class="section-title"><span class="section-num">3</span> Persönliche Angaben</div>
         <div class="field-row">
           <div class="field">
             <label>Vorname <span class="req">*</span></label>
@@ -1208,7 +1432,7 @@
 
       <!-- 2. Kontakt -->
       <div class="form-card" style="animation-delay:.1s">
-        <div class="section-title"><span class="section-num">II</span> Kontaktdaten</div>
+        <div class="section-title"><span class="section-num">4</span> Kontaktdaten</div>
         <div class="field">
           <label>E-Mail-Adresse <span class="req">*</span></label>
           <input type="email" name="email" placeholder="max@beispiel.ch" required>
@@ -1235,9 +1459,11 @@
         </div>
       </div>
 
+      </div>
       <!-- 3. Zimmerwahl -->
+      <div class="form-step step-1 active" id="formStep1">
       <div class="form-card" style="animation-delay:.15s">
-        <div class="section-title"><span class="section-num">III</span> Wunsch-Zimmer auswählen <span class="req">*</span></div>
+        <div class="section-title"><span class="section-num">1</span> Wunsch-Zimmer auswählen <span class="req">*</span></div>
         <div class="info-box" style="margin-bottom:14px">
           Bitte ein Zimmer auswählen (Pflichtfeld). Alle gezeigten Zimmer sind aktuell verfügbar. Die Zuteilung erfolgt nach Prüfung Ihrer Bewerbung.
         </div>
@@ -1246,9 +1472,30 @@
         </div>
       </div>
 
+      <!-- Step 1 → Step 2 transition: Next button -->
+      <div class="step-nav step-nav-1">
+        <button type="button" class="btn-next" id="btnToStep2">
+          Weiter zu deinen Angaben →
+        </button>
+        <div class="step-nav-hint" id="step1Hint">Bitte zuerst ein Zimmer auswählen</div>
+      </div>
+      </div><!-- /step-1 -->
+      
+      <!-- Step 2: Summary of selection + remaining sections -->
+      <div class="form-step step-2" id="formStep2B">
+      <!-- Summary of selected room -->
+      <div class="form-card selection-summary" id="selectionSummary" style="display:none">
+        <div class="summary-content">
+          <div class="summary-label">✓ Du hast gewählt</div>
+          <div class="summary-room" id="summaryRoom">—</div>
+          <div class="summary-price" id="summaryPrice">—</div>
+        </div>
+        <button type="button" class="btn-back-inline" id="btnEditRoom">Ändern</button>
+      </div>
+      
       <!-- 4. Beruf & Finanzen -->
       <div class="form-card" style="animation-delay:.2s">
-        <div class="section-title"><span class="section-num">IV</span> Beruf &amp; Finanzen</div>
+        <div class="section-title"><span class="section-num">2</span> Beruf &amp; Finanzen</div>
         <div class="field-row">
           <div class="field">
             <label>Beschäftigungsstatus <span class="req">*</span></label>
@@ -1427,15 +1674,19 @@
       </div>
 
       <div class="submit-area">
-        <button type="submit" class="submit-btn" id="submitBtn">
-          Bewerbung einreichen →
-        </button>
+        <div class="submit-nav-row">
+          <button type="button" class="btn-back" id="btnBackToStep1">← Zurück zur Auswahl</button>
+          <button type="submit" class="submit-btn" id="submitBtn">
+            Bewerbung einreichen →
+          </button>
+        </div>
         <p class="disclaimer">
           Ihre Daten werden vertraulich behandelt und nicht an Dritte weitergegeben.<br>
           D&T Homes · Zürich
         </p>
       </div>
 
+      </div><!-- /step-2B -->
     </form>
 
     <div class="success-screen" id="successScreen">
@@ -1597,6 +1848,7 @@
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
+  wireWizard();
     init();
   }
 })();
@@ -1864,6 +2116,7 @@ async function renderRooms() {
   `).join('');
   wireGalleryClicks();
   fillPdfPreviews();
+  updateStep1NavState();
 
   // Wire up listeners
   grid.querySelectorAll('input[type="radio"]').forEach(radio => {
@@ -2431,6 +2684,82 @@ async function fillPdfPreviews(){
       el.innerHTML = '<div class="pdf-fallback">📄<br><span>PDF</span></div>';
     }
   }
+}
+
+
+// ═══ Wizard Step Navigation ═══
+let CURRENT_STEP = 1;
+function getSelectedRoomData(){
+  const selected = document.querySelector('input[name="zimmerWunsch"]:checked');
+  if (!selected) return null;
+  const roomId = selected.value;
+  for (const z of FREIE_ZIMMER){
+    if (z.id === roomId) return z;
+  }
+  return null;
+}
+function updateStep1NavState(){
+  const room = getSelectedRoomData();
+  const btn = document.getElementById('btnToStep2');
+  const hint = document.getElementById('step1Hint');
+  if (!btn) return;
+  if (room){
+    btn.disabled = false;
+    if (hint) hint.classList.add('hidden');
+  } else {
+    btn.disabled = true;
+    if (hint) hint.classList.remove('hidden');
+  }
+}
+function updateSelectionSummary(){
+  const room = getSelectedRoomData();
+  const summary = document.getElementById('selectionSummary');
+  if (!room || !summary) {
+    if (summary) summary.style.display = 'none';
+    return;
+  }
+  summary.style.display = 'flex';
+  const sr = document.getElementById('summaryRoom');
+  const sp = document.getElementById('summaryPrice');
+  if (sr) sr.textContent = `Zimmer ${room.id.split('-')[1] || room.id} · ${room.aptLabel}`;
+  if (sp) sp.textContent = `CHF ${room.miete.toLocaleString('de-CH')} / Monat${room.qm ? ' · ' + room.qm : ''}${room.balkon ? ' · 🌿 Balkon' : ''}`;
+}
+function goToStep(n){
+  CURRENT_STEP = n;
+  document.querySelectorAll('.form-step').forEach(el => {
+    el.classList.toggle('active', el.classList.contains(`step-${n}`));
+  });
+  document.querySelectorAll('.wstep').forEach(el => {
+    const sNum = parseInt(el.dataset.step);
+    el.classList.remove('active', 'done');
+    if (sNum === n) el.classList.add('active');
+    else if (sNum < n) el.classList.add('done');
+  });
+  document.querySelectorAll('.wstep-divider').forEach((el, i) => {
+    el.classList.toggle('done', n > i + 1);
+  });
+  // Scroll to top of form
+  const form = document.getElementById('mainForm');
+  if (form) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (n === 2) updateSelectionSummary();
+}
+function wireWizard(){
+  document.addEventListener('change', e => {
+    if (e.target && e.target.name === 'zimmerWunsch'){
+      updateStep1NavState();
+    }
+  });
+  const btnNext = document.getElementById('btnToStep2');
+  if (btnNext) btnNext.onclick = () => {
+    const room = getSelectedRoomData();
+    if (!room) return;
+    goToStep(2);
+  };
+  const btnBack = document.getElementById('btnBackToStep1');
+  if (btnBack) btnBack.onclick = () => goToStep(1);
+  const btnEdit = document.getElementById('btnEditRoom');
+  if (btnEdit) btnEdit.onclick = () => goToStep(1);
+  updateStep1NavState();
 }
 
 function wireGalleryClicks(){

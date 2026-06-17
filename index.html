@@ -1202,32 +1202,65 @@
   .check-item {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 16px;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 14.5px;
+    line-height: 1.5;
     color: var(--text);
-    padding: 14px 18px;
+    padding: 18px 20px;
     background: var(--bg);
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    transition: all .25s ease;
-    font-weight: 300;
+    border: 2px solid var(--line);
+    border-radius: 10px;
+    transition: all .2s ease;
+    font-weight: 400;
+    user-select: none;
+    position: relative;
   }
-  .check-item:hover { border-color: var(--gold); background: var(--surface); }
-  .check-item input[type="checkbox"] {
-    width: 14px;
-    height: 14px;
-    accent-color: var(--gold);
-    cursor: pointer;
-    flex-shrink: 0;
-    padding: 0;
-    border: none;
-    background: transparent;
-  }
-  .check-item.checked {
-    background: var(--surface);
+  .check-item:hover {
     border-color: var(--gold);
-    box-shadow: inset 3px 0 0 0 var(--gold);
+    background: var(--surface);
+    transform: translateY(-1px);
+  }
+  /* Native checkbox unsichtbar machen aber für Form Validation behalten */
+  .check-item input[type="checkbox"] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+  /* Custom Checkbox Box vor dem Text */
+  .check-item::before {
+    content: "";
+    display: inline-flex;
+    width: 26px;
+    height: 26px;
+    border: 2.5px solid #c5b896;
+    border-radius: 7px;
+    background: #ffffff;
+    flex-shrink: 0;
+    transition: all .2s ease;
+    background-image: none;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 18px 18px;
+  }
+  /* Checked State: gold gefüllt + großes weißes Häkchen */
+  .check-item.checked {
+    background: linear-gradient(135deg, var(--surface) 0%, #faf3e3 100%);
+    border-color: var(--gold);
+    box-shadow: 0 2px 12px rgba(184, 132, 62, 0.12);
+  }
+  .check-item.checked::before {
+    background-color: var(--gold);
+    border-color: var(--gold);
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='5 13 10 18 20 7'/></svg>");
+    animation: checkPop .35s cubic-bezier(.34, 1.56, .64, 1);
+  }
+  @keyframes checkPop {
+    0%   { transform: scale(.6); }
+    60%  { transform: scale(1.15); }
+    100% { transform: scale(1); }
   }
 
   /* SUBMIT */

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" translate="no" class="notranslate">
 <head>
+<meta name="google" content="notranslate">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Zimmer-Bewerbung — D&T Homes</title>
@@ -2689,8 +2690,28 @@ document.getElementById('mainForm').addEventListener('submit', async function(e)
     return { ok: false, error: 'PLZ ungültig (4 Ziffern für CH)' };
   }
 
+  // ─── Pre-Validation Recovery: heal :checked state if Browser-Extension broke it ───
+  // (Google Translate kann radios in der DOM-Reparatur entwerten)
+  try {
+    if (typeof WIZARD_SELECTED_RADIO !== 'undefined' && WIZARD_SELECTED_RADIO) {
+      // Make sure the room is still marked as checked
+      if (!WIZARD_SELECTED_RADIO.checked) {
+        WIZARD_SELECTED_RADIO.checked = true;
+      }
+    } else {
+      // Try to recover from any .checked card in DOM
+      const checkedCard = document.querySelector('.room-card.checked');
+      if (checkedCard) {
+        const r = checkedCard.querySelector('input[name="zimmerWunsch"]');
+        if (r && !r.checked) r.checked = true;
+      }
+    }
+  } catch(e) { console.warn('zimmerWunsch recovery failed:', e); }
+  
   // ─── Helper: get human-readable label for a required field ───
   function getFieldLabel(el) {
+    // Special case: zimmerWunsch radios are in room cards, not in .field
+    if (el.name === 'zimmerWunsch') return 'Wunsch-Zimmer';
     const field = el.closest('.field');
     if (field) {
       const label = field.querySelector('label');

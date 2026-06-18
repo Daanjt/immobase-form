@@ -1258,6 +1258,47 @@
     60%  { transform: scale(1.12); }
     100% { transform: scale(1); }
   }
+  /* Gender Radio-Pills — segmented control style */
+  .gender-group {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .gender-pill {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 12px 8px;
+    background: var(--bg);
+    border: 1.5px solid var(--line);
+    border-radius: 8px;
+    font-size: 13.5px;
+    font-weight: 300;
+    color: var(--text);
+    transition: all .2s ease;
+    text-align: center;
+    user-select: none;
+    position: relative;
+    margin: 0;
+  }
+  .gender-pill input[type="radio"] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .gender-pill:hover {
+    border-color: var(--gold);
+    background: var(--surface);
+  }
+  .gender-pill:has(input:checked) {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: #fff;
+    font-weight: 500;
+  }
 
   /* SUBMIT */
   .submit-area {
@@ -1458,12 +1499,20 @@
           </div>
           <div class="field">
             <label>Geschlecht <span class="req">*</span></label>
-            <select name="gender" required>
-              <option value="">— Bitte wählen —</option>
-              <option value="Frau">Frau</option>
-              <option value="Mann">Mann</option>
-              <option value="Divers">Divers</option>
-            </select>
+            <div class="gender-group">
+              <label class="gender-pill">
+                <input type="radio" name="gender" value="Frau" required>
+                <span>Frau</span>
+              </label>
+              <label class="gender-pill">
+                <input type="radio" name="gender" value="Mann" required>
+                <span>Mann</span>
+              </label>
+              <label class="gender-pill">
+                <input type="radio" name="gender" value="Divers" required>
+                <span>Divers</span>
+              </label>
+            </div>
           </div>
         </div>
         <div class="field">
@@ -2607,20 +2656,24 @@ document.getElementById('mainForm').addEventListener('submit', async function(e)
   data.status = 'Neu';
   data.eingereichtAm = new Date().toLocaleDateString('de-CH');
 
-  // Fallback: Gender direkt aus dem DOM holen, falls FormData es nicht erfasst hat
-  // (Sicherheits-Fallback gegen iOS-Safari-Bugs mit Select-Elementen)
+  // Fallback: Gender direkt aus dem DOM holen (Radio checked), falls FormData scheitert
   if (!data.gender) {
-    const genderEl = this.querySelector('[name="gender"]');
-    if (genderEl && genderEl.value) data.gender = genderEl.value;
+    const checked = this.querySelector('input[name="gender"]:checked');
+    if (checked && checked.value) data.gender = checked.value;
   }
   // Falls trotzdem leer: Validierung fehlgeschlagen, nicht abschicken
   if (!data.gender) {
     alert('Bitte wähle ein Geschlecht aus.');
-    const genderEl = this.querySelector('[name="gender"]');
-    if (genderEl) {
-      genderEl.scrollIntoView({behavior:'smooth', block:'center'});
-      genderEl.style.borderColor = '#f87171';
-      setTimeout(() => { genderEl.style.borderColor = ''; }, 2500);
+    const genderGroup = this.querySelector('.gender-group');
+    if (genderGroup) {
+      genderGroup.scrollIntoView({behavior:'smooth', block:'center'});
+      genderGroup.style.outline = '2px solid #f87171';
+      genderGroup.style.outlineOffset = '4px';
+      genderGroup.style.borderRadius = '8px';
+      setTimeout(() => { 
+        genderGroup.style.outline = '';
+        genderGroup.style.outlineOffset = '';
+      }, 2500);
     }
     btn.textContent = 'Bewerbung senden';
     btn.disabled = false;

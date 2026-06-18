@@ -2287,8 +2287,9 @@ async function renderRooms() {
     return;
   }
   
-  // Save current selection if any
-  const currentSel = document.querySelector('input[name="zimmerWunsch"]:checked')?.value;
+  // Save current selection — try DOM first, fall back to tracked value
+  const currentSel = document.querySelector('input[name="zimmerWunsch"]:checked')?.value
+                  || SELECTED_ZIMMER_ID;
   
   // Group rooms by apartment
   const grouped = {};
@@ -2445,8 +2446,13 @@ async function renderRooms() {
 
 renderRooms();
 
-// Refresh free rooms every 60 seconds (in case admin adds new ones while form is open)
-setInterval(() => renderRooms(), 60000);
+// Refresh free rooms every 2 minutes BUT only when user is still in Step 1
+// (Re-rendering while user is in Step 2 destroys their selection)
+setInterval(() => {
+  if (typeof CURRENT_STEP === 'undefined' || CURRENT_STEP === 1) {
+    renderRooms();
+  }
+}, 120000);
 
 
 function updateCheck(el, id) {
@@ -2690,20 +2696,19 @@ document.getElementById('mainForm').addEventListener('submit', async function(e)
     return { ok: false, error: 'PLZ ungültig (4 Ziffern für CH)' };
   }
 
-  // ─── Pre-Validation Recovery: heal :checked state if Browser-Extension broke it ───
-  // (Google Translate kann radios in der DOM-Reparatur entwerten)
+  // ─── Pre-Validation Recovery: heal :checked if renderRooms() destroyed it ───
+  // (renderRooms läuft alle 60sec und ersetzt die Radio-DOM-Elemente)
   try {
-    if (typeof WIZARD_SELECTED_RADIO !== 'undefined' && WIZARD_SELECTED_RADIO) {
-      // Make sure the room is still marked as checked
-      if (!WIZARD_SELECTED_RADIO.checked) {
-        WIZARD_SELECTED_RADIO.checked = true;
-      }
-    } else {
-      // Try to recover from any .checked card in DOM
-      const checkedCard = document.querySelector('.room-card.checked');
-      if (checkedCard) {
-        const r = checkedCard.querySelector('input[name="zimmerWunsch"]');
-        if (r && !r.checked) r.checked = true;
+    const checked = document.querySelector('input[name="zimmerWunsch"]:checked');
+    if (!checked && SELECTED_ZIMMER_ID) {
+      // Find the CURRENT radio in DOM with the tracked value, check it
+      const radio = document.querySelector('input[name="zimmerWunsch"][value="' + SELECTED_ZIMMER_ID + '"]');
+      if (radio) {
+        radio.checked = true;
+        WIZARD_SELECTED_RADIO = radio;
+        // Re-mark card as checked
+        const card = radio.closest('.room-card');
+        if (card) card.classList.add('checked');
       }
     }
   } catch(e) { console.warn('zimmerWunsch recovery failed:', e); }
@@ -3132,6 +3137,8 @@ async function fillPdfPreviews(){
 // ═══ Wizard Step Navigation ═══
 let CURRENT_STEP = 1;
 let WIZARD_SELECTED_RADIO = null;
+// Tracking by VALUE (survives DOM re-renders unlike WIZARD_SELECTED_RADIO)
+let SELECTED_ZIMMER_ID = null;
 function getSelectedRoomData(){
   // Prefer cached reference, fall back to live DOM query
   let r = WIZARD_SELECTED_RADIO;
@@ -3158,6 +3165,7 @@ function selectRoomCard(card){
   });
   radio.checked = true;
   WIZARD_SELECTED_RADIO = radio;
+  SELECTED_ZIMMER_ID = radio.value;
   document.querySelectorAll('.room-card.checked').forEach(c => c.classList.remove('checked'));
   card.classList.add('checked');
   // Trigger any external listeners (e.g. cost calc)

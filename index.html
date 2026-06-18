@@ -1258,10 +1258,14 @@
   }
   .field.field-invalid .gender-group,
   .field.field-invalid .check-group,
-  .field.field-invalid .options-group {
+  .field.field-invalid .option-cards {
     outline: 2px solid #ef4444;
     outline-offset: 4px;
-    border-radius: 8px;
+    border-radius: 10px;
+  }
+  /* Falls .field-invalid auf einem field mit info-box davor — outline nur um die Karten */
+  .field.field-invalid .option-cards {
+    margin-top: 4px;
   }
   .field-error-msg {
     display: block;

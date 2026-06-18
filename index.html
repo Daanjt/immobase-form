@@ -1197,6 +1197,82 @@
     flex-direction: column;
     gap: 8px;
   }
+  /* ─── Missing-Fields Banner (above Submit Button) ─── */
+  .missing-fields-banner {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    background: #fef2f2;
+    border: 1.5px solid #fca5a5;
+    border-left: 4px solid #ef4444;
+    border-radius: 10px;
+    padding: 16px 18px 16px 16px;
+    margin: 0 0 18px 0;
+    animation: bannerSlideIn .3s ease;
+  }
+  @keyframes bannerSlideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .mfb-icon {
+    font-size: 22px;
+    color: #ef4444;
+    line-height: 1;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+  .mfb-body { flex: 1; min-width: 0; }
+  .mfb-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #991b1b;
+    margin-bottom: 8px;
+  }
+  .mfb-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+  }
+  .mfb-list li {
+    font-size: 12.5px;
+    color: #b91c1c;
+    padding-left: 14px;
+    position: relative;
+  }
+  .mfb-list li::before {
+    content: "•";
+    position: absolute;
+    left: 4px;
+    color: #ef4444;
+    font-weight: bold;
+  }
+  /* ─── Per-Field Error Highlight ─── */
+  .field.field-invalid input,
+  .field.field-invalid select,
+  .field.field-invalid textarea {
+    border-color: #ef4444 !important;
+    background: #fef2f2;
+  }
+  .field.field-invalid .gender-group,
+  .field.field-invalid .check-group,
+  .field.field-invalid .options-group {
+    outline: 2px solid #ef4444;
+    outline-offset: 4px;
+    border-radius: 8px;
+  }
+  .field-error-msg {
+    display: block;
+    font-size: 11.5px;
+    color: #b91c1c;
+    margin-top: 6px;
+    letter-spacing: 0;
+    font-weight: 400;
+  }
+  .field.field-invalid .field-error-msg { display: block; }
+  
   .check-item {
     display: flex;
     align-items: center;
@@ -1849,6 +1925,14 @@
         </div>
       </div>
 
+      <div class="missing-fields-banner" id="missingFieldsBanner" style="display:none;">
+        <div class="mfb-icon">⚠</div>
+        <div class="mfb-body">
+          <div class="mfb-title">Bitte fülle noch <span id="mfbCount">0</span> Pflichtfeld(er) aus:</div>
+          <ul class="mfb-list" id="mfbList"></ul>
+        </div>
+      </div>
+      
       <div class="submit-area">
         <div class="submit-nav-row">
           <button type="button" class="btn-back" id="btnBackToStep1">← Zurück zur Auswahl</button>
@@ -2482,6 +2566,56 @@ document.querySelectorAll('input,select,textarea').forEach(el => {
   el.addEventListener('input', updateProgress);
 });
 
+// Auto-clear invalid state when user starts filling a field
+(function() {
+  const form = document.getElementById('mainForm');
+  if (!form) return;
+  function clearInvalid(el) {
+    if (!el) return;
+    const field = el.closest('.field');
+    if (field && field.classList.contains('field-invalid')) {
+      // Check if field is now valid
+      let isValid = false;
+      if (el.type === 'radio') {
+        isValid = !!form.querySelector(`input[name="${el.name}"]:checked`);
+      } else if (el.type === 'checkbox') {
+        isValid = el.checked;
+      } else {
+        isValid = !!(el.value && String(el.value).trim());
+      }
+      if (isValid) {
+        field.classList.remove('field-invalid');
+        if (el.style && el.style.borderColor) el.style.borderColor = '';
+        // Update banner: remove this field from list
+        const banner = document.getElementById('missingFieldsBanner');
+        if (banner && banner.style.display !== 'none') {
+          // Re-check all remaining invalid fields
+          const stillInvalid = form.querySelectorAll('.field.field-invalid').length;
+          if (stillInvalid === 0) {
+            banner.style.display = 'none';
+          } else {
+            document.getElementById('mfbCount').textContent = stillInvalid;
+            // Rebuild list from currently invalid fields
+            const list = document.getElementById('mfbList');
+            list.innerHTML = '';
+            form.querySelectorAll('.field.field-invalid').forEach(f => {
+              const lbl = f.querySelector('label');
+              if (!lbl) return;
+              let txt = '';
+              for (const n of lbl.childNodes) if (n.nodeType === Node.TEXT_NODE) txt += n.textContent;
+              const li = document.createElement('li');
+              li.textContent = txt.trim();
+              list.appendChild(li);
+            });
+          }
+        }
+      }
+    }
+  }
+  form.addEventListener('input', e => clearInvalid(e.target));
+  form.addEventListener('change', e => clearInvalid(e.target));
+})();
+
 document.getElementById('mainForm').addEventListener('submit', async function(e) {
   e.preventDefault();
   console.log('[FORM] submit triggered');
@@ -2551,35 +2685,85 @@ document.getElementById('mainForm').addEventListener('submit', async function(e)
     return { ok: false, error: 'PLZ ungültig (4 Ziffern für CH)' };
   }
 
-  // Reset all field highlights
+  // ─── Helper: get human-readable label for a required field ───
+  function getFieldLabel(el) {
+    const field = el.closest('.field');
+    if (field) {
+      const label = field.querySelector('label');
+      if (label) {
+        let text = '';
+        for (const node of label.childNodes) {
+          if (node.nodeType === Node.TEXT_NODE) text += node.textContent;
+        }
+        text = text.trim();
+        if (text) return text;
+      }
+    }
+    // Checkbox: label is the parent .check-item itself
+    if (el.type === 'checkbox') {
+      const lbl = el.closest('.check-item');
+      if (lbl) {
+        let t = lbl.textContent.trim();
+        if (t.length > 60) t = t.substring(0, 58) + '...';
+        return t;
+      }
+    }
+    return el.name || 'Feld';
+  }
+  
+  // Reset all field highlights + clear banner
   this.querySelectorAll('input, select, textarea').forEach(el => {
     el.style.borderColor = '';
   });
+  this.querySelectorAll('.field.field-invalid').forEach(f => f.classList.remove('field-invalid'));
+  const banner = document.getElementById('missingFieldsBanner');
+  if (banner) banner.style.display = 'none';
 
   const required = this.querySelectorAll('[required]');
-  let valid = true;
   let firstInvalid = null;
+  const missingFields = [];
+  const seenRadioGroups = new Set();
   const validationErrors = [];
   
-  // Required-Check
+  // Required-Check mit Sammlung der Labels
   required.forEach(el => {
     let elValid = false;
     if (el.type === 'radio') {
+      if (seenRadioGroups.has(el.name)) return;
+      seenRadioGroups.add(el.name);
       elValid = !!document.querySelector(`input[name="${el.name}"]:checked`);
     } else if (el.type === 'checkbox') {
       elValid = el.checked;
     } else {
-      elValid = !!el.value;
+      elValid = !!(el.value && String(el.value).trim());
     }
     if (!elValid) {
-      if (el.type !== 'radio') el.style.borderColor = '#f87171';
-      valid = false;
+      const label = getFieldLabel(el);
+      missingFields.push({ el, label });
+      // Highlight the .field container
+      const field = el.closest('.field');
+      if (field) field.classList.add('field-invalid');
+      if (el.type !== 'radio' && el.type !== 'checkbox') el.style.borderColor = '#ef4444';
       if (!firstInvalid) firstInvalid = el;
     }
   });
 
-  if (!valid) {
-    firstInvalid?.scrollIntoView({behavior:'smooth',block:'center'});
+  if (missingFields.length > 0) {
+    // Show banner with list
+    if (banner) {
+      document.getElementById('mfbCount').textContent = missingFields.length;
+      const list = document.getElementById('mfbList');
+      list.innerHTML = '';
+      missingFields.forEach(({ label }) => {
+        const li = document.createElement('li');
+        li.textContent = label;
+        list.appendChild(li);
+      });
+      banner.style.display = 'flex';
+    }
+    // Restore button text
+    if (btn) { btn.textContent = 'Bewerbung einreichen →'; btn.disabled = false; }
+    firstInvalid?.scrollIntoView({behavior:'smooth', block:'center'});
     return;
   }
 

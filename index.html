@@ -161,6 +161,13 @@
 
   /* FIELDS */
   .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .phone-input-wrap { display: flex; gap: 8px; align-items: stretch; }
+  .phone-country-select { flex: 0 0 auto; width: auto; min-width: 120px; padding: 14px 12px; border: 1px solid #d4c7a8; border-radius: 8px; background: #fefcf7; font-size: 15px; color: #1a1814; font-family: inherit; cursor: pointer; transition: border-color .15s, background .15s; }
+  .phone-country-select:hover { border-color: #a08864; }
+  .phone-country-select:focus { outline: none; border-color: #7a6a4a; background: #fff; }
+  .phone-input-wrap input[type="tel"] { flex: 1 1 0; min-width: 0; }
+  .phone-input-wrap input[type="tel"][data-error="true"] { border-color: #c44a3e; background: #fef5f3; }
+  .phone-country-select[data-error="true"] { border-color: #c44a3e; background: #fef5f3; }
   .field { margin-bottom: 22px; }
   .field:last-child { margin-bottom: 0; }
   label {
@@ -1704,8 +1711,25 @@
           <input type="email" name="email" placeholder="max@beispiel.ch" required>
         </div>
         <div class="field">
-          <label>Telefonnummer <span class="req">*</span></label>
-          <input type="tel" name="phone" placeholder="+41 79 123 45 67" required>
+          <label>Telefonnummer <span class="req">*</span> <span style="font-size:11px;color:#8a8174;font-weight:400">- wir kontaktieren dich danach per WhatsApp</span></label>
+          <div class="phone-input-wrap">
+            <select name="phone_country" class="phone-country-select" required>
+              <option value="+41" data-len-min="9" data-len-max="9">🇨🇭 +41</option>
+              <option value="+49" data-len-min="10" data-len-max="11">🇩🇪 +49</option>
+              <option value="+43" data-len-min="10" data-len-max="11">🇦🇹 +43</option>
+              <option value="+33" data-len-min="9" data-len-max="9">🇫🇷 +33</option>
+              <option value="+39" data-len-min="9" data-len-max="10">🇮🇹 +39</option>
+              <option value="+423" data-len-min="7" data-len-max="7">🇱🇮 +423</option>
+              <option value="+34" data-len-min="9" data-len-max="9">🇪🇸 +34</option>
+              <option value="+31" data-len-min="9" data-len-max="9">🇳🇱 +31</option>
+              <option value="+44" data-len-min="10" data-len-max="10">🇬🇧 +44</option>
+              <option value="+1" data-len-min="10" data-len-max="10">🇺🇸/🇨🇦 +1</option>
+              <option value="other" data-len-min="6" data-len-max="14">Andere...</option>
+            </select>
+            <input type="tel" name="phone_local" id="phoneLocalInput" placeholder="78 123 45 67" inputmode="tel" autocomplete="tel-national" required>
+          </div>
+          <input type="hidden" name="phone" id="phoneHidden" value="">
+          <div id="phoneHint" style="font-size:11px;color:#8a8174;margin-top:6px;display:none"></div>
         </div>
         <div class="field" style="position:relative">
           <label>Aktuelle Adresse <span class="req">*</span></label>
@@ -2647,19 +2671,34 @@ document.getElementById('mainForm').addEventListener('submit', async function(e)
     return { ok: true, value: t };
   }
   function validatePhone(v) {
-    if (!v) return { ok: true, value: '' };
-    const cleaned = String(v).replace(/[^\d+\s]/g, '').trim();
-    const digits = cleaned.replace(/\D/g, '');
-    if (digits.length < 9) return { ok: false, error: 'Telefonnummer zu kurz (mind. 9 Ziffern)' };
-    if (digits.length > 15) return { ok: false, error: 'Telefonnummer zu lang' };
-    // Format CH: 0781234567 → 078 123 45 67
-    if (digits.length === 10 && digits[0] === '0') {
-      return { ok: true, value: `${digits.slice(0,3)} ${digits.slice(3,6)} ${digits.slice(6,8)} ${digits.slice(8,10)}` };
+    if (!v) return { ok: false, error: 'Telefonnummer fehlt' };
+    const s = String(v).trim();
+    if (!s.startsWith('+')) return { ok: false, error: 'Vorwahl fehlt - bitte aus Dropdown wählen' };
+    const digitsOnly = s.replace(/\D/g, '');
+    if (digitsOnly.length < 8) return { ok: false, error: 'Telefonnummer zu kurz' };
+    if (digitsOnly.length > 15) return { ok: false, error: 'Telefonnummer zu lang' };
+    if (s.startsWith('+41')) {
+      const local = digitsOnly.slice(2);
+      if (local.length !== 9) return { ok: false, error: 'Schweizer Nummer braucht 9 Ziffern (z.B. 78 123 45 67, ohne führende 0)' };
+      if (local[0] === '0') return { ok: false, error: 'Führende 0 bei +41 weglassen' };
+      return { ok: true, value: `+41 ${local.slice(0,2)} ${local.slice(2,5)} ${local.slice(5,7)} ${local.slice(7,9)}` };
     }
-    if (digits.length === 11 && digits.startsWith('41')) {
-      return { ok: true, value: `+41 ${digits.slice(2,4)} ${digits.slice(4,7)} ${digits.slice(7,9)} ${digits.slice(9,11)}` };
+    if (s.startsWith('+49')) {
+      const local = digitsOnly.slice(2);
+      if (local.length < 10 || local.length > 11) return { ok: false, error: 'Deutsche Nummer: 10-11 Ziffern erwartet' };
+      return { ok: true, value: `+49 ${local}` };
     }
-    return { ok: true, value: cleaned };
+    if (s.startsWith('+43')) {
+      const local = digitsOnly.slice(2);
+      if (local.length < 10 || local.length > 11) return { ok: false, error: 'Österreichische Nummer: 10-11 Ziffern erwartet' };
+      return { ok: true, value: `+43 ${local}` };
+    }
+    if (s.startsWith('+423')) {
+      const local = digitsOnly.slice(3);
+      if (local.length !== 7) return { ok: false, error: 'Liechtenstein Nummer: 7 Ziffern erwartet' };
+      return { ok: true, value: `+423 ${local}` };
+    }
+    return { ok: true, value: s.replace(/\s+/g, ' ') };
   }
   function validateDate(v, opts) {
     if (!v) return { ok: true, value: '' };
@@ -2833,7 +2872,11 @@ document.getElementById('mainForm').addEventListener('submit', async function(e)
   const phoneRes = validatePhone(data.phone);
   if (!phoneRes.ok) {
     validationErrors.push(`Telefon: ${phoneRes.error}`);
-    const el = this.querySelector('[name="phone"]');
+    const local = this.querySelector('#phoneLocalInput');
+    const country = this.querySelector('[name="phone_country"]');
+    if (local) { local.setAttribute('data-error', 'true'); local.style.borderColor = '#c44a3e'; local.style.background = '#fef5f3'; }
+    if (country) { country.setAttribute('data-error', 'true'); }
+    const el = local || this.querySelector('[name="phone"]');
     if (el) { el.style.borderColor = '#f87171'; if (!firstInvalid) firstInvalid = el; }
   } else if (phoneRes.value) data.phone = phoneRes.value;
 
@@ -3433,10 +3476,76 @@ function _initWizardSafely(){
     try { wireWizard(); } catch(e) { console.error('wireWizard error:', e); }
   }
 }
+// ═══ Phone-Field Live-Composer (Country-Code + Local Number) ═══
+function initPhoneComposer() {
+  const select = document.querySelector('select[name="phone_country"]');
+  const localInput = document.getElementById('phoneLocalInput');
+  const hidden = document.getElementById('phoneHidden');
+  const hint = document.getElementById('phoneHint');
+  if (!select || !localInput || !hidden) return;
+  
+  function format(digits, country) {
+    if (country === '+41' && digits.length >= 1) {
+      if (digits.length <= 2) return digits;
+      if (digits.length <= 5) return digits.slice(0,2) + ' ' + digits.slice(2);
+      if (digits.length <= 7) return digits.slice(0,2) + ' ' + digits.slice(2,5) + ' ' + digits.slice(5);
+      return digits.slice(0,2) + ' ' + digits.slice(2,5) + ' ' + digits.slice(5,7) + ' ' + digits.slice(7,9);
+    }
+    return digits;
+  }
+  
+  function updatePhone() {
+    const country = select.value;
+    let raw = localInput.value;
+    let digits = raw.replace(/\D/g, '');
+    if (country === '+41' && digits.startsWith('0')) {
+      digits = digits.slice(1);
+    }
+    const opt = select.options[select.selectedIndex];
+    const maxLen = parseInt(opt.getAttribute('data-len-max') || '14', 10);
+    if (digits.length > maxLen) digits = digits.slice(0, maxLen);
+    const formatted = format(digits, country);
+    if (formatted !== localInput.value) {
+      localInput.value = formatted;
+      try { localInput.setSelectionRange(formatted.length, formatted.length); } catch(e){}
+    }
+    if (digits.length > 0) {
+      hidden.value = country + ' ' + formatted;
+    } else {
+      hidden.value = '';
+    }
+    const minLen = parseInt(opt.getAttribute('data-len-min') || '6', 10);
+    if (digits.length > 0 && digits.length < minLen) {
+      hint.textContent = 'Noch ' + (minLen - digits.length) + ' Ziffer' + (minLen - digits.length === 1 ? '' : 'n') + ' erwartet (' + digits.length + '/' + minLen + ')';
+      hint.style.display = 'block';
+      hint.style.color = '#a08864';
+    } else if (digits.length >= minLen) {
+      hint.textContent = '✓ Format gültig';
+      hint.style.display = 'block';
+      hint.style.color = '#5a6e4a';
+    } else {
+      hint.style.display = 'none';
+    }
+    if (digits.length >= minLen) {
+      localInput.removeAttribute('data-error');
+      localInput.style.borderColor = '';
+      localInput.style.background = '';
+      select.removeAttribute('data-error');
+    }
+  }
+  
+  localInput.addEventListener('input', updatePhone);
+  select.addEventListener('change', updatePhone);
+  // Auto-fill case: also bind blur (browser autofill triggers it)
+  localInput.addEventListener('blur', updatePhone);
+}
+
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', _initWizardSafely);
+  document.addEventListener('DOMContentLoaded', initPhoneComposer);
 } else {
   _initWizardSafely();
+  initPhoneComposer();
 }
 </script>
 <div class="lightbox" id="lightbox">

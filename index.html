@@ -2275,6 +2275,8 @@ const TRANSLATIONS = {
     "apt.unbefristet": "Unbefristet",
     "apt.befristetBis": "Befristet bis",
     "apt.photos": "Bilder der Wohnung",
+    "apt.virtualTour": "Virtuelle 3D-Tour",
+    "apt.virtualTourLoading": "3D-Tour lädt beim Scrollen",
     "cat.kueche": "Küche",
     "cat.bad": "Bad",
     "cat.wohnzimmer": "Wohnzimmer",
@@ -2491,6 +2493,8 @@ const TRANSLATIONS = {
     "apt.unbefristet": "Open-ended",
     "apt.befristetBis": "Until",
     "apt.photos": "Photos of the apartment",
+    "apt.virtualTour": "Virtual 3D Tour",
+    "apt.virtualTourLoading": "3D tour loads on scroll",
     "cat.kueche": "Kitchen",
     "cat.bad": "Bathroom",
     "cat.wohnzimmer": "Living room",
@@ -2926,11 +2930,11 @@ async function renderRooms() {
       </div>
       ${apt.matterport ? `
         <div class="apt-matterport-hero">
-          <div class="media-label-hero">🎥 Virtuelle 3D-Tour</div>
+          <div class="media-label-hero">🎥 ${t("apt.virtualTour")}</div>
           <div class="matterport-frame-big matterport-lazy" data-src="${apt.matterport}">
             <div class="matterport-placeholder">
               <div class="matterport-pulse"></div>
-              <div class="matterport-hint">🎥 3D-Tour lädt beim Scrollen</div>
+              <div class="matterport-hint">🎥 ${t("apt.virtualTourLoading")}</div>
             </div>
           </div>
         </div>

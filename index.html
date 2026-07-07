@@ -2274,6 +2274,15 @@ const TRANSLATIONS = {
     // Apartment status
     "apt.unbefristet": "Unbefristet",
     "apt.befristetBis": "Befristet bis",
+    "apt.photos": "Bilder der Wohnung",
+    "cat.kueche": "Küche",
+    "cat.bad": "Bad",
+    "cat.wohnzimmer": "Wohnzimmer",
+    "cat.balkon": "Balkon",
+    "cat.eingang": "Eingang",
+    "cat.aussen": "Aussenansicht",
+    "cat.grundriss": "Grundriss",
+    "cat.sonstiges": "Sonstiges",
     "wg.room": "Zimmer",
   },
   en: {
@@ -2481,6 +2490,15 @@ const TRANSLATIONS = {
     "room.selected": "✓ Selected",
     "apt.unbefristet": "Open-ended",
     "apt.befristetBis": "Until",
+    "apt.photos": "Photos of the apartment",
+    "cat.kueche": "Kitchen",
+    "cat.bad": "Bathroom",
+    "cat.wohnzimmer": "Living room",
+    "cat.balkon": "Balcony",
+    "cat.eingang": "Entrance",
+    "cat.aussen": "Exterior view",
+    "cat.grundriss": "Floor plan",
+    "cat.sonstiges": "Other",
     "wg.room": "Room",
   }
 };
@@ -2794,7 +2812,7 @@ async function loadFreieZimmer() {
           endDate: d
         };
       }
-      return { type: "unbefristet", label: "Unbefristet", endDate: null };
+      return { type: "unbefristet", label: t("apt.unbefristet"), endDate: null };
     }
     
     // Combine
@@ -2837,17 +2855,18 @@ function categoryLabelForm(cat){
     const parts = roomId.split('-');
     return t('room.roomLabel') + ' ' + (parts[1] || roomId);
   }
-  const map = {
-    kueche: 'Küche',
-    bad: 'Bad',
-    wohnzimmer: 'Wohnzimmer',
-    balkon: 'Balkon',
-    eingang: 'Eingang',
-    aussen: 'Aussenansicht',
-    grundriss: 'Grundriss',
-    sonstiges: 'Sonstiges',
+  const keyMap = {
+    kueche: 'cat.kueche',
+    bad: 'cat.bad',
+    wohnzimmer: 'cat.wohnzimmer',
+    balkon: 'cat.balkon',
+    eingang: 'cat.eingang',
+    aussen: 'cat.aussen',
+    grundriss: 'cat.grundriss',
+    sonstiges: 'cat.sonstiges',
   };
-  return map[cat] || cat;
+  const key = keyMap[cat];
+  return key ? t(key) : cat;
 }
 
 
@@ -2924,7 +2943,7 @@ async function renderRooms() {
         return `
         <div class="apt-extras-visible">
           <div class="extras-section">
-            <div class="extras-section-label">📷 Bilder der Wohnung (${generalPhotos.length})</div>
+            <div class="extras-section-label">📷 ${t("apt.photos")} (${generalPhotos.length})</div>
             <div class="mini-gallery">
               ${generalPhotos.map((p, idx) => {
                 const isPdf = p.path.toLowerCase().endsWith(".pdf");
@@ -2985,8 +3004,8 @@ async function renderRooms() {
                 ${roomPhotos.length > 0 ? `<span class="meta-pill photos">📷 ${roomPhotos.length} ${t(roomPhotos.length>1?"room.photos":"room.photo")}</span>` : ''}
               </div>
               <button type="button" class="room-select-btn">
-                <span class="not-selected" data-i18n="room.select">Dieses Zimmer wählen</span>
-                <span class="when-selected" data-i18n="room.selected">✓ Ausgewählt</span>
+                <span class="not-selected">${t("room.select")}</span>
+                <span class="when-selected">${t("room.selected")}</span>
               </button>
             </div>
           </label>

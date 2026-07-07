@@ -2277,6 +2277,23 @@ const TRANSLATIONS = {
     "apt.photos": "Bilder der Wohnung",
     "apt.virtualTour": "Virtuelle 3D-Tour",
     "apt.virtualTourLoading": "3D-Tour lädt beim Scrollen",
+    // Alerts
+    "alert.chooseRoom": "Bitte wähle ein Zimmer aus der Liste aus.",
+    "alert.fixFields": "Bitte korrigiere folgende Felder:",
+    "alert.chooseGender": "Bitte wähle ein Geschlecht aus.",
+    "alert.submitFailed": "Bewerbung konnte nicht gespeichert werden.",
+    "alert.submitError": "Fehler beim Absenden",
+    "alert.tryAgain": "Bitte versuche es erneut oder kontaktiere uns direkt.",
+    "alert.error": "Fehler",
+    "alert.unknown": "Unbekannt",
+    "alert.code": "Code",
+    "btn.errorRetry": "Fehler, bitte erneut versuchen",
+    "cost.pickYet": "noch wählen",
+    "addr.noResults": "Keine Treffer, bitte manuell PLZ und Ort eingeben.",
+    // Lightbox
+    "lightbox.close": "Schliessen",
+    "lightbox.prev": "Vorheriges Bild",
+    "lightbox.next": "Nächstes Bild",
     "cat.kueche": "Küche",
     "cat.bad": "Bad",
     "cat.wohnzimmer": "Wohnzimmer",
@@ -2495,6 +2512,23 @@ const TRANSLATIONS = {
     "apt.photos": "Photos of the apartment",
     "apt.virtualTour": "Virtual 3D Tour",
     "apt.virtualTourLoading": "3D tour loads on scroll",
+    // Alerts
+    "alert.chooseRoom": "Please choose a room from the list.",
+    "alert.fixFields": "Please correct the following fields:",
+    "alert.chooseGender": "Please choose a gender.",
+    "alert.submitFailed": "Your application could not be saved.",
+    "alert.submitError": "Error submitting",
+    "alert.tryAgain": "Please try again or contact us directly.",
+    "alert.error": "Error",
+    "alert.unknown": "Unknown",
+    "alert.code": "Code",
+    "btn.errorRetry": "Error, please try again",
+    "cost.pickYet": "choose first",
+    "addr.noResults": "No results, please enter postal code and city manually.",
+    // Lightbox
+    "lightbox.close": "Close",
+    "lightbox.prev": "Previous image",
+    "lightbox.next": "Next image",
     "cat.kueche": "Kitchen",
     "cat.bad": "Bathroom",
     "cat.wohnzimmer": "Living room",
@@ -2542,6 +2576,12 @@ function applyLanguage(lang) {
     const key = el.getAttribute("data-i18n-placeholder");
     const val = t(key);
     if (val) el.setAttribute("placeholder", val);
+  });
+  // Aria labels
+  document.querySelectorAll("[data-i18n-aria]").forEach(el => {
+    const key = el.getAttribute("data-i18n-aria");
+    const val = t(key);
+    if (val) el.setAttribute("aria-label", val);
   });
   
   // Toggle button active state
@@ -2660,7 +2700,7 @@ document.addEventListener("DOMContentLoaded", function() {
     
     function renderSuggestions(results, hausnummer) {
       if (!results || results.length === 0) {
-        suggestionsBox.innerHTML = '<div style="padding:14px;text-align:center;color:#8a8174;font-size:12px;font-style:italic">Keine Treffer — bitte manuell PLZ und Ort eingeben.</div>';
+        suggestionsBox.innerHTML = '<div style="padding:14px;text-align:center;color:#8a8174;font-size:12px;font-style:italic">${t("addr.noResults")}</div>';
         suggestionsBox.style.display = 'block';
         return;
       }
@@ -3108,7 +3148,7 @@ function updateCostSummary() {
       document.getElementById('mieteLabel').textContent = 'CHF ' + bruttomiete.toLocaleString('de-CH') + '.–';
     }
   } else {
-    document.getElementById('zimmerLabel').textContent = '— noch wählen —';
+    document.getElementById('zimmerLabel').textContent = t('cost.pickYet');
     document.getElementById('adresseLabel').textContent = '—';
     document.getElementById('wgLabel').textContent = '—';
     document.getElementById('mieteLabel').textContent = '—';
@@ -3131,14 +3171,14 @@ function updateCostSummary() {
       document.getElementById('kautionLabel').textContent = opt.label;
     }
   } else {
-    document.getElementById('kautionLabel').textContent = '— noch wählen —';
+    document.getElementById('kautionLabel').textContent = t('cost.pickYet');
   }
 
   // Möblierung
   if (moebel) {
     document.getElementById('moebelLabel').textContent = MOEBEL_LABELS[moebel.value];
   } else {
-    document.getElementById('moebelLabel').textContent = '— noch wählen —';
+    document.getElementById('moebelLabel').textContent = t('cost.pickYet');
   }
 
   // Aufschlag-Zeile
@@ -3414,7 +3454,7 @@ document.getElementById('mainForm').addEventListener('submit', async function(e)
   // EXPLIZITE PRÜFUNG: Zimmer muss ausgewählt sein
   const selectedRoom = this.querySelector('input[name="zimmerWunsch"]:checked');
   if (!selectedRoom) {
-    alert('Bitte wähle ein Zimmer aus der Liste aus.');
+    alert(t('alert.chooseRoom'));
     const roomGrid = document.getElementById('roomGrid');
     if (roomGrid) {
       roomGrid.scrollIntoView({behavior:'smooth', block:'center'});
@@ -3479,7 +3519,7 @@ document.getElementById('mainForm').addEventListener('submit', async function(e)
   } else if (plzRes.value) data.plz = plzRes.value;
 
   if (validationErrors.length > 0) {
-    alert('Bitte korrigiere folgende Felder:\n\n• ' + validationErrors.join('\n• '));
+    alert(t('alert.fixFields') + '\n\n• ' + validationErrors.join('\n• '));
     firstInvalid?.scrollIntoView({behavior:'smooth',block:'center'});
     return;
   }
@@ -3495,7 +3535,7 @@ document.getElementById('mainForm').addEventListener('submit', async function(e)
   }
   // Falls trotzdem leer: Validierung fehlgeschlagen, nicht abschicken
   if (!data.gender) {
-    alert('Bitte wähle ein Geschlecht aus.');
+    alert(t('alert.chooseGender'));
     const genderGroup = this.querySelector('.gender-group');
     if (genderGroup) {
       genderGroup.scrollIntoView({behavior:'smooth', block:'center'});
@@ -3599,9 +3639,9 @@ document.getElementById('mainForm').addEventListener('submit', async function(e)
 
   if (error) {
     console.error('Supabase error:', error);
-    btn.textContent = 'Fehler — bitte erneut versuchen';
+    btn.textContent = t('btn.errorRetry');
     btn.disabled = false;
-    alert('Bewerbung konnte nicht gespeichert werden.\n\nFehler: ' + (error.message || error.hint || 'Unbekannt') + '\n\nCode: ' + (error.code || '—'));
+    alert(t('alert.submitFailed') + '\n\n' + t('alert.error') + ': ' + (error.message || error.hint || t('alert.unknown')) + '\n\n' + t('alert.code') + ': ' + (error.code || '-'));
     return;
   }
 
@@ -3811,7 +3851,7 @@ function updateStickyBar(){
   const aptLabel = room.aptLabel ? ' · ' + room.aptLabel : '';
   const price = ' · CHF ' + room.miete.toLocaleString('de-CH') + '/Mt.';
   const target = document.getElementById('stickyBarRoom');
-  if (target) target.textContent = `Zimmer ${roomNum}${aptLabel}${price}`;
+  if (target) target.textContent = `${t('room.roomLabel')} ${roomNum}${aptLabel}${price}`;
   bar.classList.add('visible');
   bar.setAttribute('aria-hidden', 'false');
   document.body.classList.add('sticky-bar-shown');
@@ -3934,7 +3974,7 @@ function wireWizard(){
         }
       } catch (err) {
         console.error('[SUBMIT] Error triggering submit:', err);
-        alert('Fehler beim Absenden: ' + (err.message || err) + '\n\nBitte versuche es erneut oder kontaktiere uns direkt.');
+        alert(t('alert.submitError') + ': ' + (err.message || err) + '\n\n' + t('alert.tryAgain'));
       }
     };
     // Use both onclick AND addEventListener for maximum compatibility
@@ -4124,10 +4164,10 @@ if (document.readyState === 'loading') {
 }
 </script>
 <div class="lightbox" id="lightbox">
-  <button class="lightbox-close" onclick="closeLightbox()" aria-label="Schliessen">×</button>
-  <button class="lightbox-nav lightbox-prev" onclick="navLightbox(-1)" aria-label="Vorheriges Bild">‹</button>
+  <button class="lightbox-close" onclick="closeLightbox()" aria-label="Close" data-i18n-aria="lightbox.close">×</button>
+  <button class="lightbox-nav lightbox-prev" onclick="navLightbox(-1)" aria-label="Previous image" data-i18n-aria="lightbox.prev">‹</button>
   <img id="lightbox-img" src="" alt=""/>
-  <button class="lightbox-nav lightbox-next" onclick="navLightbox(1)" aria-label="Nächstes Bild">›</button>
+  <button class="lightbox-nav lightbox-next" onclick="navLightbox(1)" aria-label="Next image" data-i18n-aria="lightbox.next">›</button>
   <div class="lightbox-counter" id="lightbox-counter"></div>
   <a id="lightbox-pdf-link" href="#" target="_blank" rel="noopener" style="display:none">📄 PDF in neuem Tab öffnen</a>
 </div>

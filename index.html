@@ -2774,7 +2774,7 @@ async function renderRooms() {
               </div>
               <div class="room-details">
                 ${r.qm ? `<span class="meta-pill">${r.qm}</span>` : ''}
-                ${r.balkon ? '<span class="meta-pill balcony">🌿 ${t("room.balcony")}</span>' : ''}
+                ${r.balkon ? '<span class="meta-pill balcony">🌿 ' + t("room.balcony") + '</span>' : ''}
                 ${roomPhotos.length > 0 ? `<span class="meta-pill photos">📷 ${roomPhotos.length} ${t(roomPhotos.length>1?"room.photos":"room.photo")}</span>` : ''}
               </div>
               <button type="button" class="room-select-btn">

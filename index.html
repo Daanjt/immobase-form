@@ -1647,6 +1647,18 @@
           </div>
         </div>
         <div class="field">
+          <label><span data-i18n="field.zivilstand">Zivilstand</span> <span class="req">*</span></label>
+          <select name="zivilstand" required>
+            <option value="">— Bitte wählen —</option>
+            <option value="ledig" data-i18n="civil.ledig">ledig</option>
+            <option value="verheiratet" data-i18n="civil.verheiratet">verheiratet</option>
+            <option value="eingetragene Partnerschaft" data-i18n="civil.partnerschaft">eingetragene Partnerschaft</option>
+            <option value="geschieden" data-i18n="civil.geschieden">geschieden</option>
+            <option value="verwitwet" data-i18n="civil.verwitwet">verwitwet</option>
+            <option value="getrennt" data-i18n="civil.getrennt">getrennt</option>
+          </select>
+        </div>
+        <div class="field">
           <label><span data-i18n="field.nat">Nationalität</span> <span class="req">*</span></label>
           <select name="nat" required>
             <option value="" data-i18n="opt.placeholder">— Bitte wählen —</option>
@@ -2073,6 +2085,13 @@ const TRANSLATIONS = {
     "gender.mann": "Mann",
     "gender.divers": "Divers",
     "field.nat": "Nationalität",
+    "field.zivilstand": "Zivilstand",
+    "civil.ledig": "ledig",
+    "civil.verheiratet": "verheiratet",
+    "civil.partnerschaft": "eingetragene Partnerschaft",
+    "civil.geschieden": "geschieden",
+    "civil.verwitwet": "verwitwet",
+    "civil.getrennt": "getrennt",
     "opt.placeholder": "— Bitte wählen —",
     // Placeholders
     "ph.vorname": "Max",
@@ -2323,6 +2342,13 @@ const TRANSLATIONS = {
     "gender.mann": "Male",
     "gender.divers": "Other",
     "field.nat": "Nationality",
+    "field.zivilstand": "Civil status",
+    "civil.ledig": "Single",
+    "civil.verheiratet": "Married",
+    "civil.partnerschaft": "Registered partnership",
+    "civil.geschieden": "Divorced",
+    "civil.verwitwet": "Widowed",
+    "civil.getrennt": "Separated",
     "opt.placeholder": "— Please select —",
     "ph.vorname": "Max",
     "ph.nachname": "Sample",
@@ -3579,6 +3605,7 @@ document.getElementById('mainForm').addEventListener('submit', async function(e)
     geburt: data.geburt || '',
     gender: data.gender || '',
     nat: data.nat || '',
+    zivilstand: data.zivilstand || '',
     adresse: data.adresse || '',
     plz: data.plz || '',
     ort: data.ort || '',

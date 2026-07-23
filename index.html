@@ -2049,7 +2049,7 @@
     <div class="success-screen" id="successScreen">
       <div class="success-icon">✓</div>
       <h2 data-i18n="success.title">Vielen Dank.</h2>
-      <p><span data-i18n="success.body">Ihre Bewerbung ist bei uns eingegangen.<br>Wir melden uns in Kürze persönlich bei Ihnen.</span><br><br>
+      <p><span data-i18n-html="success.body">Ihre Bewerbung ist bei uns eingegangen.<br>Wir melden uns in Kürze persönlich bei Ihnen.</span><br><br>
       <strong>D&amp;T Homes</strong></p>
     </div>
   </div>
@@ -3680,6 +3680,8 @@ document.getElementById('mainForm').addEventListener('submit', async function(e)
   document.getElementById('costSummary').style.display = 'none';
   document.getElementById('successScreen').style.display = 'block';
   document.getElementById('progressFill').style.width = '100%';
+  // Fortschrittsanzeige auf der Danke-Seite ausblenden (sonst bleibt z.B. "4 / 5" stehen)
+  document.querySelectorAll('.progress-label, .progress-bar').forEach(el => { el.style.display = 'none'; });
 });
 
 // ═══ Photo Lightbox ═══

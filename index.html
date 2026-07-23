@@ -2951,6 +2951,7 @@ async function renderRooms() {
     grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:30px;color:var(--muted);font-size:13px">${t("room.none")}</div>`;
     // Ohne freie Zimmer soll die Bewerbung trotzdem moeglich sein
     if (typeof updateStep1NavState === 'function') updateStep1NavState();
+    if (typeof updateProgress === 'function') updateProgress();
     return;
   }
   
@@ -3233,6 +3234,8 @@ function updateProgress() {
         hasValue = true;
       }
     });
+    // Abschnitt Wunschzimmer: als erledigt zaehlen, wenn gar keine Zimmer frei sind
+    if (!hasValue && s.querySelector('#roomGrid') && typeof keineZimmerVerfuegbar === 'function' && keineZimmerVerfuegbar()) hasValue = true;
     if (hasValue) filled++;
   });
   const pct = Math.round(filled/sections.length*100);

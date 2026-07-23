@@ -2949,6 +2949,8 @@ async function renderRooms() {
   
   if (FREIE_ZIMMER.length === 0) {
     grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:30px;color:var(--muted);font-size:13px">${t("room.none")}</div>`;
+    // Ohne freie Zimmer soll die Bewerbung trotzdem moeglich sein
+    if (typeof updateStep1NavState === 'function') updateStep1NavState();
     return;
   }
   
@@ -3477,9 +3479,11 @@ document.getElementById('mainForm').addEventListener('submit', async function(e)
     return;
   }
 
-  // EXPLIZITE PRÜFUNG: Zimmer muss ausgewählt sein
+  // EXPLIZITE PRÜFUNG: Zimmer muss ausgewählt sein, aber nur wenn ueberhaupt Zimmer frei sind
   const selectedRoom = this.querySelector('input[name="zimmerWunsch"]:checked');
-  if (!selectedRoom) {
+  const zimmerVerfuegbar = (typeof FREIE_ZIMMER !== 'undefined' && FREIE_ZIMMER.length > 0)
+    || !!this.querySelector('input[name="zimmerWunsch"]');
+  if (!selectedRoom && zimmerVerfuegbar) {
     alert(t('alert.chooseRoom'));
     const roomGrid = document.getElementById('roomGrid');
     if (roomGrid) {
@@ -3895,12 +3899,16 @@ function wireRoomCardClicks(){
     });
   });
 }
+function keineZimmerVerfuegbar(){
+  if (typeof FREIE_ZIMMER !== 'undefined' && Array.isArray(FREIE_ZIMMER) && FREIE_ZIMMER.length > 0) return false;
+  return !document.querySelector('input[name="zimmerWunsch"]');
+}
 function updateStep1NavState(){
   const room = getSelectedRoomData();
   const btn = document.getElementById('btnToStep2');
   const hint = document.getElementById('step1Hint');
   if (!btn) return;
-  if (room){
+  if (room || keineZimmerVerfuegbar()){
     btn.disabled = false;
     if (hint) hint.classList.add('hidden');
   } else {
@@ -3951,6 +3959,11 @@ function wireWizard(){
   const goNext = (e) => {
     if (e) e.preventDefault();
     const anyChecked = document.querySelector('input[name="zimmerWunsch"]:checked');
+    if (!anyChecked && keineZimmerVerfuegbar()) {
+      WIZARD_SELECTED_RADIO = null;
+      goToStep(2);
+      return false;
+    }
     if (!anyChecked) {
       const grid = document.getElementById('roomGrid');
       if (grid) {

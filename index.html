@@ -70,7 +70,7 @@
   /* HEADER */
   .header {
     text-align: center;
-    margin-bottom: 60px;
+    margin-bottom: 30px;
     animation: fadeUp .7s ease both;
   }
   .header-logo {
@@ -106,6 +106,10 @@
     height: 1px;
     background: var(--line);
     margin: 0 0 30px;
+  }
+  @media (max-width: 540px) {
+    .header { margin-bottom: 24px; }
+    .form-divider { margin-bottom: 24px; }
   }
   .progress-bar {
     height: 1px;
@@ -1869,7 +1873,7 @@
       <div class="form-step step-1 active" id="formStep1">
       <div class="form-card" style="animation-delay:.15s">
         <div class="section-title"><span class="section-num">1</span> <span data-i18n="sec1.title">Wunsch-Zimmer auswählen</span> <span class="req">*</span></div>
-        <div class="info-box" style="margin-bottom:14px">
+        <div class="info-box" id="roomIntro" style="margin-bottom:14px">
           <span data-i18n="sec1.intro">Bitte ein Zimmer auswählen (Pflichtfeld). Alle gezeigten Zimmer sind aktuell verfügbar. Die Zuteilung erfolgt nach Prüfung deiner Bewerbung.</span>
         </div>
         <div class="room-grid" id="roomGrid">
@@ -3009,6 +3013,8 @@ async function renderRooms() {
   
   await loadFreieZimmer();
   
+  const intro = document.getElementById('roomIntro');
+  if (intro) intro.style.display = FREIE_ZIMMER.length === 0 ? 'none' : '';
   if (FREIE_ZIMMER.length === 0) {
     grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:30px;color:var(--muted);font-size:13px">${t("room.none")}</div>`;
     // Ohne freie Zimmer soll die Bewerbung trotzdem moeglich sein

@@ -1530,8 +1530,21 @@
   @media (max-width: 540px) {
     .field-row { grid-template-columns: 1fr; }
     h1 { font-size: 34px; }
-    .form-card { padding: 28px 22px; }
-    .container { padding: 50px 18px 70px; }
+    .form-card { padding: 24px 18px; }
+    .container { padding: 40px 14px 90px; }
+    /* 16px verhindert das automatische Hineinzoomen von iOS beim Antippen */
+    input, select, textarea { font-size: 16px; padding: 14px 0; }
+    select { background-position: right 2px center; }
+    /* Beim Fokus soll das Feld nicht unter dem Seitenkopf verschwinden */
+    input, select, textarea, .option-card, .room-card { scroll-margin-top: 90px; scroll-margin-bottom: 120px; }
+    .option-card { padding: 15px 16px; gap: 12px; }
+    label, .field-label { font-size: 11px; }
+    /* Platz fuer die feste Leiste am unteren Rand */
+    form { padding-bottom: 8px; }
+  }
+  @media (hover: none) {
+    /* Auf Touchgeraeten keine Hover-Effekte, die haengen bleiben */
+    .option-card:hover { border-color: var(--line); background: var(--bg); }
   }
 
   /* LANGUAGE TOGGLE */
@@ -1616,11 +1629,11 @@
         <div class="field-row">
           <div class="field">
             <label><span data-i18n="field.vorname">Vorname</span> <span class="req">*</span></label>
-            <input type="text" name="vorname" placeholder="Max" data-i18n-placeholder="ph.vorname" required>
+            <input type="text" name="vorname" autocomplete="given-name" autocapitalize="words" placeholder="Max" data-i18n-placeholder="ph.vorname" required>
           </div>
           <div class="field">
             <label><span data-i18n="field.nachname">Nachname</span> <span class="req">*</span></label>
-            <input type="text" name="nachname" placeholder="Mustermann" data-i18n-placeholder="ph.nachname" required>
+            <input type="text" name="nachname" autocomplete="family-name" autocapitalize="words" placeholder="Mustermann" data-i18n-placeholder="ph.nachname" required>
           </div>
         </div>
         <div class="field-row">
@@ -1763,7 +1776,7 @@
         <div class="section-title"><span class="section-num">3</span> <span data-i18n="sec3.title">Kontaktdaten</span></div>
         <div class="field">
           <label><span data-i18n="field.email">E-Mail-Adresse</span> <span class="req">*</span></label>
-          <input type="email" name="email" placeholder="max@beispiel.ch" data-i18n-placeholder="ph.email" required>
+          <input type="email" name="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="max@beispiel.ch" data-i18n-placeholder="ph.email" required>
         </div>
         <div class="field">
           <label><span data-i18n="field.phone">Telefonnummer</span> <span class="req">*</span> <span style="font-size:11px;color:#8a8174;font-weight:400" data-i18n="field.phoneHint">- wir kontaktieren dich danach per WhatsApp</span></label>
@@ -1788,18 +1801,18 @@
         </div>
         <div class="field" style="position:relative">
           <label><span data-i18n="field.adresse">Aktuelle Adresse</span> <span class="req">*</span></label>
-          <input type="text" name="adresse" id="adresseInput" placeholder="Musterstrasse 1" data-i18n-placeholder="ph.adresse" autocomplete="off" required>
+          <input type="text" name="adresse" autocomplete="street-address" id="adresseInput" placeholder="Musterstrasse 1" data-i18n-placeholder="ph.adresse" autocomplete="off" required>
           <div id="adresseSuggestions" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #d4c7a8;border-radius:8px;margin-top:4px;max-height:280px;overflow-y:auto;z-index:100;box-shadow:0 4px 16px rgba(0,0,0,0.08)"></div>
           <div id="adresseLoading" style="display:none;position:absolute;right:14px;top:42px;font-size:11px;color:#8a8174;font-style:italic">Suche…</div>
         </div>
         <div class="field-row">
           <div class="field">
             <label><span data-i18n="field.plz">PLZ</span> <span class="req">*</span></label>
-            <input type="text" name="plz" id="plzInput" placeholder="8001" data-i18n-placeholder="ph.plz" pattern="\d{4}" inputmode="numeric" maxlength="4" required>
+            <input type="text" name="plz" inputmode="numeric" autocomplete="postal-code" id="plzInput" placeholder="8001" data-i18n-placeholder="ph.plz" pattern="\d{4}" inputmode="numeric" maxlength="4" required>
           </div>
           <div class="field">
             <label><span data-i18n="field.ort">Ort</span> <span class="req">*</span></label>
-            <input type="text" name="ort" id="ortInput" placeholder="Zürich" data-i18n-placeholder="ph.ort" required>
+            <input type="text" name="ort" autocomplete="address-level2" autocapitalize="words" id="ortInput" placeholder="Zürich" data-i18n-placeholder="ph.ort" required>
           </div>
         </div>
       </div>
@@ -1847,16 +1860,16 @@
           </div>
           <div class="field">
             <label data-i18n="field.job">Beruf / Tätigkeit</label>
-            <input type="text" name="job" placeholder="z.B. Informatiker, Student…" data-i18n-placeholder="ph.job">
+            <input type="text" name="job" autocapitalize="words" placeholder="z.B. Informatiker, Student…" data-i18n-placeholder="ph.job">
           </div>
         </div>
         <div class="field">
           <label data-i18n="field.einkommen">Monatliches Nettoeinkommen (CHF)</label>
-          <input type="number" name="einkommen" placeholder="z.B. 4500" data-i18n-placeholder="ph.einkommen" min="0">
+          <input type="number" name="einkommen" inputmode="numeric" placeholder="z.B. 4500" data-i18n-placeholder="ph.einkommen" min="0">
         </div>
         <div class="field">
           <label data-i18n="field.arbeitgeber">Arbeitgeber / Ausbildungsstätte</label>
-          <input type="text" name="arbeitgeber" placeholder="Name des Unternehmens oder Schule" data-i18n-placeholder="ph.arbeitgeber">
+          <input type="text" name="arbeitgeber" autocapitalize="words" placeholder="Name des Unternehmens oder Schule" data-i18n-placeholder="ph.arbeitgeber">
         </div>
       </div>
 

@@ -237,6 +237,15 @@
     background: var(--surface);
     color: var(--ink);
   }
+  /* Solange nichts gewaehlt ist, soll der Hinweis wie ein Beispieltext wirken */
+  select:required:invalid, select[data-empty="true"] {
+    color: var(--muted-light);
+    font-weight: 300;
+    font-style: italic;
+    font-size: 13.5px;
+  }
+  select option[value=""] { color: var(--muted-light); font-style: italic; }
+  select:required:valid { color: var(--ink); font-weight: 400; font-style: normal; }
   textarea {
     resize: vertical;
     min-height: 90px;
@@ -1563,6 +1572,8 @@
     input[type="date"] { min-height: calc(1.4em + 28px); }
     /* Beispieltexte sollen als Hinweis wirken, nicht wie Inhalt */
     input::placeholder, textarea::placeholder { font-size: 13.5px; }
+    select:required:invalid, select[data-empty="true"] { font-size: 13.5px; }
+    select:required:valid { font-size: 16px; }
     select { background-position: right 2px center; }
     /* Beim Fokus soll das Feld nicht unter dem Seitenkopf verschwinden */
     input, select, textarea, .option-card, .room-card { scroll-margin-top: 90px; scroll-margin-bottom: 120px; }
@@ -1690,7 +1701,7 @@
         <div class="field">
           <label><span data-i18n="field.zivilstand">Zivilstand</span> <span class="req">*</span></label>
           <select name="zivilstand" required>
-            <option value="">— Bitte wählen —</option>
+            <option value="">Bitte wählen</option>
             <option value="ledig" data-i18n="civil.ledig">ledig</option>
             <option value="verheiratet" data-i18n="civil.verheiratet">verheiratet</option>
             <option value="eingetragene Partnerschaft" data-i18n="civil.partnerschaft">eingetragene Partnerschaft</option>
@@ -1702,7 +1713,7 @@
         <div class="field">
           <label><span data-i18n="field.nat">Nationalität</span> <span class="req">*</span></label>
           <select name="nat" required>
-            <option value="" data-i18n="opt.placeholder">— Bitte wählen —</option>
+            <option value="" data-i18n="opt.placeholder">Bitte wählen</option>
             <option value="Schweiz" data-i18n="country.Schweiz">Schweiz</option>
             <option value="Deutschland" data-i18n="country.Deutschland">Deutschland</option>
             <option value="Italien" data-i18n="country.Italien">Italien</option>
@@ -1877,7 +1888,7 @@
           <div class="field">
             <label><span data-i18n="field.type">Beschäftigungsstatus</span> <span class="req">*</span></label>
             <select name="type" required>
-              <option value="">— Bitte wählen —</option>
+              <option value="">Bitte wählen</option>
               <option value="Arbeitnehmer" data-i18n="type.arbeitnehmer">Arbeitnehmer</option>
               <option value="Student" data-i18n="type.student">Student</option>
               <option value="Selbstständig" data-i18n="type.selbstaendig">Selbstständig</option>
@@ -2133,7 +2144,7 @@ const TRANSLATIONS = {
     "civil.geschieden": "geschieden",
     "civil.verwitwet": "verwitwet",
     "civil.getrennt": "getrennt",
-    "opt.placeholder": "— Bitte wählen —",
+    "opt.placeholder": "Bitte wählen",
     // Placeholders
     "ph.vorname": "Max",
     "ph.nachname": "Mustermann",
@@ -2390,7 +2401,7 @@ const TRANSLATIONS = {
     "civil.geschieden": "Divorced",
     "civil.verwitwet": "Widowed",
     "civil.getrennt": "Separated",
-    "opt.placeholder": "— Please select —",
+    "opt.placeholder": "Please select",
     "ph.vorname": "Max",
     "ph.nachname": "Sample",
     "ph.email": "max@example.com",

@@ -193,7 +193,17 @@
     transition: border-color .25s ease;
     -webkit-appearance: none;
     letter-spacing: .005em;
+    line-height: 1.4;
   }
+  /* Datumsfelder rendern in Safari niedriger als normale Felder, deshalb gleiche Hoehe erzwingen */
+  input[type="date"] {
+    -webkit-appearance: none;
+    appearance: none;
+    min-height: calc(1.4em + 22px);
+    display: block;
+  }
+  input[type="date"]::-webkit-date-and-time-value { text-align: left; margin: 0; }
+  input[type="date"]::-webkit-calendar-picker-indicator { margin-left: auto; opacity: .5; }
   input:focus, select:focus, textarea:focus {
     border-bottom-color: var(--gold);
   }
@@ -1534,6 +1544,7 @@
     .container { padding: 40px 14px 90px; }
     /* 16px verhindert das automatische Hineinzoomen von iOS beim Antippen */
     input, select, textarea { font-size: 16px; padding: 14px 0; }
+    input[type="date"] { min-height: calc(1.4em + 28px); }
     select { background-position: right 2px center; }
     /* Beim Fokus soll das Feld nicht unter dem Seitenkopf verschwinden */
     input, select, textarea, .option-card, .room-card { scroll-margin-top: 90px; scroll-margin-bottom: 120px; }

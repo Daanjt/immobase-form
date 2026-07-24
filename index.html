@@ -102,6 +102,11 @@
   }
 
   /* PROGRESS */
+  .form-divider {
+    height: 1px;
+    background: var(--line);
+    margin: 0 0 30px;
+  }
   .progress-bar {
     height: 1px;
     background: var(--line);
@@ -1647,6 +1652,7 @@
   </div>
 
   <div id="formArea">
+    <div class="form-divider"></div>
 
     <form id="mainForm" novalidate>
 
@@ -3999,9 +4005,8 @@ function goToStep(n){
   document.querySelectorAll('.wstep-divider').forEach((el, i) => {
     el.classList.toggle('done', n > i + 1);
   });
-  // Scroll to top of form
-  const form = document.getElementById('mainForm');
-  if (form) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // Nach dem Schrittwechsel ganz oben auf der Seite starten
+  window.scrollTo({ top: 0, behavior: 'smooth' });
   if (n === 2) updateSelectionSummary();
   if (n === 1) updateStickyBar();
 }
@@ -4087,7 +4092,7 @@ function wireWizard(){
     const g = document.getElementById('geburtInput');
     if (!g) return;
     const d = new Date();
-    d.setFullYear(d.getFullYear() - 18);
+    d.setFullYear(d.getFullYear() - 16);
     g.max = d.toISOString().slice(0,10);
   })();
   updateStep1NavState();

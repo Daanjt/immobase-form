@@ -1437,7 +1437,7 @@
     padding: 18px;
     color: var(--surface);
     font-family: 'Manrope', sans-serif;
-    font-size: 11px;
+    font-size: 15px;
     font-weight: 500;
     cursor: pointer;
     transition: all .3s ease;
@@ -2359,6 +2359,7 @@ const TRANSLATIONS = {
     "alert.unknown": "Unbekannt",
     "alert.code": "Code",
     "btn.errorRetry": "Fehler, bitte erneut versuchen",
+    "btn.sending": "Wird gesendet…",
     "cost.pickYet": "noch wählen",
     "addr.noResults": "Keine Treffer, bitte manuell PLZ und Ort eingeben.",
     // Lightbox
@@ -2601,6 +2602,7 @@ const TRANSLATIONS = {
     "alert.unknown": "Unknown",
     "alert.code": "Code",
     "btn.errorRetry": "Error, please try again",
+    "btn.sending": "Sending…",
     "cost.pickYet": "choose first",
     "addr.noResults": "No results, please enter postal code and city manually.",
     // Lightbox
@@ -3292,7 +3294,7 @@ function updateProgress() {
   });
   const pct = Math.round(filled/sections.length*100);
   document.getElementById('progressFill').style.width = pct + '%';
-  document.getElementById('progressText').textContent = filled + ' / ' + sections.length + ' Abschnitte';
+  document.getElementById('progressText').textContent = filled + ' / ' + sections.length + ' ' + t('progress.sections');
 }
 
 document.querySelectorAll('input,select,textarea').forEach(el => {
@@ -3356,9 +3358,9 @@ document.getElementById('mainForm').addEventListener('submit', async function(e)
   // Immediate visual feedback that submit was actually handled
   if (btn) {
     const origText = btn.textContent;
-    btn.textContent = 'Wird gesendet…';
+    btn.textContent = t('btn.sending');
     // Restore if validation fails later
-    setTimeout(() => { if (btn.textContent === 'Wird gesendet…') btn.textContent = origText; }, 5000);
+    setTimeout(() => { if (btn.textContent === t('btn.sending')) btn.textContent = origText; }, 5000);
   }
 
   // ─── VALIDIERUNGS-HELFER ─────────────────────────────────────
@@ -3529,7 +3531,7 @@ document.getElementById('mainForm').addEventListener('submit', async function(e)
       banner.style.display = 'flex';
     }
     // Restore button text
-    if (btn) { btn.textContent = 'Bewerbung einreichen →'; btn.disabled = false; }
+    if (btn) { btn.innerHTML = '<span data-i18n="btn.submit"></span> →'; btn.querySelector('span').textContent = t('btn.submit'); btn.disabled = false; }
     firstInvalid?.scrollIntoView({behavior:'smooth', block:'center'});
     return;
   }
@@ -3632,7 +3634,7 @@ document.getElementById('mainForm').addEventListener('submit', async function(e)
         genderGroup.style.outlineOffset = '';
       }, 2500);
     }
-    btn.textContent = 'Bewerbung senden';
+    btn.textContent = t('btn.submit');
     btn.disabled = false;
     return;
   }
@@ -3646,7 +3648,7 @@ document.getElementById('mainForm').addEventListener('submit', async function(e)
     data.moeblierungPauschale = data.moebliert === 'ja' ? 990 : 0;
   }
 
-  btn.textContent = 'Wird gesendet…';
+  btn.textContent = t('btn.sending');
   btn.disabled = true;
 
   // ─── Save to Supabase ───

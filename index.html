@@ -190,6 +190,7 @@
   }
   .phone-country-select:focus { outline: none; border-bottom-color: var(--gold); }
   .phone-input-wrap input[type="tel"] { flex: 1 1 0; min-width: 0; }
+  .phone-custom-code { flex: 0 0 auto !important; width: 72px; }
   .phone-input-wrap input[type="tel"][data-error="true"] { border-bottom-color: #c44a3e; }
   .phone-country-select[data-error="true"] { border-bottom-color: #c44a3e; }
   .field { margin-bottom: 22px; }
@@ -1834,17 +1835,8 @@
           <div class="phone-input-wrap">
             <select name="phone_country" class="phone-country-select" required>
               <option value="+41" data-len-min="9" data-len-max="9">🇨🇭 +41</option>
-              <option value="+49" data-len-min="10" data-len-max="11">🇩🇪 +49</option>
-              <option value="+43" data-len-min="10" data-len-max="11">🇦🇹 +43</option>
-              <option value="+33" data-len-min="9" data-len-max="9">🇫🇷 +33</option>
-              <option value="+39" data-len-min="9" data-len-max="10">🇮🇹 +39</option>
-              <option value="+423" data-len-min="7" data-len-max="7">🇱🇮 +423</option>
-              <option value="+34" data-len-min="9" data-len-max="9">🇪🇸 +34</option>
-              <option value="+31" data-len-min="9" data-len-max="9">🇳🇱 +31</option>
-              <option value="+44" data-len-min="10" data-len-max="10">🇬🇧 +44</option>
-              <option value="+1" data-len-min="10" data-len-max="10">🇺🇸/🇨🇦 +1</option>
-              <option value="other" data-len-min="6" data-len-max="14">Andere...</option>
             </select>
+            <input type="tel" id="phoneCustomCode" class="phone-custom-code" placeholder="+___" maxlength="5" inputmode="tel" style="display:none">
             <input type="tel" name="phone_local" id="phoneLocalInput" placeholder="78 123 45 67" data-i18n-placeholder="ph.phone" inputmode="tel" autocomplete="tel-national" required>
           </div>
           <input type="hidden" name="phone" id="phoneHidden" value="">
@@ -4212,8 +4204,68 @@ function _initWizardSafely(){
   }
 }
 // ═══ Phone-Field Live-Composer (Country-Code + Local Number) ═══
+// Laendervorwahlen: haeufigste zuerst, danach alphabetisch, zuletzt eigene Eingabe
+const PHONE_TOP = [
+  ["🇨🇭","Schweiz","+41",9,9],["🇩🇪","Deutschland","+49",10,11],["🇦🇹","Österreich","+43",10,11],
+  ["🇫🇷","Frankreich","+33",9,9],["🇮🇹","Italien","+39",9,10],["🇱🇮","Liechtenstein","+423",7,7],
+  ["🇪🇸","Spanien","+34",9,9],["🇳🇱","Niederlande","+31",9,9],["🇬🇧","Grossbritannien","+44",10,10],
+  ["🇺🇸","USA / Kanada","+1",10,10]
+];
+const PHONE_REST = [
+  ["🇦🇫","Afghanistan","+93"],["🇪🇬","Ägypten","+20"],["🇦🇱","Albanien","+355"],["🇩🇿","Algerien","+213"],
+  ["🇦🇴","Angola","+244"],["🇦🇷","Argentinien","+54"],["🇦🇲","Armenien","+374"],["🇦🇿","Aserbaidschan","+994"],
+  ["🇪🇹","Äthiopien","+251"],["🇦🇺","Australien","+61"],["🇧🇩","Bangladesch","+880"],["🇧🇪","Belgien","+32"],
+  ["🇧🇦","Bosnien und Herzegowina","+387"],["🇧🇷","Brasilien","+55"],["🇧🇬","Bulgarien","+359"],["🇨🇱","Chile","+56"],
+  ["🇨🇳","China","+86"],["🇨🇮","Côte d'Ivoire","+225"],["🇩🇰","Dänemark","+45"],["🇪🇨","Ecuador","+593"],
+  ["🇪🇪","Estland","+372"],["🇪🇷","Eritrea","+291"],["🇫🇮","Finnland","+358"],["🇬🇪","Georgien","+995"],
+  ["🇬🇭","Ghana","+233"],["🇬🇷","Griechenland","+30"],["🇮🇳","Indien","+91"],["🇮🇩","Indonesien","+62"],
+  ["🇮🇶","Irak","+964"],["🇮🇷","Iran","+98"],["🇮🇪","Irland","+353"],["🇮🇸","Island","+354"],
+  ["🇮🇱","Israel","+972"],["🇯🇵","Japan","+81"],["🇾🇪","Jemen","+967"],["🇯🇴","Jordanien","+962"],
+  ["🇰🇭","Kambodscha","+855"],["🇨🇲","Kamerun","+237"],["🇰🇿","Kasachstan","+7"],["🇶🇦","Katar","+974"],
+  ["🇰🇪","Kenia","+254"],["🇨🇴","Kolumbien","+57"],["🇨🇩","Kongo (Dem. Rep.)","+243"],["🇽🇰","Kosovo","+383"],
+  ["🇭🇷","Kroatien","+385"],["🇨🇺","Kuba","+53"],["🇰🇼","Kuwait","+965"],["🇱🇻","Lettland","+371"],
+  ["🇱🇧","Libanon","+961"],["🇱🇹","Litauen","+370"],["🇱🇺","Luxemburg","+352"],["🇲🇾","Malaysia","+60"],
+  ["🇲🇹","Malta","+356"],["🇲🇦","Marokko","+212"],["🇲🇰","Nordmazedonien","+389"],["🇲🇽","Mexiko","+52"],
+  ["🇲🇩","Moldau","+373"],["🇲🇪","Montenegro","+382"],["🇲🇿","Mosambik","+258"],["🇳🇵","Nepal","+977"],
+  ["🇳🇿","Neuseeland","+64"],["🇳🇬","Nigeria","+234"],["🇳🇴","Norwegen","+47"],["🇵🇰","Pakistan","+92"],
+  ["🇵🇸","Palästina","+970"],["🇵🇪","Peru","+51"],["🇵🇭","Philippinen","+63"],["🇵🇱","Polen","+48"],
+  ["🇵🇹","Portugal","+351"],["🇷🇴","Rumänien","+40"],["🇷🇺","Russland","+7"],["🇸🇦","Saudi-Arabien","+966"],
+  ["🇸🇪","Schweden","+46"],["🇷🇸","Serbien","+381"],["🇸🇬","Singapur","+65"],["🇸🇰","Slowakei","+421"],
+  ["🇸🇮","Slowenien","+386"],["🇸🇴","Somalia","+252"],["🇱🇰","Sri Lanka","+94"],["🇿🇦","Südafrika","+27"],
+  ["🇰🇷","Südkorea","+82"],["🇸🇾","Syrien","+963"],["🇹🇭","Thailand","+66"],["🇨🇿","Tschechien","+420"],
+  ["🇹🇳","Tunesien","+216"],["🇹🇷","Türkei","+90"],["🇺🇦","Ukraine","+380"],["🇭🇺","Ungarn","+36"],
+  ["🇺🇾","Uruguay","+598"],["🇺🇿","Usbekistan","+998"],["🇻🇪","Venezuela","+58"],["🇦🇪","Ver. Arab. Emirate","+971"],
+  ["🇻🇳","Vietnam","+84"],["🇧🇾","Belarus","+375"],["🇿🇼","Simbabwe","+263"],["🇨🇾","Zypern","+357"]
+];
+
+function fuellePhoneAuswahl(select) {
+  if (!select || select.dataset.gefuellt === "1") return;
+  const opt = (flag, name, code, mn, mx) => {
+    const o = document.createElement("option");
+    o.value = code;
+    o.textContent = `${flag} ${name} ${code}`;
+    o.setAttribute("data-len-min", String(mn || 6));
+    o.setAttribute("data-len-max", String(mx || 14));
+    return o;
+  };
+  select.innerHTML = "";
+  PHONE_TOP.forEach(([f,n,c,mn,mx]) => select.appendChild(opt(f,n,c,mn,mx)));
+  const trenner = document.createElement("option");
+  trenner.disabled = true; trenner.textContent = "──────────";
+  select.appendChild(trenner);
+  PHONE_REST.slice().sort((a,b)=>a[1].localeCompare(b[1],"de"))
+    .forEach(([f,n,c]) => select.appendChild(opt(f,n,c)));
+  const andere = document.createElement("option");
+  andere.value = "other"; andere.textContent = "Andere Vorwahl eingeben";
+  andere.setAttribute("data-len-min","6"); andere.setAttribute("data-len-max","14");
+  select.appendChild(andere);
+  select.dataset.gefuellt = "1";
+}
+
 function initPhoneComposer() {
   const select = document.querySelector('select[name="phone_country"]');
+  fuellePhoneAuswahl(select);
+  const customCode = document.getElementById('phoneCustomCode');
   const localInput = document.getElementById('phoneLocalInput');
   const hidden = document.getElementById('phoneHidden');
   const hint = document.getElementById('phoneHint');
@@ -4229,8 +4281,16 @@ function initPhoneComposer() {
     return digits;
   }
   
+  function eigeneVorwahl() {
+    let v = (customCode && customCode.value || "").replace(/[^\d+]/g, "");
+    if (v && !v.startsWith("+")) v = "+" + v;
+    return v;
+  }
+
   function updatePhone() {
-    const country = select.value;
+    const istEigene = select.value === "other";
+    if (customCode) customCode.style.display = istEigene ? "" : "none";
+    const country = istEigene ? eigeneVorwahl() : select.value;
     let raw = localInput.value;
     let digits = raw.replace(/\D/g, '');
     if (country === '+41' && digits.startsWith('0')) {
@@ -4244,12 +4304,18 @@ function initPhoneComposer() {
       localInput.value = formatted;
       try { localInput.setSelectionRange(formatted.length, formatted.length); } catch(e){}
     }
-    if (digits.length > 0) {
+    if (digits.length > 0 && country) {
       hidden.value = country + ' ' + formatted;
     } else {
       hidden.value = '';
     }
     const minLen = parseInt(opt.getAttribute('data-len-min') || '6', 10);
+    if (istEigene && !country) {
+      hint.textContent = 'Bitte zuerst die Landesvorwahl eingeben, zum Beispiel +351';
+      hint.style.display = 'block';
+      hint.style.color = '#a08864';
+      return;
+    }
     if (digits.length > 0 && digits.length < minLen) {
       hint.textContent = 'Noch ' + (minLen - digits.length) + ' Ziffer' + (minLen - digits.length === 1 ? '' : 'n') + ' erwartet (' + digits.length + '/' + minLen + ')';
       hint.style.display = 'block';
@@ -4270,7 +4336,11 @@ function initPhoneComposer() {
   }
   
   localInput.addEventListener('input', updatePhone);
-  select.addEventListener('change', updatePhone);
+  select.addEventListener('change', () => {
+    updatePhone();
+    if (select.value === "other" && customCode) customCode.focus();
+  });
+  if (customCode) customCode.addEventListener('input', updatePhone);
   // Auto-fill case: also bind blur (browser autofill triggers it)
   localInput.addEventListener('blur', updatePhone);
 }

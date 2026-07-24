@@ -1685,7 +1685,7 @@
         <div class="field-row">
           <div class="field">
             <label><span data-i18n="field.geburt">Geburtsdatum</span> <span class="req">*</span></label>
-            <input type="date" name="geburt" min="1900-01-01" max="2010-12-31" required>
+            <input type="date" name="geburt" min="1900-01-01" id="geburtInput" required>
           </div>
           <div class="field">
             <label><span data-i18n="field.gender">Geschlecht</span> <span class="req">*</span></label>
@@ -3620,7 +3620,7 @@ document.getElementById('mainForm').addEventListener('submit', async function(e)
 
   data.id = 'B' + Date.now();
   data.status = 'Neu';
-  data.eingereichtAm = new Date().toLocaleDateString('de-CH');
+  data.eingereichtAm = new Date().toISOString().slice(0,10); // ISO, damit sortierbar
 
   // Fallback: Gender direkt aus dem DOM holen (Radio checked), falls FormData scheitert
   if (!data.gender) {
@@ -3679,7 +3679,7 @@ document.getElementById('mainForm').addEventListener('submit', async function(e)
     ort: data.ort || '',
     type: data.type || '',
     job: data.job || '',
-    einkommen: data.einkommen || '',
+    einkommen: data.einkommen === '' || data.einkommen == null ? null : Number(data.einkommen),
     arbeitgeber: data.arbeitgeber || '',
     einzug: data.einzug || '',
     zimmer_wunsch: data.zimmerWunsch || '',
@@ -4087,6 +4087,14 @@ function wireWizard(){
     submitBtn.addEventListener('click', handleSubmitClick);
   }
 
+  // Geburtsdatum: hoechstens heute minus 18 Jahre
+  (function(){
+    const g = document.getElementById('geburtInput');
+    if (!g) return;
+    const d = new Date();
+    d.setFullYear(d.getFullYear() - 18);
+    g.max = d.toISOString().slice(0,10);
+  })();
   updateStep1NavState();
 }
 

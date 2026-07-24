@@ -844,10 +844,10 @@
       background: #fefcf7;
       color: #1a1814;
       border: 1px solid var(--bd);
-      border-radius: 10px;
-      padding: 14px 18px;
-      font-size: 14px;
-      font-weight: 600;
+      border-radius: 8px;
+      padding: 16px 20px;
+      font-size: 15px;
+      font-weight: 500;
       cursor: pointer;
       letter-spacing: .01em;
       transition: all .15s ease;
@@ -859,7 +859,14 @@
     }
     .submit-nav-row .submit-btn {
       flex: 1;
+      /* gleiche Hoehe und Schrift wie der Zurueck-Knopf */
+      padding: 16px 20px;
+      font-size: 15px;
+      font-weight: 500;
+      border: 1px solid transparent;
+      line-height: 1.2;
     }
+    .submit-nav-row .btn-back { line-height: 1.2; }
     @media (max-width: 540px) {
       .submit-nav-row { flex-direction: column-reverse; }
       .btn-back { width: 100%; }

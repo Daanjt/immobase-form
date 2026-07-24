@@ -1647,11 +1647,6 @@
   </div>
 
   <div id="formArea">
-    <div class="progress-label">
-      <span data-i18n="progress.label">Fortschritt</span>
-      <span id="progressText" data-i18n-suffix="progress.sections">0 / 5 Abschnitte</span>
-    </div>
-    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
 
     <form id="mainForm" novalidate>
 
@@ -3299,9 +3294,11 @@ function updateProgress() {
     if (!hasValue && s.querySelector('#roomGrid') && typeof keineZimmerVerfuegbar === 'function' && keineZimmerVerfuegbar()) hasValue = true;
     if (hasValue) filled++;
   });
-  const pct = Math.round(filled/sections.length*100);
-  document.getElementById('progressFill').style.width = pct + '%';
-  document.getElementById('progressText').textContent = filled + ' / ' + sections.length + ' ' + t('progress.sections');
+  const pct = sections.length ? Math.round(filled/sections.length*100) : 0;
+  const fill = document.getElementById('progressFill');
+  if (fill) fill.style.width = pct + '%';
+  const txt = document.getElementById('progressText');
+  if (txt) txt.textContent = filled + ' / ' + sections.length + ' ' + t('progress.sections');
 }
 
 document.querySelectorAll('input,select,textarea').forEach(el => {
@@ -3743,9 +3740,7 @@ document.getElementById('mainForm').addEventListener('submit', async function(e)
   document.getElementById('mainForm').style.display = 'none';
   document.getElementById('costSummary').style.display = 'none';
   document.getElementById('successScreen').style.display = 'block';
-  document.getElementById('progressFill').style.width = '100%';
-  // Fortschrittsanzeige auf der Danke-Seite ausblenden (sonst bleibt z.B. "4 / 5" stehen)
-  document.querySelectorAll('.progress-label, .progress-bar').forEach(el => { el.style.display = 'none'; });
+  { const f = document.getElementById('progressFill'); if (f) f.style.width = '100%'; }
 });
 
 // ═══ Photo Lightbox ═══

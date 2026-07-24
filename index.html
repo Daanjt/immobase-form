@@ -179,7 +179,7 @@
     border: none; border-bottom: 1px solid var(--line); border-radius: 0;
     background: var(--bg) url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3e%3cpath fill='%238a8478' d='M5 6L0 0h10z'/%3e%3c/svg%3e") no-repeat right .5em center;
     background-size: 9px;
-    padding: 11px 22px 11px 0;
+    padding: 11px 24px 11px 12px;
     font-family: 'Manrope', sans-serif;
     font-size: 13.5px;
     line-height: 1.4;
@@ -194,6 +194,10 @@
   .phone-input-wrap input[type="tel"][data-error="true"] { border-bottom-color: #c44a3e; }
   .phone-country-select[data-error="true"] { border-bottom-color: #c44a3e; }
   .field { margin-bottom: 22px; }
+  /* Beschriftung buendig zum Text im Feld */
+  .field > label { padding-left: 12px; }
+  /* Karten und Kaestchen sind ebenfalls Beschriftungen, die bleiben unveraendert */
+  .room-card, .option-card, .check-item, .gender-pill { padding-left: unset; }
   .field:last-child { margin-bottom: 0; }
   label {
     display: block;
@@ -210,7 +214,7 @@
     border: none;
     border-bottom: 1px solid var(--line);
     border-radius: 0;
-    padding: 11px 0;
+    padding: 11px 12px;
     color: var(--ink);
     font-family: 'Manrope', sans-serif;
     font-size: 13.5px;
@@ -240,7 +244,7 @@
   select {
     background: var(--bg) url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3e%3cpath fill='%238a8478' d='M5 6L0 0h10z'/%3e%3c/svg%3e") no-repeat right .5em center;
     background-size: 9px;
-    padding-right: 22px;
+    padding-right: 26px;
     cursor: pointer;
   }
   select option {
@@ -261,7 +265,7 @@
     min-height: 90px;
     line-height: 1.6;
     border: 1px solid var(--line);
-    padding: 12px 14px;
+    padding: 12px 12px;
     background: var(--bg);
   }
   textarea:focus { border-color: var(--gold); }
@@ -1584,8 +1588,8 @@
     .form-card { padding: 24px 18px; }
     .container { padding: 40px 14px 90px; }
     /* 16px verhindert das automatische Hineinzoomen von iOS beim Antippen */
-    input, select, textarea { font-size: 16px; padding: 14px 0; }
-    .phone-country-select { font-size: 16px; padding: 14px 22px 14px 0; min-width: 96px; }
+    input, select, textarea { font-size: 16px; padding: 14px 12px; }
+    .phone-country-select { font-size: 16px; padding: 14px 24px 14px 12px; min-width: 104px; }
     input[type="date"] { min-height: calc(1.4em + 28px); }
     /* Beispieltexte sollen als Hinweis wirken, nicht wie Inhalt */
     input::placeholder, textarea::placeholder { font-size: 13.5px; }

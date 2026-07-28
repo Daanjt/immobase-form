@@ -2346,6 +2346,7 @@ const TRANSLATIONS = {
     "room.availableIn": "Zimmer verfügbar in dieser WG",
     "room.yourRoom": "Dein Zimmer",
     "room.roomLabel": "Zimmer",
+    "room.vorvermietung": "Vorvermietung – aktuell noch bewohnt",
     "room.balcony": "Balkon",
     "room.photo": "Foto",
     "room.photos": "Fotos",
@@ -2590,6 +2591,7 @@ const TRANSLATIONS = {
     "room.availableIn": "rooms available in this shared apartment",
     "room.yourRoom": "Your room",
     "room.roomLabel": "Room",
+    "room.vorvermietung": "Advance letting – currently still occupied",
     "room.balcony": "Balcony",
     "room.photo": "Photo",
     "room.photos": "Photos",
@@ -2892,8 +2894,9 @@ const sbForm = window.supabase.createClient(SB_URL_FORM, SB_KEY_FORM);
 
 async function loadFreieZimmer() {
   try {
-    // Get free rooms (occupied=false)
-    const {data: rooms, error: rErr} = await sbForm.from('rooms').select('*').eq('occupied', false);
+    // Get rooms: frei (occupied=false) UND belegte Zimmer, deren Wohnung aktiv
+    // ausgeschrieben wird (Vorvermietung bei laufender Kuendigung)
+    const {data: rooms, error: rErr} = await sbForm.from('rooms').select('*');
     if (rErr) throw rErr;
     // Get apartments to enrich with address info
     const {data: apts, error: aErr} = await sbForm.from('apartments').select('*').eq('type', 'WG');
@@ -2951,6 +2954,7 @@ async function loadFreieZimmer() {
     // Combine
     FREIE_ZIMMER = rooms
       .filter(r => aptMap[r.apt_id]) // Only rooms in WG apartments
+      .filter(r => !r.occupied || aptMap[r.apt_id].ausschreiben) // frei ODER aktiv ausgeschrieben trotz Belegung
       .map(r => {
         const a = aptMap[r.apt_id];
         const bef = computeBefristung(a.mietende);
@@ -2970,6 +2974,7 @@ async function loadFreieZimmer() {
           aptPhotos: Array.isArray(a.photos) ? a.photos : [],
           aptMatterport: a.matterport_url || null,
           aptFloorplan: a.floorplan_path || null,
+          vorvermietung: !!r.occupied, // aktuell noch bewohnt, nur wegen ausschreiben-Flag sichtbar
         };
       })
       .sort((x,y) => x.id.localeCompare(y.id, undefined, {numeric:true, sensitivity:'base'}));
@@ -3120,6 +3125,7 @@ async function renderRooms() {
           <label class="room-card${roomPhotos.length ? ' has-photos' : ''}${currentSel===r.id?' checked':''}" data-room="${r.id}">
             <input type="radio" name="zimmerWunsch" value="${r.id}" data-miete="${r.miete}" data-qm="${r.qm||''}" data-balkon="${r.balkon?1:0}" data-apt-label="${apt.adresse||''}" data-apt-id="${apt.aptId}" required ${currentSel===r.id?'checked':''}>
             <div class="selected-badge">✓ ${t("room.yourRoom")}</div>
+            ${r.vorvermietung ? `<div class="meta-pill" style="background:#f5f2ea;border:1px solid #e1d8c5;color:#8a7550;font-weight:600;margin-bottom:8px;display:inline-block">⏳ ${t("room.vorvermietung")}</div>` : ''}
             ${roomPhotos.length > 0 ? `
               <div class="room-photos">
                 ${roomPhotos.slice(0, 4).map((p, idx) => `

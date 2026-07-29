@@ -1859,7 +1859,7 @@
         <div class="field-row">
           <div class="field">
             <label><span data-i18n="field.plz">PLZ</span> <span class="req">*</span></label>
-            <input type="text" name="plz" inputmode="numeric" autocomplete="postal-code" id="plzInput" placeholder="8001" data-i18n-placeholder="ph.plz" pattern="\d{4}" inputmode="numeric" maxlength="4" required>
+            <input type="text" name="plz" autocomplete="postal-code" id="plzInput" placeholder="8001" data-i18n-placeholder="ph.plz" pattern="[A-Za-z0-9 -]{3,10}" maxlength="10" required>
           </div>
           <div class="field">
             <label><span data-i18n="field.ort">Ort</span> <span class="req">*</span></label>
@@ -3450,7 +3450,7 @@ document.getElementById('mainForm').addEventListener('submit', async function(e)
       if (n >= 1000 && n <= 9999) return { ok: true, value: t };
     }
     if (/^[A-Z0-9 -]{3,10}$/i.test(t)) return { ok: true, value: t.toUpperCase() };
-    return { ok: false, error: 'PLZ ungültig (4 Ziffern für CH)' };
+    return { ok: false, error: 'PLZ ungültig (CH: 4 Ziffern, Ausland: 3 bis 10 Zeichen)' };
   }
 
   // ─── Pre-Validation Recovery: heal :checked if renderRooms() destroyed it ───

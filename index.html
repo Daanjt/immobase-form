@@ -639,26 +639,6 @@
     flex-wrap: wrap;
     gap: 5px;
   }
-  .apt-meta .meta-pill.avail {
-    background: transparent;
-    border: none;
-    padding: 4px 2px;
-    color: var(--muted);
-    font-weight: 500;
-    letter-spacing: .01em;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .apt-meta .meta-pill.avail::before {
-    content: "";
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: var(--ink);
-    opacity: .55;
-    flex-shrink: 0;
-  }
   .apt-rooms {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -3102,9 +3082,9 @@ async function renderRooms() {
             if (d) d.setHours(0,0,0,0);
             if (d && d > heute) {
               const fmt = d.toLocaleDateString('de-CH', {day:'2-digit', month:'2-digit', year:'numeric'});
-              return `<span class="meta-pill avail">${t("apt.availableFrom")} ${fmt}</span>`;
+              return `<span class="meta-pill">${t("apt.availableFrom")} ${fmt}</span>`;
             }
-            return `<span class="meta-pill avail">${t("apt.availableNow")}</span>`;
+            return `<span class="meta-pill">${t("apt.availableNow")}</span>`;
           })()}
           <span class="meta-pill ${apt.befristung.type}">${apt.befristung.label}</span>
         </div>

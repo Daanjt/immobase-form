@@ -640,9 +640,10 @@
     gap: 5px;
   }
   .apt-meta .meta-pill.avail {
-    background: #e8efde;
-    color: #3a5230;
-    border: 1px solid #c5d5b0;
+    background: var(--ink);
+    color: var(--surface);
+    border: 1px solid var(--ink);
+    font-weight: 500;
   }
   .apt-rooms {
     display: grid;
@@ -2365,6 +2366,7 @@ const TRANSLATIONS = {
     "apt.photos": "Bilder der Wohnung",
     "apt.virtualTour": "Virtuelle 3D-Tour",
     "apt.availableFrom": "Verfügbar ab",
+    "apt.availableNow": "Ab sofort verfügbar",
     "apt.virtualTourLoading": "3D-Tour lädt beim Scrollen",
     // Alerts
     "alert.chooseRoom": "Bitte wähle ein Zimmer aus der Liste aus.",
@@ -2609,6 +2611,7 @@ const TRANSLATIONS = {
     "apt.photos": "Photos of the apartment",
     "apt.virtualTour": "Virtual 3D Tour",
     "apt.availableFrom": "Available from",
+    "apt.availableNow": "Available now",
     "apt.virtualTourLoading": "3D tour loads on scroll",
     // Alerts
     "alert.chooseRoom": "Please choose a room from the list.",
@@ -3074,17 +3077,20 @@ async function renderRooms() {
           <span class="meta-pill wg">${apt.zimmer}</span>
           ${apt.etage ? `<span class="meta-pill">${apt.etage}</span>` : ''}
           ${(() => {
-            if (!apt.mietbeginn) return '';
-            const parts = String(apt.mietbeginn).split('.');
             let d = null;
-            if (parts.length === 3) d = new Date(+parts[2], +parts[1]-1, +parts[0]);
-            else { const tmp = new Date(apt.mietbeginn); if (!isNaN(tmp.getTime())) d = tmp; }
-            if (!d || isNaN(d.getTime())) return '';
+            if (apt.mietbeginn) {
+              const parts = String(apt.mietbeginn).split('.');
+              if (parts.length === 3) d = new Date(+parts[2], +parts[1]-1, +parts[0]);
+              else { const tmp = new Date(apt.mietbeginn); if (!isNaN(tmp.getTime())) d = tmp; }
+              if (d && isNaN(d.getTime())) d = null;
+            }
             const heute = new Date(); heute.setHours(0,0,0,0);
-            d.setHours(0,0,0,0);
-            if (d <= heute) return '';
-            const fmt = d.toLocaleDateString('de-CH', {day:'2-digit', month:'2-digit', year:'numeric'});
-            return `<span class="meta-pill avail">${t("apt.availableFrom")} ${fmt}</span>`;
+            if (d) d.setHours(0,0,0,0);
+            if (d && d > heute) {
+              const fmt = d.toLocaleDateString('de-CH', {day:'2-digit', month:'2-digit', year:'numeric'});
+              return `<span class="meta-pill avail">${t("apt.availableFrom")} ${fmt}</span>`;
+            }
+            return `<span class="meta-pill avail">${t("apt.availableNow")}</span>`;
           })()}
           <span class="meta-pill ${apt.befristung.type}">${apt.befristung.label}</span>
         </div>

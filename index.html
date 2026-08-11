@@ -1683,7 +1683,7 @@
         <div class="wstep-divider"></div>
         <div class="wstep" data-step="3">
           <div class="wstep-num">3</div>
-          <div class="wstep-label" data-i18n="wizard.step3">Kaution</div>
+          <div class="wstep-label" data-i18n="wizard.step3">Zusatzleistungen</div>
         </div>
       </div>
 
@@ -1940,44 +1940,6 @@
           </div>
         </div>
 
-        <!-- MÖBLIERUNG -->
-        <div class="field" style="margin-top:22px">
-          <label style="margin-bottom:10px"><span data-i18n="field.moeblierung">Möblierung</span> <span class="req">*</span></label>
-          
-          <div style="background:#f0f7f2;border:1px solid #c5dccb;border-radius:8px;padding:12px 14px;margin-bottom:12px;display:flex;gap:10px;align-items:flex-start;">
-            <div style="font-size:18px;line-height:1;flex-shrink:0;">✓</div>
-            <div style="font-size:13px;color:#2a4a35;line-height:1.5;">
-              <strong data-i18n="moebel.info">Gemeinschaftsräumlichkeiten wie Küche und Badezimmer sind in allen Wohnungen voll ausgestattet und möbliert (inkl. WLAN).</strong><br>
-              <span style="color:#5a6e4a;font-size:12px;" data-i18n="moebel.info.sub">Die Auswahl unten betrifft nur dein eigenes Zimmer.</span>
-            </div>
-          </div>
-          
-          <div class="option-cards">
-            <label class="option-card" data-option="moebel">
-              <input type="radio" name="moebliert" value="ja" required>
-              <div class="radio-dot"></div>
-              <div class="body">
-                <div class="head-row">
-                  <span class="title" data-i18n="moebel.ja">Zimmer möbliert</span>
-                  <span class="price"><span data-i18n="price.990">CHF 990.-</span> <span data-i18n="price.once">einmalig</span></span>
-                </div>
-                <div class="desc" data-i18n="moebel.ja.desc">Dein Zimmer wird vollständig möbliert übergeben (Bett, Kleiderschrank, Schreibtisch) - einmalige Pauschale beim Einzug</div>
-              </div>
-            </label>
-            <label class="option-card" data-option="moebel">
-              <input type="radio" name="moebliert" value="nein" required>
-              <div class="radio-dot"></div>
-              <div class="body">
-                <div class="head-row">
-                  <span class="title" data-i18n="moebel.nein">Zimmer unmöbliert</span>
-                  <span class="price">CHF 0.-</span>
-                </div>
-                <div class="desc" data-i18n="moebel.nein.desc">Dein Zimmer wird leer übergeben - eigene Möbel mitbringen. Küche & Bad bleiben weiterhin möbliert.</div>
-              </div>
-            </label>
-          </div>
-        </div>
-
         <div class="field" style="margin-top:18px">
           <label data-i18n="field.bemerkung">Zusätzliche Angaben / Bemerkungen</label>
           <textarea name="bemerkung" placeholder="Weitere relevante Informationen zu deiner Bewerbung…" data-i18n-placeholder="ph.bemerkung"></textarea>
@@ -2007,7 +1969,7 @@
       <!-- Step 3: Sicherheit / Kaution -->
       <div class="form-step step-3" id="formStep3">
       <div class="form-card">
-        <div class="section-title"><span class="section-num">6</span> <span data-i18n="sec6.title">Sicherheit &amp; Kaution</span></div>
+        <div class="section-title"><span class="section-num">6</span> <span data-i18n="sec6.title">Sicherheit &amp; Zusatzleistungen</span></div>
         <!-- KAUTIONS-OPTIONEN -->
         <div class="field" style="margin-top:18px">
           <label style="margin-bottom:10px"><span data-i18n="field.kaution">Kaution wählen</span> <span class="req">*</span></label>
@@ -2051,6 +2013,43 @@
           </div>
         </div>
 
+        <!-- MÖBLIERUNG -->
+        <div class="field" style="margin-top:22px">
+          <label style="margin-bottom:10px"><span data-i18n="field.moeblierung">Möblierung</span> <span class="req">*</span></label>
+          
+          <div style="background:#f0f7f2;border:1px solid #c5dccb;border-radius:8px;padding:12px 14px;margin-bottom:12px;display:flex;gap:10px;align-items:flex-start;">
+            <div style="font-size:18px;line-height:1;flex-shrink:0;">✓</div>
+            <div style="font-size:13px;color:#2a4a35;line-height:1.5;">
+              <strong data-i18n="moebel.info">Gemeinschaftsräumlichkeiten wie Küche und Badezimmer sind in allen Wohnungen voll ausgestattet und möbliert (inkl. WLAN).</strong><br>
+              <span style="color:#5a6e4a;font-size:12px;" data-i18n="moebel.info.sub">Die Auswahl unten betrifft nur dein eigenes Zimmer.</span>
+            </div>
+          </div>
+          
+          <div class="option-cards">
+            <label class="option-card" data-option="moebel">
+              <input type="radio" name="moebliert" value="ja" required>
+              <div class="radio-dot"></div>
+              <div class="body">
+                <div class="head-row">
+                  <span class="title" data-i18n="moebel.ja">Zimmer möbliert</span>
+                  <span class="price"><span data-i18n="price.990">CHF 990.-</span> <span data-i18n="price.once">einmalig</span></span>
+                </div>
+                <div class="desc" data-i18n="moebel.ja.desc">Dein Zimmer wird vollständig möbliert übergeben (Bett, Kleiderschrank, Schreibtisch) - einmalige Pauschale beim Einzug</div>
+              </div>
+            </label>
+            <label class="option-card" data-option="moebel">
+              <input type="radio" name="moebliert" value="nein" required>
+              <div class="radio-dot"></div>
+              <div class="body">
+                <div class="head-row">
+                  <span class="title" data-i18n="moebel.nein">Zimmer unmöbliert</span>
+                  <span class="price">CHF 0.-</span>
+                </div>
+                <div class="desc" data-i18n="moebel.nein.desc">Dein Zimmer wird leer übergeben - eigene Möbel mitbringen. Küche & Bad bleiben weiterhin möbliert.</div>
+              </div>
+            </label>
+          </div>
+        </div>
       </div>
 
       <!-- KOSTENZUSAMMENFASSUNG -->
@@ -2142,7 +2141,7 @@ const TRANSLATIONS = {
     // Wizard
     "wizard.step1": "Zimmer wählen",
     "wizard.step2": "Deine Angaben",
-    "wizard.step3": "Kaution",
+    "wizard.step3": "Zusatzleistungen",
     // Section 1: Zimmerwahl
     "sec1.title": "Wunsch-Zimmer auswählen",
     "sec1.intro": "Bitte ein Zimmer auswählen (Pflichtfeld). Alle gezeigten Zimmer sind aktuell verfügbar. Die Zuteilung erfolgt nach Prüfung deiner Bewerbung.",
@@ -2291,7 +2290,7 @@ const TRANSLATIONS = {
     "field.arbeitgeber": "Arbeitgeber / Ausbildungsstätte",
     // Section 5
     "sec5.title": "Mietverhältnis & Optionen",
-    "sec6.title": "Sicherheit & Kaution",
+    "sec6.title": "Sicherheit & Zusatzleistungen",
     "field.einzug": "Gewünschter Einzug",
     "field.kaution": "Kaution wählen",
     "kaution.info": "Der Mietzins ist unabhängig von der gewählten Kaution. Die Kaution wird über <strong>Evorest</strong> auf ein gesperrtes Konto auf deinen Namen hinterlegt. Bei reduzierter Kaution fällt zusätzlich eine separate <strong>Servicegebühr Kautionsreduktion</strong> an.",
@@ -2344,7 +2343,7 @@ const TRANSLATIONS = {
     "mfb.title.after": "Pflichtfeld(er) aus:",
     // Buttons
     "btn.toStep2": "Weiter zu deinen Angaben",
-    "btn.toStep3": "Weiter zur Kaution",
+    "btn.toStep3": "Weiter zu den Zusatzleistungen",
     "btn.backKaution": "← Zurück zu den Angaben",
     "btn.back": "← Zurück zur Auswahl",
     "btn.submit": "Bewerbung einreichen",
@@ -2411,7 +2410,7 @@ const TRANSLATIONS = {
     "progress.sections": "sections",
     "wizard.step1": "Choose room",
     "wizard.step2": "Your details",
-    "wizard.step3": "Deposit",
+    "wizard.step3": "Extras",
     "sec1.title": "Select preferred room",
     "sec1.intro": "Please select a room (required). All rooms shown are currently available. Assignment happens after review of your application.",
     "step1.hint": "Please select a room first",
@@ -2554,7 +2553,7 @@ const TRANSLATIONS = {
     "field.einkommen": "Monthly net income (CHF)",
     "field.arbeitgeber": "Employer / Educational institution",
     "sec5.title": "Tenancy & Options",
-    "sec6.title": "Security & Deposit",
+    "sec6.title": "Security & Extras",
     "field.einzug": "Desired move-in date",
     "field.kaution": "Choose deposit",
     "kaution.info": "The rent is independent of the chosen deposit. The deposit is held via <strong>Evorest</strong> on a blocked account in your name. A reduced deposit incurs a separate <strong>deposit-reduction service fee</strong> (Servicegebühr Kautionsreduktion).",
@@ -2601,7 +2600,7 @@ const TRANSLATIONS = {
     "mfb.title.before": "Please fill in",
     "mfb.title.after": "required field(s):",
     "btn.toStep2": "Continue to your details",
-    "btn.toStep3": "Continue to deposit",
+    "btn.toStep3": "Continue to extras",
     "btn.backKaution": "← Back to your details",
     "btn.back": "← Back to selection",
     "btn.submit": "Submit application",

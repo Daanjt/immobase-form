@@ -1855,7 +1855,7 @@
         <div class="section-title"><span class="section-num">3</span> <span data-i18n="sec3.title">Kontaktdaten</span></div>
         <div class="field">
           <label><span data-i18n="field.email">E-Mail-Adresse</span> <span class="req">*</span></label>
-          <input type="email" name="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="max@beispiel.ch" data-i18n-placeholder="ph.email" required>
+          <input type="email" name="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="max@beispiel.ch" data-i18n-placeholder="ph.email" required>
         </div>
         <div class="field">
           <label><span data-i18n="field.phone">Telefonnummer</span> <span class="req">*</span> <span style="font-size:11px;color:#8a8174;font-weight:400" data-i18n="field.phoneHint">- wir kontaktieren dich danach per WhatsApp</span></label>
@@ -3816,6 +3816,7 @@ document.getElementById('mainForm').addEventListener('submit', async function(e)
     return;
   }
 
+  if (window.clearBewerbungSave) window.clearBewerbungSave();
   document.getElementById('mainForm').style.display = 'none';
   document.getElementById('costSummary').style.display = 'none';
   document.getElementById('successScreen').style.display = 'block';
@@ -4432,6 +4433,98 @@ if (document.readyState === 'loading') {
   _initWizardSafely();
   initPhoneComposer();
 }
+
+/* ─── Verbesserungen: Schritt-Validierung, Zwischenspeichern, Inline-Feedback ─── */
+(function(){
+  var form = document.getElementById('mainForm');
+  if (!form) return;
+  var LS_KEY = 'dt_bewerbung_v1';
+  var restoring = false;
+  function esc(n){ return (window.CSS && CSS.escape) ? CSS.escape(String(n)) : String(n); }
+
+  // 1) Zwischenspeichern im Browser
+  function saveForm(){
+    if (restoring) return;
+    try {
+      var data = {};
+      form.querySelectorAll('input, select, textarea').forEach(function(el){
+        if (!el.name || el.type === 'hidden') return;
+        if (el.type === 'radio') { if (el.checked) data[el.name] = el.value; }
+        else if (el.type === 'checkbox') { data[el.name] = el.checked; }
+        else if (el.value) data[el.name] = el.value;
+      });
+      localStorage.setItem(LS_KEY, JSON.stringify(data));
+    } catch(e){}
+  }
+  function applySaved(){
+    var data;
+    try { data = JSON.parse(localStorage.getItem(LS_KEY) || 'null'); } catch(e){ data = null; }
+    if (!data) return;
+    restoring = true;
+    try {
+      Object.keys(data).forEach(function(name){
+        var val = data[name];
+        if (name === 'zimmerWunsch') { try { SELECTED_ZIMMER_ID = val; } catch(e){} }
+        form.querySelectorAll('[name="' + esc(name) + '"]').forEach(function(el){
+          if (el.type === 'radio') { if (el.value === val) { el.checked = true; el.dispatchEvent(new Event('change', {bubbles:true})); } }
+          else if (el.type === 'checkbox') { el.checked = !!val; el.dispatchEvent(new Event('change', {bubbles:true})); }
+          else if (el.type !== 'hidden') { el.value = val; el.dispatchEvent(new Event('input', {bubbles:true})); }
+        });
+      });
+      if (typeof updateCostSummary === 'function') updateCostSummary();
+    } catch(e){} finally { restoring = false; }
+  }
+  function recheckRoom(){
+    try {
+      if (!SELECTED_ZIMMER_ID) return;
+      if (document.querySelector('input[name="zimmerWunsch"]:checked')) return;
+      var r = document.querySelector('input[name="zimmerWunsch"][value="' + esc(SELECTED_ZIMMER_ID) + '"]');
+      if (r) { r.checked = true; r.dispatchEvent(new Event('change', {bubbles:true})); }
+    } catch(e){}
+  }
+  form.addEventListener('input', saveForm);
+  form.addEventListener('change', saveForm);
+  applySaved();
+  setTimeout(recheckRoom, 800);
+  setTimeout(recheckRoom, 2500);
+  window.clearBewerbungSave = function(){ try { localStorage.removeItem(LS_KEY); } catch(e){} };
+
+  // 2) Schritt-Validierung: Schritt 2 muss vollständig sein, bevor es zu den Zusatzleistungen geht
+  function fieldOf(el){ return el.closest('.field') || el.closest('.check-item') || el.parentElement; }
+  function validateStep2(){
+    var containers = ['formStep2A','formStep2B'].map(function(id){ return document.getElementById(id); }).filter(Boolean);
+    var first = null, seen = {};
+    containers.forEach(function(c){
+      c.querySelectorAll('[required]').forEach(function(el){
+        var invalid = false;
+        if (el.type === 'radio') { if (seen[el.name]) return; seen[el.name] = 1; invalid = !c.querySelector('input[name="' + el.name + '"]:checked'); }
+        else if (el.type === 'checkbox') { invalid = !el.checked; }
+        else { invalid = !el.value || !String(el.value).trim(); }
+        var f = fieldOf(el);
+        if (invalid) { if (f) f.classList.add('field-invalid'); if (!first) first = f || el; }
+      });
+    });
+    if (first) { if (first.scrollIntoView) first.scrollIntoView({behavior:'smooth', block:'center'}); return false; }
+    return true;
+  }
+  var btn3 = document.getElementById('btnToStep3');
+  if (btn3) {
+    btn3.addEventListener('click', function(e){
+      if (!validateStep2()) { e.preventDefault(); e.stopImmediatePropagation(); }
+    }, true);
+  }
+
+  // 3) Inline-Feedback: Fehler direkt beim Verlassen eines Pflichtfeldes
+  form.querySelectorAll('[required]').forEach(function(el){
+    if (el.type === 'radio' || el.type === 'checkbox' || el.name === 'phone_local') return;
+    el.addEventListener('blur', function(){
+      var f = fieldOf(el);
+      if (!f) return;
+      if (!el.value || !String(el.value).trim()) f.classList.add('field-invalid');
+      else f.classList.remove('field-invalid');
+    });
+  });
+})();
 </script>
 <div class="lightbox" id="lightbox">
   <button class="lightbox-close" onclick="closeLightbox()" aria-label="Close" data-i18n-aria="lightbox.close">×</button>

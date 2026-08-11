@@ -1680,6 +1680,11 @@
           <div class="wstep-num">2</div>
           <div class="wstep-label" data-i18n="wizard.step2">Deine Angaben</div>
         </div>
+        <div class="wstep-divider"></div>
+        <div class="wstep" data-step="3">
+          <div class="wstep-num">3</div>
+          <div class="wstep-label" data-i18n="wizard.step3">Kaution</div>
+        </div>
       </div>
 
       <div class="form-step step-2" id="formStep2A">
@@ -1935,49 +1940,6 @@
           </div>
         </div>
 
-        <!-- KAUTIONS-OPTIONEN -->
-        <div class="field" style="margin-top:18px">
-          <label style="margin-bottom:10px"><span data-i18n="field.kaution">Kaution wählen</span> <span class="req">*</span></label>
-          <div class="info-box">
-            <span data-i18n-html="kaution.info">Der Mietzins ist unabhängig von der gewählten Kaution. Die Kaution wird über <strong>Evorest</strong> auf ein gesperrtes Konto auf deinen Namen hinterlegt. Bei reduzierter Kaution fällt zusätzlich eine separate <strong>Servicegebühr Kautionsreduktion</strong> an.</span>
-          </div>
-          <div class="option-cards">
-            <label class="option-card" data-option="kaution">
-              <input type="radio" name="kautionOpt" value="3x" required>
-              <div class="radio-dot"></div>
-              <div class="body">
-                <div class="head-row">
-                  <span class="title"><span data-i18n="kaution.3x">3× Monatsmiete</span> <span class="badge" data-i18n="badge.standard">Standard</span></span>
-                  <span class="price" data-i18n="kaution.3x.fee">Keine Gebühr</span>
-                </div>
-                <div class="desc" data-i18n="kaution.3x.desc">Volle Kaution auf dem gesperrten Konto, keine Servicegebühr</div>
-              </div>
-            </label>
-            <label class="option-card" data-option="kaution">
-              <input type="radio" name="kautionOpt" value="2x" required>
-              <div class="radio-dot"></div>
-              <div class="body">
-                <div class="head-row">
-                  <span class="title" data-i18n="kaution.2x">2× Monatsmiete</span>
-                  <span class="price" data-i18n="kaution.2x.fee">Servicegebühr CHF 50 / Mt.</span>
-                </div>
-                <div class="desc" data-i18n="kaution.2x.desc">Reduzierte Kaution, dafür eine Servicegebühr Kautionsreduktion von CHF 50 pro Monat</div>
-              </div>
-            </label>
-            <label class="option-card" data-option="kaution">
-              <input type="radio" name="kautionOpt" value="1x" required>
-              <div class="radio-dot"></div>
-              <div class="body">
-                <div class="head-row">
-                  <span class="title" data-i18n="kaution.1x">1× Monatsmiete</span>
-                  <span class="price" data-i18n="kaution.1x.fee">Servicegebühr CHF 100 / Mt.</span>
-                </div>
-                <div class="desc" data-i18n="kaution.1x.desc">Stark reduzierte Kaution, dafür eine Servicegebühr Kautionsreduktion von CHF 100 pro Monat</div>
-              </div>
-            </label>
-          </div>
-        </div>
-
         <!-- MÖBLIERUNG -->
         <div class="field" style="margin-top:22px">
           <label style="margin-bottom:10px"><span data-i18n="field.moeblierung">Möblierung</span> <span class="req">*</span></label>
@@ -2036,6 +1998,61 @@
         </div>
       </div>
 
+      <div class="submit-nav-row" style="margin-top:8px">
+        <button type="button" class="btn-back" id="btnBackToStep1"><span data-i18n="btn.back">← Zurück zur Auswahl</span></button>
+        <button type="button" class="btn-next" id="btnToStep3"><span data-i18n="btn.toStep3">Weiter zur Kaution</span> →</button>
+      </div>
+      </div><!-- /step-2B -->
+
+      <!-- Step 3: Sicherheit / Kaution -->
+      <div class="form-step step-3" id="formStep3">
+      <div class="form-card">
+        <div class="section-title"><span class="section-num">6</span> <span data-i18n="sec6.title">Sicherheit &amp; Kaution</span></div>
+        <!-- KAUTIONS-OPTIONEN -->
+        <div class="field" style="margin-top:18px">
+          <label style="margin-bottom:10px"><span data-i18n="field.kaution">Kaution wählen</span> <span class="req">*</span></label>
+          <div class="info-box">
+            <span data-i18n-html="kaution.info">Der Mietzins ist unabhängig von der gewählten Kaution. Die Kaution wird über <strong>Evorest</strong> auf ein gesperrtes Konto auf deinen Namen hinterlegt. Bei reduzierter Kaution fällt zusätzlich eine separate <strong>Servicegebühr Kautionsreduktion</strong> an.</span>
+          </div>
+          <div class="option-cards">
+            <label class="option-card" data-option="kaution">
+              <input type="radio" name="kautionOpt" value="3x" required>
+              <div class="radio-dot"></div>
+              <div class="body">
+                <div class="head-row">
+                  <span class="title"><span data-i18n="kaution.3x">3× Monatsmiete</span> <span class="badge" data-i18n="badge.standard">Standard</span></span>
+                  <span class="price" data-i18n="kaution.3x.fee">Keine Gebühr</span>
+                </div>
+                <div class="desc" data-i18n="kaution.3x.desc">Volle Kaution auf dem gesperrten Konto, keine Servicegebühr</div>
+              </div>
+            </label>
+            <label class="option-card" data-option="kaution">
+              <input type="radio" name="kautionOpt" value="2x" required>
+              <div class="radio-dot"></div>
+              <div class="body">
+                <div class="head-row">
+                  <span class="title" data-i18n="kaution.2x">2× Monatsmiete</span>
+                  <span class="price" data-i18n="kaution.2x.fee">Servicegebühr CHF 50 / Mt.</span>
+                </div>
+                <div class="desc" data-i18n="kaution.2x.desc">Reduzierte Kaution, dafür eine Servicegebühr Kautionsreduktion von CHF 50 pro Monat</div>
+              </div>
+            </label>
+            <label class="option-card" data-option="kaution">
+              <input type="radio" name="kautionOpt" value="1x" required>
+              <div class="radio-dot"></div>
+              <div class="body">
+                <div class="head-row">
+                  <span class="title" data-i18n="kaution.1x">1× Monatsmiete</span>
+                  <span class="price" data-i18n="kaution.1x.fee">Servicegebühr CHF 100 / Mt.</span>
+                </div>
+                <div class="desc" data-i18n="kaution.1x.desc">Stark reduzierte Kaution, dafür eine Servicegebühr Kautionsreduktion von CHF 100 pro Monat</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+      </div>
+
       <!-- KOSTENZUSAMMENFASSUNG -->
       <div class="cost-summary" id="costSummary" style="display:none">
         <h3 data-i18n="cost.title">Deine Konditionen im Überblick</h3>
@@ -2073,7 +2090,7 @@
       
       <div class="submit-area">
         <div class="submit-nav-row">
-          <button type="button" class="btn-back" id="btnBackToStep1"><span data-i18n="btn.back">← Zurück zur Auswahl</span></button>
+          <button type="button" class="btn-back" id="btnBackToStep2"><span data-i18n="btn.backKaution">← Zurück zu den Angaben</span></button>
           <button type="submit" class="submit-btn" id="submitBtn">
             <span data-i18n="btn.submit">Bewerbung einreichen</span> →
           </button>
@@ -2084,7 +2101,7 @@
         </p>
       </div>
 
-      </div><!-- /step-2B -->
+      </div><!-- /step-3 -->
     </form>
     
     <!-- Sticky bottom bar — appears after room selection in Step 1 -->
@@ -2125,6 +2142,7 @@ const TRANSLATIONS = {
     // Wizard
     "wizard.step1": "Zimmer wählen",
     "wizard.step2": "Deine Angaben",
+    "wizard.step3": "Kaution",
     // Section 1: Zimmerwahl
     "sec1.title": "Wunsch-Zimmer auswählen",
     "sec1.intro": "Bitte ein Zimmer auswählen (Pflichtfeld). Alle gezeigten Zimmer sind aktuell verfügbar. Die Zuteilung erfolgt nach Prüfung deiner Bewerbung.",
@@ -2273,6 +2291,7 @@ const TRANSLATIONS = {
     "field.arbeitgeber": "Arbeitgeber / Ausbildungsstätte",
     // Section 5
     "sec5.title": "Mietverhältnis & Optionen",
+    "sec6.title": "Sicherheit & Kaution",
     "field.einzug": "Gewünschter Einzug",
     "field.kaution": "Kaution wählen",
     "kaution.info": "Der Mietzins ist unabhängig von der gewählten Kaution. Die Kaution wird über <strong>Evorest</strong> auf ein gesperrtes Konto auf deinen Namen hinterlegt. Bei reduzierter Kaution fällt zusätzlich eine separate <strong>Servicegebühr Kautionsreduktion</strong> an.",
@@ -2325,6 +2344,8 @@ const TRANSLATIONS = {
     "mfb.title.after": "Pflichtfeld(er) aus:",
     // Buttons
     "btn.toStep2": "Weiter zu deinen Angaben",
+    "btn.toStep3": "Weiter zur Kaution",
+    "btn.backKaution": "← Zurück zu den Angaben",
     "btn.back": "← Zurück zur Auswahl",
     "btn.submit": "Bewerbung einreichen",
     "btn.next": "Weiter",
@@ -2390,6 +2411,7 @@ const TRANSLATIONS = {
     "progress.sections": "sections",
     "wizard.step1": "Choose room",
     "wizard.step2": "Your details",
+    "wizard.step3": "Deposit",
     "sec1.title": "Select preferred room",
     "sec1.intro": "Please select a room (required). All rooms shown are currently available. Assignment happens after review of your application.",
     "step1.hint": "Please select a room first",
@@ -2532,6 +2554,7 @@ const TRANSLATIONS = {
     "field.einkommen": "Monthly net income (CHF)",
     "field.arbeitgeber": "Employer / Educational institution",
     "sec5.title": "Tenancy & Options",
+    "sec6.title": "Security & Deposit",
     "field.einzug": "Desired move-in date",
     "field.kaution": "Choose deposit",
     "kaution.info": "The rent is independent of the chosen deposit. The deposit is held via <strong>Evorest</strong> on a blocked account in your name. A reduced deposit incurs a separate <strong>deposit-reduction service fee</strong> (Servicegebühr Kautionsreduktion).",
@@ -2578,6 +2601,8 @@ const TRANSLATIONS = {
     "mfb.title.before": "Please fill in",
     "mfb.title.after": "required field(s):",
     "btn.toStep2": "Continue to your details",
+    "btn.toStep3": "Continue to deposit",
+    "btn.backKaution": "← Back to your details",
     "btn.back": "← Back to selection",
     "btn.submit": "Submit application",
     "btn.next": "Continue",
@@ -4044,6 +4069,7 @@ function goToStep(n){
   // Nach dem Schrittwechsel ganz oben auf der Seite starten
   window.scrollTo({ top: 0, behavior: 'smooth' });
   if (n === 2) updateSelectionSummary();
+  if (n === 3 && typeof updateCostSummary === 'function') updateCostSummary();
   if (n === 1) updateStickyBar();
 }
 function wireWizard(){
@@ -4095,6 +4121,10 @@ function wireWizard(){
   }
   const btnBack = document.getElementById('btnBackToStep1');
   if (btnBack) btnBack.onclick = () => goToStep(1);
+  const btnNext3 = document.getElementById('btnToStep3');
+  if (btnNext3) btnNext3.onclick = () => goToStep(3);
+  const btnBack2 = document.getElementById('btnBackToStep2');
+  if (btnBack2) btnBack2.onclick = () => goToStep(2);
 
   // ─── ROBUST SUBMIT HANDLING ───
   const submitBtn = document.getElementById('submitBtn');

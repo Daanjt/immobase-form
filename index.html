@@ -3642,11 +3642,22 @@ document.getElementById('mainForm').addEventListener('submit', async function(e)
 
   // Format-Validierung
   const fd = new FormData(this);
+  function titleCaseName(s) {
+    s = (s||'').trim().replace(/\s+/g, ' ');
+    if (!s) return s;
+    // Nur normalisieren, wenn komplett klein oder komplett gross geschrieben.
+    // Gemischte Schreibweisen (McDonald, van der Berg, DeVries) bleiben, da bewusst.
+    var isAllLower = s === s.toLowerCase();
+    var isAllUpper = s === s.toUpperCase();
+    if (!isAllLower && !isAllUpper) return s;
+    return s.toLowerCase().replace(/(^|[\s\-'’.])([a-zà-öø-ÿ])/g, function(m, sep, ch){ return sep + ch.toUpperCase(); });
+  }
+
   const data = {};
   fd.forEach((v,k) => {
     if (typeof v === 'string') {
       v = v.trim();
-      if (k === 'vorname' || k === 'nachname') v = v.replace(/\s+/g, ' ');
+      if (k === 'vorname' || k === 'nachname') v = titleCaseName(v);
     }
     data[k] = v;
   });

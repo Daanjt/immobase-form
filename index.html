@@ -3643,7 +3643,13 @@ document.getElementById('mainForm').addEventListener('submit', async function(e)
   // Format-Validierung
   const fd = new FormData(this);
   const data = {};
-  fd.forEach((v,k) => data[k] = v);
+  fd.forEach((v,k) => {
+    if (typeof v === 'string') {
+      v = v.trim();
+      if (k === 'vorname' || k === 'nachname') v = v.replace(/\s+/g, ' ');
+    }
+    data[k] = v;
+  });
 
   // Email
   const emailRes = validateEmail(data.email);

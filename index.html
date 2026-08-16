@@ -2992,7 +2992,7 @@ async function loadFreieZimmer() {
     // Combine
     FREIE_ZIMMER = rooms
       .filter(r => aptMap[r.apt_id]) // Only rooms in WG apartments
-      .filter(r => !r.occupied || aptMap[r.apt_id].ausschreiben) // frei ODER aktiv ausgeschrieben trotz Belegung
+      .filter(r => (!r.occupied || aptMap[r.apt_id].ausschreiben) && !aptMap[r.apt_id].nicht_ausschreiben) // frei ODER Vorvermietung, aber nicht ausgeblendete Wohnungen
       .map(r => {
         const a = aptMap[r.apt_id];
         const bef = computeBefristung(a.mietende);

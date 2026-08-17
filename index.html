@@ -1891,6 +1891,7 @@
           <label><span data-i18n="field.adresse">Aktuelle Adresse</span> <span class="req">*</span></label>
           <input type="text" name="adresse" autocomplete="street-address" id="adresseInput" placeholder="Musterstrasse 1" data-i18n-placeholder="ph.adresse" autocomplete="off" required>
           <div id="adresseSuggestions" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #d4c7a8;border-radius:8px;margin-top:4px;max-height:280px;overflow-y:auto;z-index:100;box-shadow:0 4px 16px rgba(0,0,0,0.08)"></div>
+          <div id="adresseNrHint" style="display:none;color:#c44a3e;font-size:11.5px;margin-top:5px" data-i18n="addr.needNumber">Bitte mit Hausnummer angeben, z.B. Musterstrasse 1.</div>
           <div id="adresseLoading" style="display:none;position:absolute;right:14px;top:42px;font-size:11px;color:#8a8174;font-style:italic">Suche…</div>
         </div>
         <div class="field-row">
@@ -2420,6 +2421,7 @@ const TRANSLATIONS = {
     "btn.sending": "Wird gesendet…",
     "cost.pickYet": "noch wählen",
     "addr.noResults": "Keine Treffer, bitte manuell PLZ und Ort eingeben.",
+    "addr.needNumber": "Bitte mit Hausnummer angeben, z.B. Musterstrasse 1.",
     // Lightbox
     "lightbox.close": "Schliessen",
     "lightbox.prev": "Vorheriges Bild",
@@ -2672,6 +2674,7 @@ const TRANSLATIONS = {
     "btn.sending": "Sending…",
     "cost.pickYet": "choose first",
     "addr.noResults": "No results, please enter postal code and city manually.",
+    "addr.needNumber": "Please include the house number, e.g. Musterstrasse 1.",
     // Lightbox
     "lightbox.close": "Close",
     "lightbox.prev": "Previous image",
@@ -2805,6 +2808,22 @@ document.addEventListener("DOMContentLoaded", function() {
     adresseInput.addEventListener('focus', () => {
       if (adresseInput.value.trim().length >= 3 && suggestionsBox.children.length > 0) {
         suggestionsBox.style.display = 'block';
+      }
+    });
+
+    // Hausnummer-Hinweis: zeigen, wenn Adresse ohne Nummer verlassen wird
+    adresseInput.addEventListener('blur', () => {
+      const hint = document.getElementById('adresseNrHint');
+      if (!hint) return;
+      const v = adresseInput.value.trim();
+      hint.style.display = (v && !/\d/.test(v)) ? 'block' : 'none';
+    });
+    adresseInput.addEventListener('input', () => {
+      const hint = document.getElementById('adresseNrHint');
+      if (hint && /\d/.test(adresseInput.value)) {
+        hint.style.display = 'none';
+        const f = typeof fieldOf === 'function' ? fieldOf(adresseInput) : adresseInput.closest('.field');
+        if (f) f.classList.remove('field-invalid');
       }
     });
     
@@ -4541,6 +4560,15 @@ if (document.readyState === 'loading') {
         if (invalid) { if (f) f.classList.add('field-invalid'); if (!first) first = f || el; }
       });
     });
+    // Hausnummer-Pflicht: Adresse muss eine Nummer enthalten (nicht nur Strasse)
+    var adrEl = document.getElementById('adresseInput');
+    if (adrEl && String(adrEl.value||'').trim() && !/\d/.test(adrEl.value)) {
+      var af = fieldOf(adrEl);
+      if (af) af.classList.add('field-invalid');
+      var hint = document.getElementById('adresseNrHint');
+      if (hint) hint.style.display = 'block';
+      if (!first) first = af || adrEl;
+    }
     if (first) { if (first.scrollIntoView) first.scrollIntoView({behavior:'smooth', block:'center'}); return false; }
     return true;
   }

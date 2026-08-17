@@ -608,8 +608,11 @@
     .apt-group {
     background: var(--surface);
     border: 1px solid var(--line);
+    border-left: 4px solid var(--ink);
     border-radius: 10px;
     overflow: hidden;
+    margin-bottom: 22px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
   }
   .apt-header {
     padding: 16px 20px;
@@ -631,8 +634,11 @@
     letter-spacing: .02em;
   }
   .apt-addr {
-    color: var(--muted);
-    font-size: 13px;
+    color: var(--ink);
+    font-size: 16px;
+    font-weight: 700;
+    font-family: 'Manrope', sans-serif;
+    letter-spacing: .01em;
   }
   .apt-meta {
     display: flex;
@@ -1082,6 +1088,18 @@
     font-size: 16px;
     color: #1a1814;
     letter-spacing: -0.01em;
+  }
+  .room-card .room-id-wrap { min-width: 0; }
+  .room-card .room-apt {
+    font-size: 10px;
+    color: var(--muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    margin-bottom: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .room-card .room-price {
     font-size: 18px;
@@ -3097,7 +3115,6 @@ async function renderRooms() {
     <div class="apt-group">
       <div class="apt-header">
         <div class="apt-title">
-          <span class="apt-id">${apt.aptId}</span>
           <span class="apt-addr">${apt.adresse}</span>
         </div>
         <div class="apt-meta">
@@ -3193,7 +3210,10 @@ async function renderRooms() {
             ` : ''}
             <div class="room-info">
               <div class="room-header">
-                <div class="room-id">${t("room.roomLabel")} ${r.id.split('-')[1] || r.id}</div>
+                <div class="room-id-wrap">
+                  <div class="room-apt">${apt.adresse}</div>
+                  <div class="room-id">${t("room.roomLabel")} ${r.id.split('-')[1] || r.id}</div>
+                </div>
                 <div class="room-price">CHF ${r.miete.toLocaleString('de-CH')}<small> / ${t("perMonth")}</small></div>
               </div>
               <div class="room-details">

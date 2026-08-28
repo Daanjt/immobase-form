@@ -3031,10 +3031,11 @@ async function loadFreieZimmer() {
       .filter(r => aptMap[r.apt_id]) // Only rooms in WG apartments
       .filter(r => {
         const apt = aptMap[r.apt_id];
-        if (!apt || apt.nicht_ausschreiben) return false;      // ganze Wohnung ausgeblendet
+        if (!apt) return false;
         const ov = r.ausschreib_override || 'auto';
-        if (ov === 'nein') return false;                        // Zimmer manuell nicht ausschreiben
-        if (ov === 'ja') return true;                           // Zimmer manuell ausschreiben (auch belegt)
+        if (ov === 'ja') return true;                           // Zimmer manuell ausschreiben -> ueberschreibt alles
+        if (ov === 'nein') return false;                        // Zimmer manuell nicht ausschreiben -> ueberschreibt alles
+        if (apt.nicht_ausschreiben) return false;               // ganze Wohnung ausgeblendet
         // Automatik:
         if (!r.occupied) return true;                           // freies Zimmer
         if (apt.ausschreiben) return true;                      // Vorvermietung auf Wohnungsebene

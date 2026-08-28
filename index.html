@@ -3029,7 +3029,15 @@ async function loadFreieZimmer() {
     // Combine
     FREIE_ZIMMER = rooms
       .filter(r => aptMap[r.apt_id]) // Only rooms in WG apartments
-      .filter(r => (!r.occupied || aptMap[r.apt_id].ausschreiben) && !aptMap[r.apt_id].nicht_ausschreiben) // frei ODER Vorvermietung, aber nicht ausgeblendete Wohnungen
+      .filter(r => {
+        const apt = aptMap[r.apt_id];
+        if (!apt || apt.nicht_ausschreiben) return false;      // ganze Wohnung ausgeblendet
+        const ov = r.ausschreib_override || 'auto';
+        if (ov === 'nein') return false;                        // Zimmer manuell nicht ausschreiben
+        if (ov === 'ja') return true;                           // Zimmer manuell ausschreiben (auch belegt)
+        // Automatik: freies Zimmer oder Vorvermietung auf Wohnungsebene
+        return !r.occupied || apt.ausschreiben;
+      })
       .map(r => {
         const a = aptMap[r.apt_id];
         const bef = computeBefristung(a.mietende);

@@ -3164,20 +3164,15 @@ async function renderRooms() {
           <span class="meta-pill wg">${apt.zimmer}</span>
           ${apt.etage ? `<span class="meta-pill">${apt.etage}</span>` : ''}
           ${(() => {
-            let d = null;
-            if (apt.mietbeginn) {
-              const parts = String(apt.mietbeginn).split('.');
-              if (parts.length === 3) d = new Date(+parts[2], +parts[1]-1, +parts[0]);
-              else { const tmp = new Date(apt.mietbeginn); if (!isNaN(tmp.getTime())) d = tmp; }
-              if (d && isNaN(d.getTime())) d = null;
-            }
-            const heute = new Date(); heute.setHours(0,0,0,0);
-            if (d) d.setHours(0,0,0,0);
-            if (d && d > heute) {
-              const fmt = d.toLocaleDateString('de-CH', {day:'2-digit', month:'2-digit', year:'numeric'});
-              return `<span class="meta-pill">${t("apt.availableFrom")} ${fmt}</span>`;
-            }
-            return `<span class="meta-pill">${t("apt.availableNow")}</span>`;
+            // Wohnungs-Verfuegbarkeit aus den Zimmern ableiten, damit oben und unten konsistent sind
+            const hatSofort = apt.rooms.some(r => !r.verfuegbarAb);
+            if (hatSofort) return `<span class="meta-pill">${t("apt.availableNow")}</span>`;
+            const dates = apt.rooms.map(r => r.verfuegbarAb).filter(Boolean);
+            if (dates.length === 0) return `<span class="meta-pill">${t("apt.availableNow")}</span>`;
+            const parseD = s => { const p = String(s).split('.'); return new Date(+p[2], +p[1]-1, +p[0]); };
+            const earliest = dates.map(parseD).sort((a,b)=>a-b)[0];
+            const fmt = earliest.toLocaleDateString('de-CH', {day:'2-digit', month:'2-digit', year:'numeric'});
+            return `<span class="meta-pill">${t("apt.availableFrom")} ${fmt}</span>`;
           })()}
           <span class="meta-pill ${apt.befristung.type}">${apt.befristung.label}</span>
         </div>

@@ -3058,6 +3058,12 @@ async function loadFreieZimmer() {
           aptEtage: a.stockwerk || "",
           adresse: `${a.adresse}, ${a.plz||""} ${a.ort||""}`.trim(),
           miete: r.miete || 0,
+          verfuegbarAb: (() => {
+            if (r.occupied && r.mieter_auszug) { const aus = pd(r.mieter_auszug); if (aus) return new Date(aus.getTime() + 86400000).toLocaleDateString('de-CH'); }
+            const mb = pd(a.mietbeginn); const h = new Date(); h.setHours(0,0,0,0);
+            if (mb && mb > h) return mb.toLocaleDateString('de-CH');
+            return null;
+          })(),
           balkon: !!r.balkon,
           qm: normGroesse(r.groesse),
           etage: a.stockwerk || "",
@@ -3253,6 +3259,7 @@ async function renderRooms() {
                 <div class="room-price">CHF ${r.miete.toLocaleString('de-CH')}<small> / ${t("perMonth")}</small></div>
               </div>
               <div class="room-details">
+                ${r.verfuegbarAb ? `<span class="meta-pill">📅 ${t("apt.availableFrom")} ${r.verfuegbarAb}</span>` : ''}
                 ${r.qm ? `<span class="meta-pill">${r.qm}</span>` : ''}
                 ${r.balkon ? '<span class="meta-pill balcony">🌿 ' + t("room.balcony") + '</span>' : ''}
                 ${roomPhotos.length > 0 ? `<span class="meta-pill photos">📷 ${roomPhotos.length} ${t(roomPhotos.length>1?"room.photos":"room.photo")}</span>` : ''}

@@ -2395,6 +2395,7 @@ const TRANSLATIONS = {
     "room.yourRoom": "Dein Zimmer",
     "room.roomLabel": "Zimmer",
     "room.balcony": "Balkon",
+    "room.furnished": "Möbliert",
     "room.photo": "Foto",
     "room.photos": "Fotos",
     "room.select": "Dieses Zimmer wählen",
@@ -2649,6 +2650,7 @@ const TRANSLATIONS = {
     "room.yourRoom": "Your room",
     "room.roomLabel": "Room",
     "room.balcony": "Balcony",
+    "room.furnished": "Furnished",
     "room.photo": "Photo",
     "room.photos": "Photos",
     "room.select": "Choose this room",
@@ -3066,6 +3068,7 @@ async function loadFreieZimmer() {
             return null;
           })(),
           balkon: !!r.balkon,
+          moebliert: !!r.moebliert,
           qm: normGroesse(r.groesse),
           etage: a.stockwerk || "",
           wgGroesse: a.zimmer ? `${a.zimmer}-${t("wg.room")}-WG` : "WG",
@@ -3258,6 +3261,7 @@ async function renderRooms() {
                 ${r.verfuegbarAb ? `<span class="meta-pill">📅 ${t("apt.availableFrom")} ${r.verfuegbarAb}</span>` : ''}
                 ${r.qm ? `<span class="meta-pill">${r.qm}</span>` : ''}
                 ${r.balkon ? '<span class="meta-pill balcony">🌿 ' + t("room.balcony") + '</span>' : ''}
+                ${r.moebliert ? '<span class="meta-pill">🛋 ' + t("room.furnished") + '</span>' : ''}
                 ${roomPhotos.length > 0 ? `<span class="meta-pill photos">📷 ${roomPhotos.length} ${t(roomPhotos.length>1?"room.photos":"room.photo")}</span>` : ''}
               </div>
               <button type="button" class="room-select-btn">

@@ -1985,6 +1985,10 @@
               <input type="checkbox" name="noDebt" required onchange="updateCheck(this,'check1')">
               <span data-i18n="check.noDebt">Ich bestätige, dass ich keine offenen Betreibungen habe</span>
             </label>
+            <label class="check-item" id="checkCrim">
+              <input type="checkbox" name="noCriminalRecord" required onchange="updateCheck(this,'checkCrim')">
+              <span data-i18n="check.noCriminalRecord">Ich bestätige, dass ich keinen Eintrag im Strafregister habe</span>
+            </label>
             <label class="check-item" id="check2">
               <input type="checkbox" name="truthful" required onchange="updateCheck(this,'check2')">
               <span data-i18n="check.truthful">Ich bestätige, dass alle Angaben der Wahrheit entsprechen</span>
@@ -2353,6 +2357,7 @@ const TRANSLATIONS = {
     // Bestätigungen
     "field.confirmations": "Bestätigungen",
     "check.noDebt": "Ich bestätige, dass ich keine offenen Betreibungen habe",
+    "check.noCriminalRecord": "Ich bestätige, dass ich keinen Eintrag im Strafregister habe",
     "check.truthful": "Ich bestätige, dass alle Angaben der Wahrheit entsprechen",
     // Cost summary
     "cost.title": "Deine Konditionen im Überblick",
@@ -2615,6 +2620,7 @@ const TRANSLATIONS = {
     "field.bemerkung": "Additional information / Notes",
     "field.confirmations": "Confirmations",
     "check.noDebt": "I confirm that I have no outstanding debt collections",
+    "check.noCriminalRecord": "I confirm that I have no criminal record",
     "check.truthful": "I confirm that all information is true and correct",
     "cost.title": "Your terms at a glance",
     "cost.wunschZimmer": "Preferred room",
@@ -3846,6 +3852,7 @@ document.getElementById('mainForm').addEventListener('submit', async function(e)
     moeblierung_pauschale: data.moeblierungPauschale || 0,
     bemerkung: data.bemerkung || '',
     no_debt: !!data.noDebt,
+    no_criminal_record: !!data.noCriminalRecord,
     truthful: !!data.truthful,
     status: 'Neu',
     eingereicht_am: data.eingereichtAm,
@@ -3881,6 +3888,7 @@ document.getElementById('mainForm').addEventListener('submit', async function(e)
       moeblierung_pauschale: dbRow.moeblierung_pauschale,
       bemerkung: dbRow.bemerkung,
       no_debt: dbRow.no_debt,
+      no_criminal_record: dbRow.no_criminal_record,
       status: dbRow.status,
       eingereicht_am: dbRow.eingereicht_am,
     };

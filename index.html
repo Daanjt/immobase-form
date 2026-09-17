@@ -3283,11 +3283,18 @@ async function renderRooms() {
   const isEn = (typeof CURRENT_LANG!=='undefined' && CURRENT_LANG==='en');
   // ─── Stufe 1: WG-Übersicht (wenn keine WG geöffnet) ───
   if (!SELECTED_APT) {
-    { const hh=document.querySelector('.header h1'), hs=document.querySelector('.header .subtitle'); if(hh)hh.style.display='none'; if(hs)hs.style.display='none'; if(intro)intro.style.display='none'; }
+    { const hh=document.querySelector('.header h1'), hs=document.querySelector('.header .subtitle'); if(hh)hh.style.display='none'; if(hs)hs.style.display='none'; if(intro)intro.style.display='none';
+      ['.form-divider','.wizard-steps'].forEach(sel=>{const e=document.querySelector(sel);if(e)e.style.display='none';});
+      ['btnToStep2','step1Hint'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none';}); }
     const introHtml = `
       <div class="wg-intro">
         <h2 class="wg-intro-h">${isEn?'Your room in a shared flat, without the hassle.':'Dein Zimmer in einer WG, ganz ohne Kompliziertes.'}</h2>
         <p class="wg-intro-p">${isEn?'We offer rooms in well-kept shared flats across Switzerland, furnished or unfurnished, whichever you prefer. You rent your own private room and share kitchen, bathroom and living area with your flatmates. The pricing is fair and the process is simple.':'Wir bieten Zimmer in gepflegten Wohngemeinschaften in der ganzen Schweiz, möbliert oder unmöbliert, ganz wie du möchtest. Du mietest dein eigenes, privates Zimmer, Küche, Bad und Wohnbereich teilst du dir mit deinen Mitbewohnern. Der Preis ist fair und der Ablauf unkompliziert.'}</p>
+      </div>
+      <div class="wg-steps">
+        <div class="wg-step"><div class="wg-step-n">${isEn?'Step 1':'Schritt 1'}</div><div class="wg-step-t">${isEn?'View & apply':'Anschauen & bewerben'}</div><div class="wg-step-d">${isEn?'See photos, video and the 3D tour, then pick a room and apply.':'Fotos, Video und 3D-Tour ansehen, ein Zimmer wählen und dich bewerben.'}</div></div>
+        <div class="wg-step"><div class="wg-step-n">${isEn?'Step 2':'Schritt 2'}</div><div class="wg-step-t">${isEn?'Sign digitally':'Digital unterschreiben'}</div><div class="wg-step-d">${isEn?'Sign the contract online, safely and in minutes.':'Den Vertrag online unterschreiben, sicher und in wenigen Minuten.'}</div></div>
+        <div class="wg-step"><div class="wg-step-n">${isEn?'Step 3':'Schritt 3'}</div><div class="wg-step-t">${isEn?'Move in':'Einziehen'}</div><div class="wg-step-d">${isEn?'Get the keys and all the details, then just arrive.':'Schlüssel und alle Infos erhalten, ankommen und wohlfühlen.'}</div></div>
       </div>
       <h3 class="wg-list-h">${isEn?'Our shared flats':'Unsere Wohngemeinschaften'}</h3>
       <p class="wg-list-sub">${isEn?'Each apartment is a shared flat with fully furnished common areas. Pick a room and apply directly.':'Jede Wohnung ist eine Wohngemeinschaft mit voll möblierten Gemeinschaftsräumen. Wähle ein Zimmer und bewirb dich direkt.'}</p>`;
@@ -3332,7 +3339,9 @@ async function renderRooms() {
     return;
   }
   // ─── Stufe 2: Detail der gewählten WG ───
-  { const hh=document.querySelector('.header h1'), hs=document.querySelector('.header .subtitle'); if(hh)hh.style.display=''; if(hs)hs.style.display=''; }
+  { const hh=document.querySelector('.header h1'), hs=document.querySelector('.header .subtitle'); if(hh)hh.style.display='none'; if(hs)hs.style.display='none';
+    ['.form-divider','.wizard-steps'].forEach(sel=>{const e=document.querySelector(sel);if(e)e.style.display='';});
+    ['btnToStep2','step1Hint'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='';}); }
   grid.innerHTML = `<button type="button" class="wg-back" id="wgBack">← ${isEn?'Back to overview':'Zurück zur Übersicht'}</button>` + sortedApts.filter(a => a.aptId===SELECTED_APT).map(apt => `
     <div class="apt-group">
       ${(() => {
@@ -3382,11 +3391,6 @@ async function renderRooms() {
           <video class="apt-video-frame" controls preload="metadata" src="${origUrl(apt.video)}"></video>
         </div>
       ` : ''}
-      <div class="wg-steps" style="margin:8px 0 30px">
-        <div class="wg-step"><div class="wg-step-n">${isEn?'Step 1':'Schritt 1'}</div><div class="wg-step-t">${isEn?'Pick your room':'Zimmer wählen'}</div><div class="wg-step-d">${isEn?'Choose a free room from this shared flat below.':'Wähle unten ein freies Zimmer dieser WG.'}</div></div>
-        <div class="wg-step"><div class="wg-step-n">${isEn?'Step 2':'Schritt 2'}</div><div class="wg-step-t">${isEn?'Sign digitally':'Digital unterschreiben'}</div><div class="wg-step-d">${isEn?'Fill in your details and sign the contract online.':'Angaben ausfüllen und den Vertrag online unterschreiben.'}</div></div>
-        <div class="wg-step"><div class="wg-step-n">${isEn?'Step 3':'Schritt 3'}</div><div class="wg-step-t">${isEn?'Move in':'Einziehen'}</div><div class="wg-step-d">${isEn?'You get the keys and all move-in details.':'Du bekommst die Schlüssel und alle Infos zum Einzug.'}</div></div>
-      </div>
       <div class="rooms-header">
         <h3 class="rooms-title">🛏 ${t("room.pickHeader")}</h3>
         <p class="rooms-sub">${apt.rooms.length} ${t("room.availableIn")}</p>

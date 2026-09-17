@@ -15,22 +15,22 @@
 <link rel="icon" type="image/png" sizes="180x180" href="/favicon-180.png">
 <link rel="shortcut icon" href="/favicon.ico">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,300;6..72,400;6..72,500&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
   :root {
-    --bg: #f6f1e8;
+    --bg: #FBFAF6;
     --surface: #fefcf7;
     --card: #fefcf7;
     --beige: #c9b896;
     --beige-soft: #ede4d3;
     --beige-line: #ddd0b8;
     --gold: #1a1814;
-    --line: #e1d8c5;
+    --line: #E4DDD0;
     --line-soft: #ebe3d2;
-    --ink: #1a1814;
-    --text: #4a4439;
+    --ink: #1C1B17;
+    --text: #54503F;
     --muted: #8a8174;
     --muted-light: #b8af9f;
     --green: #5a6e4a;
@@ -1680,6 +1680,13 @@
   .lang-toggle button:hover:not(.active) {
     color: var(--ink);
   }
+  /* Angleichung an Webseite: Überschriften in Space Grotesk */
+  h1, h2, h3, .apt-title, .rooms-title, .rooms-header, .room-header, .mfb-title, .apt-header, .media-label-hero {
+    font-family: 'Space Grotesk', system-ui, sans-serif !important;
+    letter-spacing: -.015em;
+  }
+  h1 { font-weight: 600 !important; font-size: 40px !important; letter-spacing: -.025em !important; }
+  h1 strong { font-weight: 600 !important; }
 </style>
 </head>
 <body>

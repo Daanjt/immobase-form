@@ -1716,6 +1716,21 @@
   .det-pills{display:flex;flex-wrap:wrap;gap:8px}
   .det-pill{font-size:12.5px;color:var(--text);background:var(--surface);border:1px solid var(--line);border-radius:100px;padding:5px 12px}
   @media (max-width:720px){ .det-hero{grid-template-columns:1fr;gap:16px} }
+  .wg-list{display:flex;flex-direction:column;gap:18px}
+  .listing{display:grid;grid-template-columns:330px 1fr;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;transition:border-color .18s}
+  .listing:hover{border-color:var(--beige)}
+  .listing-gal{position:relative;padding:12px}
+  .listing-gal .det-main{aspect-ratio:auto;height:222px}
+  .listing-gal .det-slide{height:222px}
+  .listing-gal .det-thumb{flex:0 0 58px;height:42px}
+  .listing-gal .det-3d{left:12px;bottom:66px}
+  .listing-info{padding:22px 24px;display:flex;flex-direction:column}
+  .listing-facts{font-size:14.5px;color:var(--text);margin-bottom:8px}
+  .listing-facts b{color:var(--ink);font-weight:600}
+  .listing-desc{font-size:14px;line-height:1.6;color:var(--text);margin:4px 0 14px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .listing-cta{margin-top:auto;align-self:flex-start;background:var(--ink);color:var(--surface);border:none;border-radius:100px;padding:11px 24px;font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;transition:transform .18s}
+  .listing-cta:hover{transform:translateY(-2px)}
+  @media (max-width:720px){ .listing{grid-template-columns:1fr} .listing-gal .det-main,.listing-gal .det-slide{height:200px} }
   .wg-card-body{width:100%;text-align:left;background:none;border:none;cursor:pointer;padding:15px 17px;font-family:inherit;display:block}
   .wg-card-addr{font-size:16px;font-weight:600;color:var(--ink)}
   .wg-card-meta{font-size:13px;color:var(--muted);margin-top:5px}
@@ -3168,6 +3183,16 @@ function categoryLabelForm(cat){
 
 
 // Render rooms (live aus DB)
+function _wireGalleries(root){
+  root.querySelectorAll('[data-gallery]').forEach(g => {
+    const main = g.querySelector('.det-main'); if(!main) return;
+    const cur = g.querySelector('.det-cur'); const thumbs = g.querySelectorAll('.det-thumb');
+    function upd(){ if(!main.clientWidth) return; const i = Math.round(main.scrollLeft / main.clientWidth); if(cur) cur.textContent = (i+1); thumbs.forEach((tb,ti)=>tb.classList.toggle('on', ti===i)); }
+    main.addEventListener('scroll', () => window.requestAnimationFrame(upd));
+    g.querySelectorAll('[data-garw]').forEach(a => a.addEventListener('click', (e) => { e.stopPropagation(); main.scrollBy({left: parseInt(a.getAttribute('data-garw'),10)*main.clientWidth, behavior:'smooth'}); }));
+    thumbs.forEach(tb => tb.addEventListener('click', (e) => { e.stopPropagation(); main.scrollTo({left: (+tb.getAttribute('data-gidx'))*main.clientWidth, behavior:'smooth'}); }));
+  });
+}
 async function renderRooms() {
   const grid = document.getElementById('roomGrid');
   grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:30px;color:var(--muted);font-size:13px">⏳ ${t("room.loading")}</div>`;
@@ -3219,35 +3244,42 @@ async function renderRooms() {
   const isEn = (typeof CURRENT_LANG!=='undefined' && CURRENT_LANG==='en');
   // ─── Stufe 1: WG-Übersicht (wenn keine WG geöffnet) ───
   if (!SELECTED_APT) {
-    grid.innerHTML = `<div class="wg-overview">` + sortedApts.map(apt => {
-      const gphotos = (apt.photos||[]).filter(p => !p.category || (!p.category.startsWith('room:') && p.category!=='grundriss'));
+    grid.innerHTML = `<div class="wg-list">` + sortedApts.map(apt => {
+      const gp = (apt.photos||[]).filter(p => !p.category || (!p.category.startsWith('room:') && p.category!=='grundriss'));
       const n = apt.rooms.length;
       const rw = isEn ? (n===1?'free room':'free rooms') : (n===1?'freies Zimmer':'freie Zimmer');
       const prices = apt.rooms.map(r=>r.miete).filter(Boolean);
       const minP = prices.length ? Math.min(...prices) : null;
-      const priceStr = minP ? `${isEn?'from':'ab'} CHF ${minP.toLocaleString('de-CH')}` : '';
-      const imgs = gphotos.length ? gphotos.map(p=>`<div class="wg-img" style="background-image:url('${thumbUrl(p.path,{width:560,quality:72})}')"></div>`).join('') : `<div class="wg-img"></div>`;
-      return `<div class="wg-card">
-        <div class="wg-imgs" data-imgs>
-          ${imgs}
-          ${apt.matterport ? `<button type="button" class="wg-3d" data-open-apt="${apt.aptId}">🎥 3D-Tour</button>` : ''}
-          ${gphotos.length>1 ? `<button type="button" class="wg-arw wg-arw-l" data-arw="-1">‹</button><button type="button" class="wg-arw wg-arw-r" data-arw="1">›</button>` : ''}
+      return `<div class="listing">
+        <div class="listing-gal det-gallery" data-gallery>
+          <div class="det-main">
+            ${gp.length ? gp.map(p=>`<div class="det-slide" style="background-image:url('${thumbUrl(p.path,{width:680,quality:74})}')"></div>`).join('') : `<div class="det-slide"></div>`}
+          </div>
+          <div class="det-badges"><div class="det-counter"><span class="det-cur">1</span> / ${gp.length||1}</div></div>
+          ${apt.matterport ? `<button type="button" class="det-3d" data-open-apt="${apt.aptId}">🎥 ${isEn?'3D tour':'3D-Tour'}</button>` : ''}
+          ${gp.length>1 ? `<button type="button" class="det-arw det-arw-l" data-garw="-1">‹</button><button type="button" class="det-arw det-arw-r" data-garw="1">›</button>` : ''}
+          ${gp.length>1 ? `<div class="det-thumbs">${gp.map((p,i)=>`<button type="button" class="det-thumb${i===0?' on':''}" data-gidx="${i}" style="background-image:url('${thumbUrl(p.path,{width:180,quality:66})}')"></button>`).join('')}</div>` : ''}
         </div>
-        <button type="button" class="wg-card-body" data-open-apt="${apt.aptId}">
-          <div class="wg-card-addr">${apt.adresse}</div>
-          <div class="wg-card-meta">${apt.zimmer} · ${n} ${rw}${priceStr?` · ${priceStr}`:''}</div>
-        </button>
+        <div class="listing-info">
+          ${minP ? `<div class="det-price">${isEn?'from':'ab'} CHF ${minP.toLocaleString('de-CH')}</div>` : ''}
+          <div class="listing-facts"><b>${apt.zimmer}</b>${apt.etage?` · ${apt.etage}`:''} · ${n} ${rw}</div>
+          <div class="det-addr">📍 ${apt.adresse}</div>
+          ${apt.beschreibung ? `<div class="listing-desc">${apt.beschreibung}</div>` : ''}
+          <div class="det-pills">
+            ${apt.rooms.some(r=>r.balkon) ? `<span class="det-pill">🌿 ${isEn?'Balcony':'Balkon'}</span>` : ''}
+            <span class="det-pill">📶 WLAN</span>
+            ${apt.matterport ? `<span class="det-pill">🎥 3D-Tour</span>` : ''}
+            ${apt.video ? `<span class="det-pill">🎬 Video</span>` : ''}
+          </div>
+          <button type="button" class="listing-cta" data-open-apt="${apt.aptId}">${isEn?'View rooms & apply':'Zimmer ansehen'}</button>
+        </div>
       </div>`;
     }).join('') + `</div>`;
-    grid.querySelectorAll('.wg-card-body[data-open-apt], .wg-3d[data-open-apt]').forEach(b => b.addEventListener('click', () => {
+    _wireGalleries(grid);
+    grid.querySelectorAll('[data-open-apt]').forEach(b => b.addEventListener('click', () => {
       SELECTED_APT = b.getAttribute('data-open-apt');
       renderRooms();
       window.scrollTo({top:0, behavior:'smooth'});
-    }));
-    grid.querySelectorAll('[data-arw]').forEach(a => a.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const strip = a.closest('[data-imgs]');
-      if (strip) strip.scrollBy({left: parseInt(a.getAttribute('data-arw'),10) * strip.clientWidth, behavior:'smooth'});
     }));
     if (typeof updateStep1NavState === 'function') updateStep1NavState();
     return;
@@ -3362,13 +3394,7 @@ async function renderRooms() {
   _initMatterportLazy();
   updateStep1NavState();
   document.getElementById('wgBack')?.addEventListener('click', () => { SELECTED_APT=null; SELECTED_ZIMMER_ID=null; renderRooms(); window.scrollTo({top:0,behavior:'smooth'}); });
-  grid.querySelectorAll('[data-gallery]').forEach(g => {
-    const main = g.querySelector('.det-main'); const cur = g.querySelector('.det-cur'); const thumbs = g.querySelectorAll('.det-thumb');
-    function upd(){ if(!main.clientWidth) return; const i = Math.round(main.scrollLeft / main.clientWidth); if(cur) cur.textContent = (i+1); thumbs.forEach((tb,ti)=>tb.classList.toggle('on', ti===i)); }
-    main.addEventListener('scroll', () => window.requestAnimationFrame(upd));
-    g.querySelectorAll('[data-garw]').forEach(a => a.addEventListener('click', () => main.scrollBy({left: parseInt(a.getAttribute('data-garw'),10)*main.clientWidth, behavior:'smooth'})));
-    thumbs.forEach(tb => tb.addEventListener('click', () => main.scrollTo({left: (+tb.getAttribute('data-gidx'))*main.clientWidth, behavior:'smooth'})));
-  });
+  _wireGalleries(grid);
   grid.querySelectorAll('[data-scrollto]').forEach(b => b.addEventListener('click', () => { const el=document.getElementById(b.getAttribute('data-scrollto')); if(el) el.scrollIntoView({behavior:'smooth', block:'start'}); }));
 
   // Wire up listeners

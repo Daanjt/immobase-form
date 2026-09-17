@@ -15,7 +15,7 @@
 <link rel="icon" type="image/png" sizes="180x180" href="/favicon-180.png">
 <link rel="shortcut icon" href="/favicon.ico">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,300;6..72,400;6..72,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&family=Newsreader:opsz,wght@6..72,300;6..72,400;6..72,500&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
@@ -1680,14 +1680,15 @@
   .lang-toggle button:hover:not(.active) {
     color: var(--ink);
   }
-  /* Angleichung an Webseite: Überschriften in Space Grotesk, dünn */
-  h1, h2, h3, .apt-title, .rooms-title, .rooms-header, .room-header, .mfb-title, .apt-header, .media-label-hero {
+  /* Angleichung an Webseite: Titel in Space Grotesk, dünn statt fett */
+  h1, h2, h3, .title, .section-title, .apt-title, .rooms-title, .rooms-header, .room-header, .mfb-title, .apt-header, .media-label-hero {
     font-family: 'Space Grotesk', system-ui, sans-serif !important;
     letter-spacing: -.015em;
-    font-weight: 500 !important;
+    font-weight: 400 !important;
   }
-  h1 { font-weight: 400 !important; font-size: 40px !important; letter-spacing: -.025em !important; }
-  h1 strong { font-weight: 400 !important; }
+  h1, .apt-title { font-weight: 300 !important; }
+  h1 { font-size: 40px !important; letter-spacing: -.025em !important; }
+  h1 strong { font-weight: 300 !important; }
 </style>
 </head>
 <body>

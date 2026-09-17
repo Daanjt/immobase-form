@@ -1680,6 +1680,16 @@
   .lang-toggle button:hover:not(.active) {
     color: var(--ink);
   }
+  /* WG-Übersicht (zweistufiger Flow) */
+  .wg-overview{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
+  .wg-card{text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;cursor:pointer;padding:0;font-family:inherit;transition:border-color .18s,transform .18s}
+  .wg-card:hover{border-color:var(--beige);transform:translateY(-3px)}
+  .wg-card-img{height:150px;background:var(--beige-soft) center/cover}
+  .wg-card-body{padding:15px 17px}
+  .wg-card-addr{font-size:16px;font-weight:600;color:var(--ink)}
+  .wg-card-meta{font-size:13px;color:var(--muted);margin-top:5px}
+  .wg-back{background:none;border:none;color:var(--muted);font-family:inherit;font-size:14px;cursor:pointer;padding:6px 0;margin-bottom:14px}
+  .wg-back:hover{color:var(--ink)}
 </style>
 </head>
 <body>
@@ -2947,6 +2957,7 @@ document.addEventListener("DOMContentLoaded", function() {
 // ─── VERFÜGBARE ZIMMER ───────────────────────────────────────────────────
 // Diese Liste wird LIVE aus Supabase geladen (nur freie Zimmer in WG-Wohnungen)
 let FREIE_ZIMMER = [];
+let SELECTED_APT = null;
 
 // ─── Image URL helpers ───
 // thumbUrl uses Supabase Image Transformation (Pro plan) — much smaller files
@@ -3163,7 +3174,32 @@ async function renderRooms() {
     apt.rooms.sort((a,b) => a.id.localeCompare(b.id, undefined, {numeric:true, sensitivity:'base'}));
   });
   
-  grid.innerHTML = sortedApts.map(apt => `
+  const isEn = (typeof CURRENT_LANG!=='undefined' && CURRENT_LANG==='en');
+  // ─── Stufe 1: WG-Übersicht (wenn keine WG geöffnet) ───
+  if (!SELECTED_APT) {
+    grid.innerHTML = `<div class="wg-overview">` + sortedApts.map(apt => {
+      const cover = (apt.photos||[]).find(p => !p.category || (!p.category.startsWith('room:') && p.category!=='grundriss'));
+      const img = cover ? thumbUrl(cover.path, {width: 480, quality: 70}) : '';
+      const n = apt.rooms.length;
+      const rw = isEn ? (n===1?'free room':'free rooms') : (n===1?'freies Zimmer':'freie Zimmer');
+      return `<button type="button" class="wg-card" data-open-apt="${apt.aptId}">
+        <div class="wg-card-img" style="${img?`background-image:url('${img}')`:''}"></div>
+        <div class="wg-card-body">
+          <div class="wg-card-addr">${apt.adresse}</div>
+          <div class="wg-card-meta">${apt.zimmer} · ${n} ${rw}</div>
+        </div>
+      </button>`;
+    }).join('') + `</div>`;
+    grid.querySelectorAll('[data-open-apt]').forEach(b => b.addEventListener('click', () => {
+      SELECTED_APT = b.getAttribute('data-open-apt');
+      renderRooms();
+      window.scrollTo({top:0, behavior:'smooth'});
+    }));
+    if (typeof updateStep1NavState === 'function') updateStep1NavState();
+    return;
+  }
+  // ─── Stufe 2: Detail der gewählten WG ───
+  grid.innerHTML = `<button type="button" class="wg-back" id="wgBack">← ${isEn?'Back to overview':'Zurück zur Übersicht'}</button>` + sortedApts.filter(a => a.aptId===SELECTED_APT).map(apt => `
     <div class="apt-group">
       <div class="apt-header">
         <div class="apt-title">
@@ -3286,6 +3322,7 @@ async function renderRooms() {
   wireRoomCardClicks();
   _initMatterportLazy();
   updateStep1NavState();
+  document.getElementById('wgBack')?.addEventListener('click', () => { SELECTED_APT=null; SELECTED_ZIMMER_ID=null; renderRooms(); window.scrollTo({top:0,behavior:'smooth'}); });
 
   // Wire up listeners
   grid.querySelectorAll('input[type="radio"]').forEach(radio => {

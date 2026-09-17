@@ -1692,6 +1692,30 @@
   .wg-arw{position:absolute;top:50%;transform:translateY(-50%);z-index:2;width:30px;height:30px;border-radius:50%;border:none;background:rgba(255,255,255,.9);color:var(--ink);font-size:18px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.12);opacity:0;transition:opacity .18s}
   .wg-card:hover .wg-arw{opacity:1}
   .wg-arw-l{left:8px}.wg-arw-r{right:8px}
+  .det-hero{display:grid;grid-template-columns:1.15fr 1fr;gap:26px;margin-bottom:26px}
+  .det-gallery{position:relative}
+  .det-main{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;border-radius:14px;aspect-ratio:4/3;background:var(--beige-soft)}
+  .det-main::-webkit-scrollbar{display:none}
+  .det-slide{flex:0 0 100%;scroll-snap-align:center;background:var(--beige-soft) center/cover}
+  .det-badges{position:absolute;top:12px;right:12px;z-index:2}
+  .det-counter{background:rgba(28,27,23,.72);color:#fff;font-size:12px;padding:4px 11px;border-radius:100px}
+  .det-3d{position:absolute;left:12px;bottom:12px;z-index:2;background:rgba(28,27,23,.82);color:#fff;border:none;border-radius:100px;padding:7px 14px;font-size:12.5px;font-family:inherit;cursor:pointer;backdrop-filter:blur(4px)}
+  .det-3d:hover{background:rgba(28,27,23,.95)}
+  .det-arw{position:absolute;top:calc(50% - 40px);z-index:2;width:36px;height:36px;border-radius:50%;border:none;background:rgba(255,255,255,.92);color:var(--ink);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.14)}
+  .det-arw-l{left:10px}.det-arw-r{right:10px}
+  .det-thumbs{display:flex;gap:8px;margin-top:10px;overflow-x:auto;scrollbar-width:none}
+  .det-thumbs::-webkit-scrollbar{display:none}
+  .det-thumb{flex:0 0 76px;height:56px;border-radius:8px;border:2px solid transparent;background:var(--beige-soft) center/cover;cursor:pointer;padding:0;transition:border-color .15s}
+  .det-thumb.on{border-color:var(--ink)}
+  .det-info{padding-top:2px}
+  .det-price{font-size:26px;font-weight:700;color:var(--ink);margin-bottom:8px}
+  .det-facts{font-size:15px;color:var(--text);margin-bottom:9px}
+  .det-facts b{font-weight:600;color:var(--ink)}
+  .det-addr{font-size:15px;color:var(--text);margin-bottom:14px}
+  .det-desc{font-size:14.5px;line-height:1.65;color:var(--text);margin-bottom:16px}
+  .det-pills{display:flex;flex-wrap:wrap;gap:8px}
+  .det-pill{font-size:12.5px;color:var(--text);background:var(--surface);border:1px solid var(--line);border-radius:100px;padding:5px 12px}
+  @media (max-width:720px){ .det-hero{grid-template-columns:1fr;gap:16px} }
   .wg-card-body{width:100%;text-align:left;background:none;border:none;cursor:pointer;padding:15px 17px;font-family:inherit;display:block}
   .wg-card-addr{font-size:16px;font-weight:600;color:var(--ink)}
   .wg-card-meta{font-size:13px;color:var(--muted);margin-top:5px}
@@ -3231,29 +3255,38 @@ async function renderRooms() {
   // ─── Stufe 2: Detail der gewählten WG ───
   grid.innerHTML = `<button type="button" class="wg-back" id="wgBack">← ${isEn?'Back to overview':'Zurück zur Übersicht'}</button>` + sortedApts.filter(a => a.aptId===SELECTED_APT).map(apt => `
     <div class="apt-group">
-      <div class="apt-header">
-        <div class="apt-title">
-          <span class="apt-addr">${apt.adresse}</span>
+      ${(() => {
+        const gp = (apt.photos||[]).filter(p => !p.category || (!p.category.startsWith('room:') && p.category!=='grundriss'));
+        const prices = apt.rooms.map(r=>r.miete).filter(Boolean);
+        const minP = prices.length ? Math.min(...prices) : null;
+        return `
+      <div class="det-hero">
+        <div class="det-gallery" data-gallery>
+          <div class="det-main">
+            ${gp.length ? gp.map(p=>`<div class="det-slide" style="background-image:url('${thumbUrl(p.path,{width:900,quality:78})}')"></div>`).join('') : `<div class="det-slide"></div>`}
+          </div>
+          <div class="det-badges"><div class="det-counter"><span class="det-cur">1</span> / ${gp.length||1}</div></div>
+          ${apt.matterport ? `<button type="button" class="det-3d" data-scrollto="mp-${apt.aptId}">🎥 ${isEn?'3D tour':'3D-Tour'}</button>` : ''}
+          ${gp.length>1 ? `<button type="button" class="det-arw det-arw-l" data-garw="-1">‹</button><button type="button" class="det-arw det-arw-r" data-garw="1">›</button>` : ''}
+          ${gp.length>1 ? `<div class="det-thumbs">${gp.map((p,i)=>`<button type="button" class="det-thumb${i===0?' on':''}" data-gidx="${i}" style="background-image:url('${thumbUrl(p.path,{width:220,quality:70})}')"></button>`).join('')}</div>` : ''}
         </div>
-        <div class="apt-meta">
-          <span class="meta-pill wg">${apt.zimmer}</span>
-          ${apt.etage ? `<span class="meta-pill">${apt.etage}</span>` : ''}
-          ${(() => {
-            // Wohnungs-Verfuegbarkeit aus den Zimmern ableiten, damit oben und unten konsistent sind
-            const hatSofort = apt.rooms.some(r => !r.verfuegbarAb);
-            if (hatSofort) return `<span class="meta-pill">${t("apt.availableNow")}</span>`;
-            const dates = apt.rooms.map(r => r.verfuegbarAb).filter(Boolean);
-            if (dates.length === 0) return `<span class="meta-pill">${t("apt.availableNow")}</span>`;
-            const parseD = s => { const p = String(s).split('.'); return new Date(+p[2], +p[1]-1, +p[0]); };
-            const earliest = dates.map(parseD).sort((a,b)=>a-b)[0];
-            const fmt = earliest.toLocaleDateString('de-CH', {day:'2-digit', month:'2-digit', year:'numeric'});
-            return `<span class="meta-pill">${t("apt.availableFrom")} ${fmt}</span>`;
-          })()}
-          <span class="meta-pill ${apt.befristung.type}">${apt.befristung.label}</span>
+        <div class="det-info">
+          ${minP ? `<div class="det-price">${isEn?'from':'ab'} CHF ${minP.toLocaleString('de-CH')}</div>` : ''}
+          <div class="det-facts"><b>${apt.zimmer}</b>${apt.etage?` · ${apt.etage}`:''} · ${apt.rooms.length} ${isEn?'free rooms':'freie Zimmer'}</div>
+          <div class="det-addr">📍 ${apt.adresse}</div>
+          ${apt.beschreibung ? `<div class="det-desc">${apt.beschreibung}</div>` : ''}
+          <div class="det-pills">
+            ${apt.rooms.some(r=>r.balkon) ? `<span class="det-pill">🌿 ${isEn?'Balcony':'Balkon'}</span>` : ''}
+            <span class="det-pill">📶 WLAN</span>
+            ${apt.matterport ? `<span class="det-pill">🎥 3D-Tour</span>` : ''}
+            ${apt.video ? `<span class="det-pill">🎬 Video</span>` : ''}
+            ${apt.befristung ? `<span class="det-pill">${apt.befristung.label}</span>` : ''}
+          </div>
         </div>
-      </div>
+      </div>`;
+      })()}
       ${apt.matterport ? `
-        <div class="apt-matterport-hero">
+        <div class="apt-matterport-hero" id="mp-${apt.aptId}">
           <div class="media-label-hero">🎥 ${t("apt.virtualTour")}</div>
           <div class="matterport-frame-big matterport-lazy" data-src="${apt.matterport}">
             <div class="matterport-placeholder">
@@ -3269,42 +3302,6 @@ async function renderRooms() {
           <video class="apt-video-frame" controls preload="metadata" src="${origUrl(apt.video)}"></video>
         </div>
       ` : ''}
-      ${(() => {
-        const allPhotos = apt.photos || [];
-        // All non-room photos go in the general gallery (Küche, Bad, Grundriss, etc.)
-        const generalPhotos = allPhotos.filter(p => !p.category || !p.category.startsWith("room:"));
-        if (generalPhotos.length === 0) return '';
-        return `
-        <div class="apt-extras-visible">
-          <div class="extras-section">
-            <div class="extras-section-label">📷 ${t("apt.photos")} (${generalPhotos.length})</div>
-            <div class="mini-gallery">
-              ${generalPhotos.map((p, idx) => {
-                const isPdf = p.path.toLowerCase().endsWith(".pdf");
-                const rawUrl = origUrl(p.path);
-                const imgSrc = thumbUrl(p.path, {width: 240, quality: 70});
-                const caption = p.category ? `<div class="mini-caption">${categoryLabelForm(p.category)}</div>` : '';
-                if (isPdf) {
-                  return `
-                    <div class="mini-thumb mini-thumb-pdf gallery-thumb" data-apt="${apt.aptId}" data-general-idx="${idx}" data-is-pdf="1">
-                      <div class="pdf-render" data-pdf-url="${rawUrl}">
-                        <div class="pdf-loading">📄</div>
-                      </div>
-                      ${caption}
-                    </div>
-                  `;
-                }
-                return `
-                  <div class="mini-thumb gallery-thumb" data-apt="${apt.aptId}" data-general-idx="${idx}">
-                    <img src="${imgSrc}" alt="Foto ${idx+1}" loading="lazy"/>
-                    ${caption}
-                  </div>
-                `;
-              }).join('')}
-            </div>
-          </div>
-        </div>`;
-      })()}
       <div class="rooms-header">
         <h3 class="rooms-title">🛏 ${t("room.pickHeader")}</h3>
         <p class="rooms-sub">${apt.rooms.length} ${t("room.availableIn")}</p>
@@ -3365,6 +3362,14 @@ async function renderRooms() {
   _initMatterportLazy();
   updateStep1NavState();
   document.getElementById('wgBack')?.addEventListener('click', () => { SELECTED_APT=null; SELECTED_ZIMMER_ID=null; renderRooms(); window.scrollTo({top:0,behavior:'smooth'}); });
+  grid.querySelectorAll('[data-gallery]').forEach(g => {
+    const main = g.querySelector('.det-main'); const cur = g.querySelector('.det-cur'); const thumbs = g.querySelectorAll('.det-thumb');
+    function upd(){ if(!main.clientWidth) return; const i = Math.round(main.scrollLeft / main.clientWidth); if(cur) cur.textContent = (i+1); thumbs.forEach((tb,ti)=>tb.classList.toggle('on', ti===i)); }
+    main.addEventListener('scroll', () => window.requestAnimationFrame(upd));
+    g.querySelectorAll('[data-garw]').forEach(a => a.addEventListener('click', () => main.scrollBy({left: parseInt(a.getAttribute('data-garw'),10)*main.clientWidth, behavior:'smooth'})));
+    thumbs.forEach(tb => tb.addEventListener('click', () => main.scrollTo({left: (+tb.getAttribute('data-gidx'))*main.clientWidth, behavior:'smooth'})));
+  });
+  grid.querySelectorAll('[data-scrollto]').forEach(b => b.addEventListener('click', () => { const el=document.getElementById(b.getAttribute('data-scrollto')); if(el) el.scrollIntoView({behavior:'smooth', block:'start'}); }));
 
   // Wire up listeners
   grid.querySelectorAll('input[type="radio"]').forEach(radio => {

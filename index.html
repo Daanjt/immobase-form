@@ -1716,6 +1716,15 @@
   .det-pills{display:flex;flex-wrap:wrap;gap:8px}
   .det-pill{font-size:12.5px;color:var(--text);background:var(--surface);border:1px solid var(--line);border-radius:100px;padding:5px 12px}
   @media (max-width:720px){ .det-hero{grid-template-columns:1fr;gap:16px} }
+  .wg-intro{margin-bottom:26px}
+  .wg-intro-h{font-size:clamp(24px,3vw,34px);font-weight:600;letter-spacing:-.02em;color:var(--ink);line-height:1.1;margin:0 0 14px;max-width:20ch}
+  .wg-intro-p{font-size:16px;line-height:1.6;color:var(--text);max-width:60ch;margin:0}
+  .wg-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-bottom:38px}
+  .wg-step-n{font-size:12.5px;font-weight:600;color:var(--muted);padding-bottom:10px;border-bottom:1px solid var(--line);margin-bottom:11px}
+  .wg-step-t{font-size:16px;font-weight:600;color:var(--ink);margin-bottom:5px}
+  .wg-step-d{font-size:14px;color:var(--text);line-height:1.5}
+  .wg-list-h{font-size:18px;font-weight:600;color:var(--ink);margin:0 0 16px}
+  @media (max-width:720px){ .wg-steps{grid-template-columns:1fr;gap:18px} }
   .wg-list{display:flex;flex-direction:column;gap:18px}
   .listing{display:grid;grid-template-columns:330px 1fr;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;transition:border-color .18s}
   .listing:hover{border-color:var(--beige)}
@@ -3273,7 +3282,19 @@ async function renderRooms() {
   const isEn = (typeof CURRENT_LANG!=='undefined' && CURRENT_LANG==='en');
   // ─── Stufe 1: WG-Übersicht (wenn keine WG geöffnet) ───
   if (!SELECTED_APT) {
-    grid.innerHTML = `<div class="wg-list">` + sortedApts.map(apt => {
+    { const hh=document.querySelector('.header h1'), hs=document.querySelector('.header .subtitle'); if(hh)hh.style.display='none'; if(hs)hs.style.display='none'; if(intro)intro.style.display='none'; }
+    const introHtml = `
+      <div class="wg-intro">
+        <h2 class="wg-intro-h">${isEn?'Your room in a shared flat, without the hassle.':'Dein Zimmer in einer WG, ganz ohne Kompliziertes.'}</h2>
+        <p class="wg-intro-p">${isEn?'We offer rooms in well-kept shared flats across Switzerland, furnished or unfurnished, whichever you prefer. You rent your own private room and share kitchen, bathroom and living area with your flatmates. The pricing is fair and the process is simple.':'Wir bieten Zimmer in gepflegten Wohngemeinschaften in der ganzen Schweiz, möbliert oder unmöbliert, ganz wie du möchtest. Du mietest dein eigenes, privates Zimmer, Küche, Bad und Wohnbereich teilst du dir mit deinen Mitbewohnern. Der Preis ist fair und der Ablauf unkompliziert.'}</p>
+      </div>
+      <div class="wg-steps">
+        <div class="wg-step"><div class="wg-step-n">${isEn?'Step 1':'Schritt 1'}</div><div class="wg-step-t">${isEn?'Find your room':'Zimmer finden'}</div><div class="wg-step-d">${isEn?'Browse the available shared flats and their free rooms.':'Stöbere durch die WGs und ihre freien Zimmer.'}</div></div>
+        <div class="wg-step"><div class="wg-step-n">${isEn?'Step 2':'Schritt 2'}</div><div class="wg-step-t">${isEn?'Sign digitally':'Digital unterschreiben'}</div><div class="wg-step-d">${isEn?'Choose your room and sign the contract online.':'Wähle dein Zimmer und unterschreibe online.'}</div></div>
+        <div class="wg-step"><div class="wg-step-n">${isEn?'Step 3':'Schritt 3'}</div><div class="wg-step-t">${isEn?'Move in':'Einziehen'}</div><div class="wg-step-d">${isEn?'You get the keys and all move-in details.':'Du bekommst die Schlüssel und alle Infos zum Einzug.'}</div></div>
+      </div>
+      <h3 class="wg-list-h">${isEn?'Available shared flats':'Freie Wohngemeinschaften'}</h3>`;
+    grid.innerHTML = introHtml + `<div class="wg-list">` + sortedApts.map(apt => {
       const gp = (apt.photos||[]).filter(p => !p.category || (!p.category.startsWith('room:') && p.category!=='grundriss'));
       const n = apt.rooms.length;
       const rw = isEn ? (n===1?'free room':'free rooms') : (n===1?'freies Zimmer':'freie Zimmer');
@@ -3314,6 +3335,7 @@ async function renderRooms() {
     return;
   }
   // ─── Stufe 2: Detail der gewählten WG ───
+  { const hh=document.querySelector('.header h1'), hs=document.querySelector('.header .subtitle'); if(hh)hh.style.display=''; if(hs)hs.style.display=''; }
   grid.innerHTML = `<button type="button" class="wg-back" id="wgBack">← ${isEn?'Back to overview':'Zurück zur Übersicht'}</button>` + sortedApts.filter(a => a.aptId===SELECTED_APT).map(apt => `
     <div class="apt-group">
       ${(() => {

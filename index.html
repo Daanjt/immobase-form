@@ -1723,7 +1723,8 @@
   .wg-step-n{font-size:12.5px;font-weight:600;color:var(--muted);padding-bottom:10px;border-bottom:1px solid var(--line);margin-bottom:11px}
   .wg-step-t{font-size:16px;font-weight:600;color:var(--ink);margin-bottom:5px}
   .wg-step-d{font-size:14px;color:var(--text);line-height:1.5}
-  .wg-list-h{font-size:18px;font-weight:600;color:var(--ink);margin:0 0 16px}
+  .wg-list-h{font-size:18px;font-weight:600;color:var(--ink);margin:0 0 6px}
+  .wg-list-sub{font-size:14.5px;color:var(--text);line-height:1.55;max-width:60ch;margin:0 0 18px}
   @media (max-width:720px){ .wg-steps{grid-template-columns:1fr;gap:18px} }
   .wg-list{display:flex;flex-direction:column;gap:18px}
   .listing{display:grid;grid-template-columns:330px 1fr;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;transition:border-color .18s}
@@ -3293,7 +3294,8 @@ async function renderRooms() {
         <div class="wg-step"><div class="wg-step-n">${isEn?'Step 2':'Schritt 2'}</div><div class="wg-step-t">${isEn?'Sign digitally':'Digital unterschreiben'}</div><div class="wg-step-d">${isEn?'Choose your room and sign the contract online.':'Wähle dein Zimmer und unterschreibe online.'}</div></div>
         <div class="wg-step"><div class="wg-step-n">${isEn?'Step 3':'Schritt 3'}</div><div class="wg-step-t">${isEn?'Move in':'Einziehen'}</div><div class="wg-step-d">${isEn?'You get the keys and all move-in details.':'Du bekommst die Schlüssel und alle Infos zum Einzug.'}</div></div>
       </div>
-      <h3 class="wg-list-h">${isEn?'Available shared flats':'Freie Wohngemeinschaften'}</h3>`;
+      <h3 class="wg-list-h">${isEn?'Our shared flats':'Unsere Wohngemeinschaften'}</h3>
+      <p class="wg-list-sub">${isEn?'Each apartment is a shared flat with fully furnished common areas. Pick a room and apply directly.':'Jede Wohnung ist eine Wohngemeinschaft mit voll möblierten Gemeinschaftsräumen. Wähle ein Zimmer und bewirb dich direkt.'}</p>`;
     grid.innerHTML = introHtml + `<div class="wg-list">` + sortedApts.map(apt => {
       const gp = (apt.photos||[]).filter(p => !p.category || (!p.category.startsWith('room:') && p.category!=='grundriss'));
       const n = apt.rooms.length;

@@ -20,19 +20,19 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
   :root {
-    --bg: #f6f1e8;
-    --surface: #fefcf7;
-    --card: #fefcf7;
-    --beige: #c9b896;
-    --beige-soft: #ede4d3;
-    --beige-line: #ddd0b8;
-    --gold: #1a1814;
-    --line: #e1d8c5;
-    --line-soft: #ebe3d2;
-    --ink: #1a1814;
-    --text: #4a4439;
-    --muted: #8a8174;
-    --muted-light: #b8af9f;
+    --bg: #FBFAF6;
+    --surface: #FEFCF7;
+    --card: #FEFCF7;
+    --beige: #DED2BD;
+    --beige-soft: #EAE1D2;
+    --beige-line: #E0D7C6;
+    --gold: #1C1B17;
+    --line: #E4DDD0;
+    --line-soft: #EDE7DB;
+    --ink: #1C1B17;
+    --text: #54503F;
+    --muted: #8A7F6A;
+    --muted-light: #B8AF9F;
     --green: #5a6e4a;
     --green-soft: #e8eadb;
   }
@@ -1681,19 +1681,27 @@
     color: var(--ink);
   }
   /* WG-Übersicht (zweistufiger Flow) */
-  .wg-overview{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
-  .wg-card{text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;cursor:pointer;padding:0;font-family:inherit;transition:border-color .18s,transform .18s}
+  .wg-overview{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}
+  .wg-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;transition:border-color .18s,transform .18s}
   .wg-card:hover{border-color:var(--beige);transform:translateY(-3px)}
-  .wg-card-img{height:150px;background:var(--beige-soft) center/cover}
-  .wg-card-body{padding:15px 17px}
+  .wg-imgs{position:relative;display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-ms-overflow-style:none;height:180px;background:var(--beige-soft)}
+  .wg-imgs::-webkit-scrollbar{display:none}
+  .wg-img{flex:0 0 100%;scroll-snap-align:center;background:var(--beige-soft) center/cover;height:180px}
+  .wg-3d{position:absolute;left:10px;bottom:10px;z-index:2;background:rgba(28,27,23,.82);color:#fff;border:none;border-radius:100px;padding:6px 13px;font-size:12px;font-family:inherit;cursor:pointer;backdrop-filter:blur(4px)}
+  .wg-3d:hover{background:rgba(28,27,23,.95)}
+  .wg-arw{position:absolute;top:50%;transform:translateY(-50%);z-index:2;width:30px;height:30px;border-radius:50%;border:none;background:rgba(255,255,255,.9);color:var(--ink);font-size:18px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.12);opacity:0;transition:opacity .18s}
+  .wg-card:hover .wg-arw{opacity:1}
+  .wg-arw-l{left:8px}.wg-arw-r{right:8px}
+  .wg-card-body{width:100%;text-align:left;background:none;border:none;cursor:pointer;padding:15px 17px;font-family:inherit;display:block}
   .wg-card-addr{font-size:16px;font-weight:600;color:var(--ink)}
   .wg-card-meta{font-size:13px;color:var(--muted);margin-top:5px}
   .wg-back{background:none;border:none;color:var(--muted);font-family:inherit;font-size:14px;cursor:pointer;padding:6px 0;margin-bottom:14px}
   .wg-back:hover{color:var(--ink)}
-  .apt-map-wrap{margin:22px 0 4px}
-  .apt-map-label{font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:500}
-  .apt-map-frame{width:100%;height:170px;border:1px solid var(--line);border-radius:10px;display:block;filter:grayscale(.15)}
-  .apt-loc-text{font-size:13.5px;line-height:1.6;color:var(--text);margin-top:12px;max-width:600px}
+  .apt-map-wrap{margin:22px 0 4px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 20px}
+  .apt-map-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.15em;margin-bottom:4px;font-weight:600}
+  .apt-map-addr{font-size:15px;font-weight:600;color:var(--ink);margin-bottom:12px}
+  .apt-loc-text{font-size:14px;line-height:1.65;color:var(--text);margin-bottom:14px;max-width:620px}
+  .apt-map-frame{width:100%;height:220px;border:1px solid var(--line);border-radius:10px;display:block}
   .apt-video-hero{margin:16px 0}
   .apt-video-frame{width:100%;border:1px solid var(--line);border-radius:12px;display:block;max-height:420px;background:#000}
 </style>
@@ -3188,22 +3196,34 @@ async function renderRooms() {
   // ─── Stufe 1: WG-Übersicht (wenn keine WG geöffnet) ───
   if (!SELECTED_APT) {
     grid.innerHTML = `<div class="wg-overview">` + sortedApts.map(apt => {
-      const cover = (apt.photos||[]).find(p => !p.category || (!p.category.startsWith('room:') && p.category!=='grundriss'));
-      const img = cover ? thumbUrl(cover.path, {width: 480, quality: 70}) : '';
+      const gphotos = (apt.photos||[]).filter(p => !p.category || (!p.category.startsWith('room:') && p.category!=='grundriss'));
       const n = apt.rooms.length;
       const rw = isEn ? (n===1?'free room':'free rooms') : (n===1?'freies Zimmer':'freie Zimmer');
-      return `<button type="button" class="wg-card" data-open-apt="${apt.aptId}">
-        <div class="wg-card-img" style="${img?`background-image:url('${img}')`:''}"></div>
-        <div class="wg-card-body">
-          <div class="wg-card-addr">${apt.adresse}</div>
-          <div class="wg-card-meta">${apt.zimmer} · ${n} ${rw}</div>
+      const prices = apt.rooms.map(r=>r.miete).filter(Boolean);
+      const minP = prices.length ? Math.min(...prices) : null;
+      const priceStr = minP ? `${isEn?'from':'ab'} CHF ${minP.toLocaleString('de-CH')}` : '';
+      const imgs = gphotos.length ? gphotos.map(p=>`<div class="wg-img" style="background-image:url('${thumbUrl(p.path,{width:560,quality:72})}')"></div>`).join('') : `<div class="wg-img"></div>`;
+      return `<div class="wg-card">
+        <div class="wg-imgs" data-imgs>
+          ${imgs}
+          ${apt.matterport ? `<button type="button" class="wg-3d" data-open-apt="${apt.aptId}">🎥 3D-Tour</button>` : ''}
+          ${gphotos.length>1 ? `<button type="button" class="wg-arw wg-arw-l" data-arw="-1">‹</button><button type="button" class="wg-arw wg-arw-r" data-arw="1">›</button>` : ''}
         </div>
-      </button>`;
+        <button type="button" class="wg-card-body" data-open-apt="${apt.aptId}">
+          <div class="wg-card-addr">${apt.adresse}</div>
+          <div class="wg-card-meta">${apt.zimmer} · ${n} ${rw}${priceStr?` · ${priceStr}`:''}</div>
+        </button>
+      </div>`;
     }).join('') + `</div>`;
-    grid.querySelectorAll('[data-open-apt]').forEach(b => b.addEventListener('click', () => {
+    grid.querySelectorAll('.wg-card-body[data-open-apt], .wg-3d[data-open-apt]').forEach(b => b.addEventListener('click', () => {
       SELECTED_APT = b.getAttribute('data-open-apt');
       renderRooms();
       window.scrollTo({top:0, behavior:'smooth'});
+    }));
+    grid.querySelectorAll('[data-arw]').forEach(a => a.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const strip = a.closest('[data-imgs]');
+      if (strip) strip.scrollBy({left: parseInt(a.getAttribute('data-arw'),10) * strip.clientWidth, behavior:'smooth'});
     }));
     if (typeof updateStep1NavState === 'function') updateStep1NavState();
     return;
@@ -3333,8 +3353,9 @@ async function renderRooms() {
       </div>
       <div class="apt-map-wrap">
         <div class="apt-map-label">📍 ${isEn?'Location':'Lage'}</div>
-        <iframe class="apt-map-frame" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=${encodeURIComponent(apt.adresse)}&output=embed"></iframe>
+        <div class="apt-map-addr">${apt.adresse}</div>
         ${apt.beschreibung ? `<div class="apt-loc-text">${apt.beschreibung}</div>` : ''}
+        <iframe class="apt-map-frame" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=${encodeURIComponent(apt.adresse)}&output=embed"></iframe>
       </div>
     </div>
   `).join('');

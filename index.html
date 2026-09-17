@@ -1690,6 +1690,9 @@
   .wg-card-meta{font-size:13px;color:var(--muted);margin-top:5px}
   .wg-back{background:none;border:none;color:var(--muted);font-family:inherit;font-size:14px;cursor:pointer;padding:6px 0;margin-bottom:14px}
   .wg-back:hover{color:var(--ink)}
+  .apt-map-wrap{margin:18px 0}
+  .apt-map-frame{width:100%;height:290px;border:1px solid var(--line);border-radius:12px;display:block}
+  .apt-loc-text{font-size:14px;line-height:1.6;color:var(--text);margin-top:12px;max-width:640px}
 </style>
 </head>
 <body>
@@ -3075,6 +3078,7 @@ async function loadFreieZimmer() {
           aptId: r.apt_id,
           aptLabel: `${a.adresse}, ${a.plz||""} ${a.ort||""}`.trim(),
           aptZimmer: a.zimmer ? `${a.zimmer}-${t("wg.room")}-WG` : "WG",
+          aptBeschreibung: a.beschreibung || null,
           aptEtage: a.stockwerk || "",
           adresse: `${a.adresse}, ${a.plz||""} ${a.ort||""}`.trim(),
           miete: r.miete || 0,
@@ -3160,6 +3164,7 @@ async function renderRooms() {
         befristung: r.befristung,
         mietbeginn: r.aptMietbeginn || null,
         photos: r.aptPhotos || [],
+        beschreibung: r.aptBeschreibung || null,
         matterport: r.aptMatterport || null,
         floorplan: r.aptFloorplan || null,
         rooms: []
@@ -3221,6 +3226,11 @@ async function renderRooms() {
           })()}
           <span class="meta-pill ${apt.befristung.type}">${apt.befristung.label}</span>
         </div>
+      </div>
+      <div class="apt-map-wrap">
+        <div class="media-label-hero">📍 ${isEn?'Location':'Lage'}</div>
+        <iframe class="apt-map-frame" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=${encodeURIComponent(apt.adresse)}&output=embed"></iframe>
+        ${apt.beschreibung ? `<div class="apt-loc-text">${apt.beschreibung}</div>` : ''}
       </div>
       ${apt.matterport ? `
         <div class="apt-matterport-hero">

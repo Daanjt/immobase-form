@@ -3080,7 +3080,7 @@ async function loadFreieZimmer() {
           wgGroesse: a.zimmer ? `${a.zimmer}-${t("wg.room")}-WG` : "WG",
           befristung: bef,
           aptMietbeginn: a.mietbeginn || null,
-          aptPhotos: Array.isArray(a.photos) ? a.photos : [],
+          aptPhotos: (Array.isArray(a.photos) ? a.photos : []).filter(p => !p.hidden),
           aptMatterport: a.matterport_url || null,
           aptFloorplan: a.floorplan_path || null,
         };
@@ -3198,7 +3198,7 @@ async function renderRooms() {
         </div>
       ` : ''}
       ${(() => {
-        const allPhotos = apt.photos || [];
+        const allPhotos = (apt.photos || []).filter(p => !p.hidden);
         // All non-room photos go in the general gallery (Küche, Bad, Grundriss, etc.)
         const generalPhotos = allPhotos.filter(p => !p.category || !p.category.startsWith("room:"));
         if (generalPhotos.length === 0) return '';
@@ -3239,7 +3239,7 @@ async function renderRooms() {
       </div>
       <div class="apt-rooms">
         ${apt.rooms.map(r => {
-          const roomPhotos = (apt.photos || []).filter(p => p.category === `room:${r.id}`);
+          const roomPhotos = (apt.photos || []).filter(p => p.category === `room:${r.id}` && !p.hidden);
           return `
           <label class="room-card${roomPhotos.length ? ' has-photos' : ''}${currentSel===r.id?' checked':''}" data-room="${r.id}">
             <input type="radio" name="zimmerWunsch" value="${r.id}" data-miete="${r.miete}" data-qm="${r.qm||''}" data-balkon="${r.balkon?1:0}" data-apt-label="${apt.adresse||''}" data-apt-id="${apt.aptId}" required ${currentSel===r.id?'checked':''}>

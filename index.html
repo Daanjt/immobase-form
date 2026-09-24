@@ -3856,6 +3856,7 @@ document.getElementById('mainForm').addEventListener('submit', async function(e)
     truthful: !!data.truthful,
     status: 'Neu',
     eingereicht_am: data.eingereichtAm,
+    sprache: CURRENT_LANG || 'de',
   };
 
   let { error } = await sb.from('applicants').insert([dbRow]);

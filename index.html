@@ -2838,32 +2838,21 @@ document.addEventListener("DOMContentLoaded", function() {
     async function searchAddress(query) {
       const reqId = ++currentRequestId;
       loadingEl.style.display = 'block';
-      
-      // Strasse + Nummer trennen
-      // "Engimattstrasse 31" → strasse: "Engimattstrasse", hausnummer: "31"
-      const match = query.match(/^(.+?)\s+(\d+\w*)\s*$/);
-      const strasse = match ? match[1].trim() : query;
-      const hausnummer = match ? match[2].trim() : '';
-      
-      // OpenPLZ kürzt "strasse" zu "str." → wir versuchen beide Varianten
-      // Regex-Suche: Engimatt(strasse|str\.) 
-      const baseName = strasse.replace(/\s*(strasse|str\.?|street)\s*$/i, '');
-      const searchPattern = baseName !== strasse
-        ? `^${baseName}\\s*(str\\.?|strasse|street)` // mit/ohne strasse-Endung
-        : strasse;
-      
       try {
-        // OpenPLZ API: Schweizer Strassen-Suche (Regex-Support eingebaut)
-        const url = `https://openplzapi.org/ch/Streets?name=${encodeURIComponent(searchPattern)}&page=1&pageSize=15`;
+        // Offizielle Schweizer Adresssuche (swisstopo / geo.admin.ch), CORS-faehig, volle Adressen
+        const url = `https://api3.geo.admin.ch/rest/services/api/SearchServer?searchText=${encodeURIComponent(query)}&type=locations&origins=address&limit=8`;
         const res = await fetch(url);
         if (!res.ok) throw new Error('API error');
-        const results = await res.json();
-        
-        // Falls zwischenzeitlich neue Suche → ignoriere alte Antwort
+        const data = await res.json();
         if (reqId !== currentRequestId) return;
-        
         loadingEl.style.display = 'none';
-        renderSuggestions(results, hausnummer);
+        const results = (data.results || []).map(r => {
+          const label = String((r.attrs && r.attrs.label) || '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+          const m = label.match(/^(.+?)\s+(\d{4})\s+(.+)$/);
+          if (m) return { name: m[1].trim(), postalCode: m[2], locality: m[3].trim(), canton: '' };
+          return { name: label, postalCode: '', locality: '', canton: '' };
+        }).filter(r => r.name);
+        renderSuggestions(results, '');
       } catch (e) {
         if (reqId !== currentRequestId) return;
         loadingEl.style.display = 'none';

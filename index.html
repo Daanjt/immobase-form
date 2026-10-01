@@ -1978,6 +1978,11 @@
           <textarea name="bemerkung" placeholder="Weitere relevante Informationen zu deiner Bewerbung…" data-i18n-placeholder="ph.bemerkung"></textarea>
         </div>
 
+        <div class="field" style="margin-top:18px">
+          <label data-i18n="field.empfohlen">Empfohlen von (optional)</label>
+          <input name="empfohlenVon" placeholder="Name der Person, die dich empfohlen hat" data-i18n-placeholder="ph.empfohlen">
+        </div>
+
         <div class="field" style="margin-top:14px">
           <label style="margin-bottom:10px"><span data-i18n="field.confirmations">Bestätigungen</span> <span class="req">*</span></label>
           <div class="check-group">
@@ -3840,6 +3845,7 @@ document.getElementById('mainForm').addEventListener('submit', async function(e)
     moebliert: data.moebliert || '',
     moeblierung_pauschale: data.moeblierungPauschale || 0,
     bemerkung: data.bemerkung || '',
+    empfohlen_von: data.empfohlenVon || '',
     no_debt: !!data.noDebt,
     no_criminal_record: !!data.noCriminalRecord,
     truthful: !!data.truthful,

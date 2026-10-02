@@ -1888,8 +1888,8 @@
           <div id="phoneHint" style="font-size:11px;color:#8a8174;margin-top:6px;display:none"></div>
         </div>
         <div class="field">
-          <label><span data-i18n="field.land">Land</span></label>
-          <select name="land" id="landInput" style="width:100%;padding:11px 2px;border:none;border-bottom:1px solid var(--line);border-radius:0;background:transparent;font-size:15px;font-family:inherit;color:inherit;cursor:pointer">
+          <label><span data-i18n="field.land">Land</span> <span class="req">*</span></label>
+          <select name="land" id="landInput" required style="width:100%;padding:11px 2px;border:none;border-bottom:1px solid var(--line);border-radius:0;background:transparent;font-size:15px;font-family:inherit;color:inherit;cursor:pointer">
             <option value="ch" selected>Schweiz</option>
             <option value="de">Deutschland</option>
             <option value="at">Österreich</option>
@@ -1903,7 +1903,7 @@
             <option value="be">Belgien</option>
             <option value="pl">Polen</option>
             <option value="us">USA</option>
-            <option value="">Weltweit / anderes Land</option>
+            <option value="intl">Weltweit / anderes Land</option>
           </select>
         </div>
         <div class="field" style="position:relative">
@@ -2866,7 +2866,7 @@ document.addEventListener("DOMContentLoaded", function() {
       const reqId = ++currentRequestId;
       loadingEl.style.display = 'block';
       try {
-        const cc = (landInput && landInput.value) ? landInput.value.toLowerCase() : '';
+        const cc = (landInput && /^[a-z]{2}$/i.test(landInput.value)) ? landInput.value.toLowerCase() : '';
         const ccParam = cc ? `&countrycodes=${encodeURIComponent(cc)}` : '';
         const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=6&accept-language=de${ccParam}&q=${encodeURIComponent(query)}`;
         const res = await fetch(url, { headers: { 'Accept': 'application/json' } });

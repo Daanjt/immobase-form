@@ -1887,6 +1887,25 @@
           <input type="hidden" name="phone" id="phoneHidden" value="">
           <div id="phoneHint" style="font-size:11px;color:#8a8174;margin-top:6px;display:none"></div>
         </div>
+        <div class="field">
+          <label><span data-i18n="field.land">Land</span></label>
+          <select name="land" id="landInput" style="width:100%;padding:11px 2px;border:none;border-bottom:1px solid var(--line);border-radius:0;background:transparent;font-size:15px;font-family:inherit;color:inherit;cursor:pointer">
+            <option value="ch" selected>Schweiz</option>
+            <option value="de">Deutschland</option>
+            <option value="at">Österreich</option>
+            <option value="li">Liechtenstein</option>
+            <option value="fr">Frankreich</option>
+            <option value="it">Italien</option>
+            <option value="es">Spanien</option>
+            <option value="pt">Portugal</option>
+            <option value="gb">Vereinigtes Königreich</option>
+            <option value="nl">Niederlande</option>
+            <option value="be">Belgien</option>
+            <option value="pl">Polen</option>
+            <option value="us">USA</option>
+            <option value="">Weltweit / anderes Land</option>
+          </select>
+        </div>
         <div class="field" style="position:relative">
           <label><span data-i18n="field.adresse">Aktuelle Adresse</span> <span class="req">*</span></label>
           <input type="text" name="adresse" id="adresseInput" placeholder="Musterstrasse 1" data-i18n-placeholder="ph.adresse" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" required>
@@ -2315,6 +2334,7 @@ const TRANSLATIONS = {
     "field.phone": "Telefonnummer",
     "field.phoneHint": "- wir kontaktieren dich danach per WhatsApp",
     "field.adresse": "Aktuelle Adresse",
+    "field.land": "Land",
     "field.plz": "PLZ",
     "field.ort": "Ort",
     // Section 4
@@ -2583,6 +2603,7 @@ const TRANSLATIONS = {
     "field.phone": "Phone number",
     "field.phoneHint": "- we will contact you via WhatsApp",
     "field.adresse": "Current address",
+    "field.land": "Country",
     "field.plz": "Postal code",
     "field.ort": "City",
     "sec4.title": "Employment & Finances",
@@ -2794,6 +2815,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const ortInput = document.getElementById('ortInput');
     const suggestionsBox = document.getElementById('adresseSuggestions');
     const loadingEl = document.getElementById('adresseLoading');
+    const landInput = document.getElementById('landInput');
     
     if (!adresseInput || !suggestionsBox) return;
     
@@ -2815,7 +2837,7 @@ document.addEventListener("DOMContentLoaded", function() {
       
       // Debounce 350ms
       clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(() => searchAddress(value), 350);
+      debounceTimer = setTimeout(() => searchAddress(value), 500);
     });
     
     adresseInput.addEventListener('focus', () => {
@@ -2844,18 +2866,22 @@ document.addEventListener("DOMContentLoaded", function() {
       const reqId = ++currentRequestId;
       loadingEl.style.display = 'block';
       try {
-        // Offizielle Schweizer Adresssuche (swisstopo / geo.admin.ch), CORS-faehig, volle Adressen
-        const url = `https://api3.geo.admin.ch/rest/services/api/SearchServer?searchText=${encodeURIComponent(query)}&type=locations&origins=address&limit=8`;
-        const res = await fetch(url);
+        const cc = (landInput && landInput.value) ? landInput.value.toLowerCase() : '';
+        const ccParam = cc ? `&countrycodes=${encodeURIComponent(cc)}` : '';
+        const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=6&accept-language=de${ccParam}&q=${encodeURIComponent(query)}`;
+        const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
         if (!res.ok) throw new Error('API error');
         const data = await res.json();
         if (reqId !== currentRequestId) return;
         loadingEl.style.display = 'none';
-        const results = (data.results || []).map(r => {
-          const label = String((r.attrs && r.attrs.label) || '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
-          const m = label.match(/^(.+?)\s+(\d{4})\s+(.+)$/);
-          if (m) return { name: m[1].trim(), postalCode: m[2], locality: m[3].trim(), canton: '' };
-          return { name: label, postalCode: '', locality: '', canton: '' };
+        const results = (data || []).map(r => {
+          const a = r.address || {};
+          const road = a.road || a.pedestrian || a.footway || a.neighbourhood || a.suburb || '';
+          const hn = a.house_number || '';
+          const base = road ? road : String(r.display_name || '').split(',')[0];
+          const name = (base + (hn ? ' ' + hn : '')).trim();
+          const locality = a.city || a.town || a.village || a.municipality || a.county || '';
+          return { name, postalCode: a.postcode || '', locality, country: a.country || '', countryCode: (a.country_code || '').toLowerCase(), canton: '' };
         }).filter(r => r.name);
         renderSuggestions(results, '');
       } catch (e) {
@@ -2903,6 +2929,7 @@ document.addEventListener("DOMContentLoaded", function() {
           adresseInput.value = `${displayName}${hausnummer ? ' ' + hausnummer : ''}`;
           plzInput.value = r.postalCode || '';
           ortInput.value = r.locality || '';
+          if (landInput && r.countryCode) landInput.value = r.countryCode;
           // Visuelle Bestätigung
           [plzInput, ortInput].forEach(el => {
             el.style.background = '#f0f7f2';

@@ -3110,7 +3110,7 @@ async function loadFreieZimmer() {
     if (aErr) throw aErr;
     
     const aptMap = {};
-    apts.forEach(a => { aptMap[a.id] = a; });
+    apts.filter(a => a.vermietungsart !== 'wohnung').forEach(a => { aptMap[a.id] = a; }); // ganze Wohnungen laufen über /wohnungen
     
     // Helper: normalize room size for display (e.g. "14" → "14 m²", "14m2" → "14 m²")
     function normGroesse(s) {
@@ -3143,12 +3143,12 @@ async function loadFreieZimmer() {
       return isNaN(d.getTime()) ? null : d;
     }
     
-    function computeBefristung(mietende) {
+    function computeBefristung(mietende, immer) {
       const d = parseDate(mietende);
       if (!d) return { type: "unbefristet", label: t("apt.unbefristet"), endDate: null };
       const now = new Date();
       const months = (d - now) / (1000*60*60*24*30.44);
-      if (months < 12 && months > 0) {
+      if (months > 0 && (months < 12 || immer)) {
         return { 
           type: "befristet", 
           label: `${t("apt.befristetBis")} ${d.toLocaleDateString('de-CH', {day:'2-digit', month:'2-digit', year:'numeric'})}`,
@@ -3182,7 +3182,7 @@ async function loadFreieZimmer() {
       })
       .map(r => {
         const a = aptMap[r.apt_id];
-        const bef = computeBefristung(a.mietende);
+        const bef = computeBefristung(a.mietende, !!a.immer_befristet);
         return {
           id: r.id,
           aptId: r.apt_id,

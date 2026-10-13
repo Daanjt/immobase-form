@@ -3099,6 +3099,42 @@ const SB_URL_FORM = 'https://aohcqrxpsqronlcwssrk.supabase.co';
 const SB_KEY_FORM = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFvaGNxcnhwc3Fyb25sY3dzc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5ODM0MjEsImV4cCI6MjA5MzU1OTQyMX0.izqvV2CPiOyVXoCsFTq_k8KRzBgfomp8LXwwAx22XP4';
 const sbForm = window.supabase.createClient(SB_URL_FORM, SB_KEY_FORM);
 
+// ── Fehlerueberwachung: meldet Fehler in die Tabelle system_fehler (Warnmail via system-check) ──
+(function(){
+  if (window.__ibFehlerAktiv) return; window.__ibFehlerAktiv = true;
+  var gesendet = 0, zuletzt = {};
+  var IGNORIEREN = /ResizeObserver loop|Script error\.?$|Load failed$|NetworkError when attempting|Failed to fetch$|AbortError|chrome-extension:|moz-extension:|safari-extension:/i;
+  window.__ibLetzterFehler = "";
+  var _ce = console.error.bind(console);
+  console.error = function(){
+    try { window.__ibLetzterFehler = Array.prototype.map.call(arguments, function(x){ return x && x.message ? x.message : (typeof x === "object" ? JSON.stringify(x) : String(x)); }).join(" ").slice(0, 1500); } catch(_e) {}
+    _ce.apply(null, arguments);
+  };
+  window.meldeFehler = function(bereich, meldung, details){
+    try {
+      meldung = String(meldung || "").slice(0, 1900);
+      if (!meldung || IGNORIEREN.test(meldung)) return;
+      var key = bereich + "|" + meldung, now = Date.now();
+      if (zuletzt[key] && now - zuletzt[key] < 60000) return;
+      zuletzt[key] = now;
+      if (++gesendet > 15) return;
+      var seite = (location.pathname + location.hash).replace(/[0-9a-f]{20,}/gi, "…").slice(0, 480);
+      Promise.resolve(null).catch(function(){ return null; }).then(function(benutzer){
+        sbForm.from("system_fehler").insert({ app: "bewerbung", bereich: String(bereich || "").slice(0, 150), meldung: meldung,
+          details: Object.assign({}, details || {}, window.__ibLetzterFehler ? { konsole: window.__ibLetzterFehler } : {}),
+          seite: seite, geraet: (navigator.userAgent || "").slice(0, 390), benutzer: benutzer ? String(benutzer).slice(0, 190) : null }).then(function(){}, function(){});
+      });
+    } catch(_e) {}
+  };
+  window.addEventListener("error", function(e){ window.meldeFehler("JavaScript", e && e.message, { datei: e && e.filename, zeile: e && e.lineno }); });
+  window.addEventListener("unhandledrejection", function(e){ var r = e && e.reason; window.meldeFehler("Promise", r && r.message ? r.message : String(r)); });
+  var _alert = window.alert;
+  window.alert = function(m){
+    try { if (/fehler|fehlgeschlagen|failed|error|nicht möglich|konnte nicht/i.test(String(m || ""))) window.meldeFehler("Meldung an Nutzer", m); } catch(_e) {}
+    return _alert.apply(window, arguments);
+  };
+})();
+
 async function loadFreieZimmer() {
   try {
     // Get rooms: frei (occupied=false) UND belegte Zimmer, deren Wohnung aktiv

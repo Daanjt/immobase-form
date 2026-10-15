@@ -1700,6 +1700,10 @@
     <div class="form-divider"></div>
 
     <form id="mainForm" novalidate>
+      <!-- Spamschutz: fuer Menschen unsichtbar, Bots fuellen es aus -->
+      <div aria-hidden="true" style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden">
+        <label>Website <input type="text" name="website" id="hp_website" tabindex="-1" autocomplete="off"></label>
+      </div>
 
       <!-- Wizard Step Indicator -->
       <div class="wizard-steps">
@@ -3663,9 +3667,21 @@ document.querySelectorAll('input,select,textarea').forEach(el => {
   form.addEventListener('change', e => clearInvalid(e.target));
 })();
 
+window.__formStart = window.__formStart || Date.now();
 document.getElementById('mainForm').addEventListener('submit', async function(e) {
   e.preventDefault();
   console.log('[FORM] submit triggered');
+  // Spamschutz: Falle ausgefuellt oder in wenigen Sekunden abgeschickt = Bot.
+  // Bots bekommen scheinbar eine Bestaetigung, gespeichert wird nichts.
+  {
+    const hp = document.getElementById('hp_website');
+    if ((hp && hp.value.trim() !== '') || (Date.now() - window.__formStart) < 4000) {
+      document.getElementById('mainForm').style.display = 'none';
+      const cs = document.getElementById('costSummary'); if (cs) cs.style.display = 'none';
+      document.getElementById('successScreen').style.display = 'block';
+      return;
+    }
+  }
   const btn = document.getElementById('submitBtn');
   // Immediate visual feedback that submit was actually handled
   if (btn) {
@@ -4064,6 +4080,7 @@ document.getElementById('mainForm').addEventListener('submit', async function(e)
     console.error('Supabase error:', error);
     btn.textContent = t('btn.errorRetry');
     btn.disabled = false;
+    if (error.code === 'P0001' && error.message) { alert(error.message); return; }
     alert(t('alert.submitFailed') + '\n\n' + t('alert.error') + ': ' + (error.message || error.hint || t('alert.unknown')) + '\n\n' + t('alert.code') + ': ' + (error.code || '-'));
     return;
   }
